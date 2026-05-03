@@ -1,0 +1,65 @@
+{
+  "name": "@torchjsorg/torch.js",
+  "version": "0.0.1",
+  "description": "(preview) WebGPU-powered tensor library with PyTorch-compatible API",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "browser": {
+        "import": "./dist/index.js",
+        "types": "./dist/index.d.ts"
+      },
+      "default": {
+        "import": "./dist/index.js",
+        "types": "./dist/index.d.ts"
+      }
+    },
+    "./core": {
+      "import": "./dist/core.js",
+      "types": "./dist/core.d.ts"
+    },
+    "./serialization": {
+      "import": "./dist/serialization/common.js",
+      "types": "./dist/serialization/common.d.ts"
+    }
+  },
+  "keywords": [
+    "tensor",
+    "pytorch",
+    "webgpu",
+    "machine-learning",
+    "deep-learning",
+    "autograd"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "typegpu": "^0.8.2"
+  },
+  "devDependencies": {
+    "@vitest/browser": "^4.0.16",
+    "@vitest/browser-playwright": "^4.0.16",
+    "@vitest/coverage-istanbul": "^4.0.16",
+    "@webgpu/types": "^0.1.68",
+    "playwright": "^1.57.0",
+    "source-map-explorer": "^2.5.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.16"
+  },
+  "scripts": {
+    "build": "tsup",
+    "build:release": "NODE_ENV=production tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run -c vitest.browser.config.ts",
+    "test:run": "echo 'Browser tests temporarily disabled due to config issues'",
+    "test:node": "vitest run",
+    "benchmark": "pnpm --filter @torchjsorg/torch.node.js benchmark",
+    "analyze": "source-map-explorer dist/index.js",
+    "size": "echo 'Total Minified size:' && du -sh dist/*.js | awk '{sum+=$1} END {print sum \"K\"}' && echo 'Total Gzipped size:' && (cat dist/*.js | gzip -c | wc -c | awk '{print $1/1024 \" kB\"}')",
+    "typecheck": "tsc --noEmit"
+  }
+}
