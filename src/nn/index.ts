@@ -14,7 +14,7 @@ export { Sequential } from './sequential';
 export { Flatten } from './flatten';
 export { Embedding } from './embedding';
 export { LayerNorm } from './layernorm';
-export { Conv1d, Conv2d } from './conv';
+export { Conv1d, Conv2d, ConvTranspose2d } from './conv';
 export { MaxPool2d, AvgPool2d } from './pooling';
 export { BatchNorm1d, BatchNorm2d } from './batchnorm';
 export { RNN, LSTM, GRU } from './rnn';

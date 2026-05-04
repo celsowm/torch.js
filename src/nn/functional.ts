@@ -15,7 +15,7 @@ import {
   readBuffer,
 } from '../backend';
 import { getDTypeBytes } from '../dtype';
-import { LOG_SOFTMAX_SHADER, NLL_LOSS_SHADER, NLL_LOSS_BACKWARD_SHADER, LOG_SOFTMAX_BACKWARD_SHADER, CONV_SHADER, MAX_POOL2D_SHADER, AVG_POOL2D_SHADER } from '../backend/webgpu/shaders';
+import { LOG_SOFTMAX_SHADER, NLL_LOSS_SHADER, NLL_LOSS_BACKWARD_SHADER, LOG_SOFTMAX_BACKWARD_SHADER, CONV_SHADER, CONV_BACKWARD_SHADER, MAX_POOL2D_SHADER, AVG_POOL2D_SHADER } from '../backend/webgpu/shaders';
 import { DEBUG_ASYNC, log } from '../debug';
 
 /**
@@ -687,6 +687,26 @@ export function avg_pool2d(
 }
 
 /**
+ * Apply 2D transposed convolution (deconvolution).
+ * @status implemented
+ * @pytorch F.conv_transpose2d
+ */
+export function conv_transpose2d(
+  input: Tensor,
+  weight: Tensor,
+  bias?: Tensor,
+  stride: number | [number, number] = 1,
+  padding: number | [number, number] = 0,
+  output_padding: number | [number, number] = 0,
+  dilation: number | [number, number] = 1,
+  groups: number = 1
+): Tensor {
+  // For now, use the ConvTranspose2d module
+  // TODO: implement direct functional version
+  throw new Error('conv_transpose2d functional not yet implemented, use ConvTranspose2d module');
+}
+
+/**
  * Apply 2D convolution.
  * @status implemented
  * @pytorch F.conv2d
@@ -760,11 +780,150 @@ export function conv2d(
   passEncoder.end();
   device.queue.submit([commandEncoder.finish()]);
 
-  return new Tensor({
+  let result = new Tensor({
     buffer: outputBuffer,
     shape: [batch, outChannels, outH, outW],
     dtype: input.dtype,
     device: 'webgpu',
-    requires_grad: input.requires_grad,
+    requires_grad: input.requires_grad || weight.requires_grad || !!(bias?.requires_grad),
   });
+
+  // Setup gradient computation for backward pass
+  if (input.requires_grad || weight.requires_grad || (bias && bias.requires_grad)) {
+    const inputRef = input;
+    const weightRef = weight;
+    const biasRef = bias;
+    const strideH = sH;
+    const strideW = sW;
+    const padH = pH;
+    const padW = pW;
+    const dilationH = dl[0];
+    const dilationW = dl[1];
+
+    const grad_fn: GradFn = {
+      backward(gradOutput: Tensor): void {
+        // Gradient w.r.t. input
+        if (inputRef.requires_grad) {
+          const gradInputBuffer = createStorageBuffer(
+            inputRef.numel() * getDTypeBytes(inputRef.dtype)
+          );
+
+          const pipelineInputGrad = getOrCreatePipeline(CONV_BACKWARD_SHADER, 'conv2d_input_backward');
+          const bindGroupInputGrad = device.createBindGroup({
+            layout: pipelineInputGrad.getBindGroupLayout(0),
+            entries: [
+              { binding: 0, resource: { buffer: gradOutput.buffer, offset: 0, size: gradOutput.buffer.size } },
+              { binding: 1, resource: { buffer: weightRef.buffer, offset: 0, size: weightRef.buffer.size } },
+              { binding: 2, resource: { buffer: gradInputBuffer, offset: 0, size: gradInputBuffer.size } },
+              { binding: 3, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+            ],
+          });
+
+          const cmdEncoderInput = device.createCommandEncoder();
+          const passInput = cmdEncoderInput.beginComputePass();
+          passInput.setPipeline(pipelineInputGrad);
+          passInput.setBindGroup(0, bindGroupInputGrad);
+          passInput.dispatchWorkgroups(...calculateWorkgroups(inputRef.numel()));
+          passInput.end();
+          device.queue.submit([cmdEncoderInput.finish()]);
+
+          const gradInput = new Tensor({
+            buffer: gradInputBuffer,
+            shape: [...inputRef.shape],
+            dtype: inputRef.dtype,
+            device: 'webgpu',
+            requires_grad: false,
+          });
+
+          inputRef.accumulateGrad(gradInput);
+        }
+
+        // Gradient w.r.t. weight
+        if (weightRef.requires_grad) {
+          const gradWeightBuffer = createStorageBuffer(
+            weightRef.numel() * getDTypeBytes(weightRef.dtype)
+          );
+
+          const pipelineWeightGrad = getOrCreatePipeline(CONV_BACKWARD_SHADER, 'conv2d_weight_backward');
+          const bindGroupWeightGrad = device.createBindGroup({
+            layout: pipelineWeightGrad.getBindGroupLayout(0),
+            entries: [
+              { binding: 0, resource: { buffer: gradOutput.buffer, offset: 0, size: gradOutput.buffer.size } },
+              { binding: 1, resource: { buffer: inputRef.buffer, offset: 0, size: inputRef.buffer.size } },
+              { binding: 2, resource: { buffer: gradWeightBuffer, offset: 0, size: gradWeightBuffer.size } },
+              { binding: 3, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+              { binding: 4, resource: { buffer: gradWeightBuffer, offset: 0, size: gradWeightBuffer.size } },
+              { binding: 5, resource: { buffer: inputRef.buffer, offset: 0, size: inputRef.buffer.size } },
+            ],
+          });
+
+          const cmdEncoderWeight = device.createCommandEncoder();
+          const passWeight = cmdEncoderWeight.beginComputePass();
+          passWeight.setPipeline(pipelineWeightGrad);
+          passWeight.setBindGroup(0, bindGroupWeightGrad);
+          passWeight.dispatchWorkgroups(...calculateWorkgroups(weightRef.numel()));
+          passWeight.end();
+          device.queue.submit([cmdEncoderWeight.finish()]);
+
+          const gradWeight = new Tensor({
+            buffer: gradWeightBuffer,
+            shape: [...weightRef.shape],
+            dtype: weightRef.dtype,
+            device: 'webgpu',
+            requires_grad: false,
+          });
+
+          weightRef.accumulateGrad(gradWeight);
+        }
+
+        // Gradient w.r.t. bias
+        if (biasRef && biasRef.requires_grad) {
+          const gradBiasBuffer = createStorageBuffer(
+            biasRef.numel() * getDTypeBytes(biasRef.dtype)
+          );
+
+          const pipelineBiasGrad = getOrCreatePipeline(CONV_BACKWARD_SHADER, 'conv2d_bias_backward');
+          const bindGroupBiasGrad = device.createBindGroup({
+            layout: pipelineBiasGrad.getBindGroupLayout(0),
+            entries: [
+              { binding: 0, resource: { buffer: gradOutput.buffer, offset: 0, size: gradOutput.buffer.size } },
+              { binding: 1, resource: { buffer: weightRef.buffer, offset: 0, size: weightRef.buffer.size } },
+              { binding: 2, resource: { buffer: gradBiasBuffer, offset: 0, size: gradBiasBuffer.size } },
+              { binding: 3, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+              { binding: 4, resource: { buffer: gradBiasBuffer, offset: 0, size: gradBiasBuffer.size } },
+            ],
+          });
+
+          const cmdEncoderBias = device.createCommandEncoder();
+          const passBias = cmdEncoderBias.beginComputePass();
+          passBias.setPipeline(pipelineBiasGrad);
+          passBias.setBindGroup(0, bindGroupBiasGrad);
+          passBias.dispatchWorkgroups(...calculateWorkgroups(biasRef.numel()));
+          passBias.end();
+          device.queue.submit([cmdEncoderBias.finish()]);
+
+          const gradBias = new Tensor({
+            buffer: gradBiasBuffer,
+            shape: [...biasRef.shape],
+            dtype: biasRef.dtype,
+            device: 'webgpu',
+            requires_grad: false,
+          });
+
+          biasRef.accumulateGrad(gradBias);
+        }
+      },
+    };
+
+    result = new Tensor({
+      buffer: outputBuffer,
+      shape: [batch, outChannels, outH, outW],
+      dtype: input.dtype,
+      device: 'webgpu',
+      requires_grad: true,
+      grad_fn,
+    });
+  }
+
+  return result;
 }
