@@ -86,8 +86,8 @@ export class SGD extends Optimizer {
         // Update parameter: param = param - lr * grad
         // We need to update the buffer in-place
         // For now, we'll read the values, compute, and write back
-        const paramData = await param.toArray();
-        const gradData = await grad.toArray();
+        const paramData = Array.from(await param.toArray());
+        const gradData = Array.from(await grad.toArray());
 
         const newParamData = paramData.map((p: number, i: number) => p - lr * gradData[i]);
 

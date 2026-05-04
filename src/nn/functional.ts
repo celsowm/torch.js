@@ -15,7 +15,7 @@ import {
   readBuffer,
 } from '../backend';
 import { getDTypeBytes } from '../dtype';
-import { LOG_SOFTMAX_SHADER, NLL_LOSS_SHADER, NLL_LOSS_BACKWARD_SHADER, LOG_SOFTMAX_BACKWARD_SHADER } from '../backend/webgpu/shaders';
+import { LOG_SOFTMAX_SHADER, NLL_LOSS_SHADER, NLL_LOSS_BACKWARD_SHADER, LOG_SOFTMAX_BACKWARD_SHADER, CONV_SHADER, MAX_POOL2D_SHADER, AVG_POOL2D_SHADER } from '../backend/webgpu/shaders';
 import { DEBUG_ASYNC, log } from '../debug';
 
 /**
@@ -411,26 +411,284 @@ export function dropout(input: Tensor, p: number = 0.5, training: boolean = true
 }
 
 /**
+ * Mean squared error loss.
+ * @pytorch F.mse_loss
+ */
+export function mse_loss(
+  input: Tensor,
+  target: Tensor,
+  reduction: 'mean' | 'sum' | 'none' = 'mean'
+): Tensor {
+  const diff = input.sub(target);
+  const squared = diff.pow(2);
+  if (reduction === 'mean') {
+    return squared.mean();
+  } else if (reduction === 'sum') {
+    return squared.sum();
+  }
+  return squared;
+}
+
+/**
+ * Binary cross entropy loss.
+ * @pytorch F.binary_cross_entropy
+ */
+export function binary_cross_entropy(
+  input: Tensor,
+  target: Tensor,
+  weight?: Tensor,
+  reduction: 'mean' | 'sum' | 'none' = 'mean'
+): Tensor {
+  // BCE = -(target * log(input) + (1 - target) * log(1 - input))
+  const negInput = input.mul(-1).add(1).log();
+  const posInput = input.log();
+  let loss = target.mul(posInput).add(target.mul(-1).add(1).mul(negInput)).neg();
+  if (weight) {
+    loss = loss.mul(weight);
+  }
+  if (reduction === 'mean') {
+    return loss.mean();
+  } else if (reduction === 'sum') {
+    return loss.sum();
+  }
+  return loss;
+}
+
+/**
+ * Binary cross entropy loss with logits (combines sigmoid + BCE).
+ * More numerically stable than separate sigmoid + BCE.
+ * @pytorch F.binary_cross_entropy_with_logits
+ */
+export function binary_cross_entropy_with_logits(
+  input: Tensor,
+  target: Tensor,
+  weight?: Tensor,
+  reduction: 'mean' | 'sum' | 'none' = 'mean',
+  pos_weight?: Tensor
+): Tensor {
+  // Uses the log-sum-exp trick for numerical stability:
+  // max(x, 0) - x * target + log(1 + exp(-|x|))
+  const negAbs = input.abs().neg();
+  const maxXZeros = input.clamp(0);
+  let loss = maxXZeros.sub(input.mul(target)).add(negAbs.exp().add(1).log());
+  if (pos_weight) {
+    loss = loss.mul(pos_weight);
+  }
+  if (weight) {
+    loss = loss.mul(weight);
+  }
+  if (reduction === 'mean') {
+    return loss.mean();
+  } else if (reduction === 'sum') {
+    return loss.sum();
+  }
+  return loss;
+}
+
+/**
+ * Smooth L1 loss (Huber loss).
+ * @pytorch F.smooth_l1_loss
+ */
+export function smooth_l1_loss(
+  input: Tensor,
+  target: Tensor,
+  reduction: 'mean' | 'sum' | 'none' = 'mean',
+  beta: number = 1.0
+): Tensor {
+  const diff = input.sub(target).abs();
+  const cond = diff.lt(beta);
+  // element-wise: if |x| < beta: 0.5 * x^2 / beta, else: |x| - 0.5 * beta
+  const lossSmooth = diff.pow(2).mul(0.5 / beta);
+  const lossL1 = diff.sub(beta * 0.5);
+  let loss = cond.where(lossSmooth, lossL1);
+  if (reduction === 'mean') {
+    return loss.mean();
+  } else if (reduction === 'sum') {
+    return loss.sum();
+  }
+  return loss;
+}
+
+/**
+ * L1 loss (mean absolute error).
+ * @pytorch F.l1_loss
+ */
+export function l1_loss(
+  input: Tensor,
+  target: Tensor,
+  reduction: 'mean' | 'sum' | 'none' = 'mean'
+): Tensor {
+  const diff = input.sub(target).abs();
+  if (reduction === 'mean') {
+    return diff.mean();
+  } else if (reduction === 'sum') {
+    return diff.sum();
+  }
+  return diff;
+}
+
+/**
  * Apply 2D max pooling.
- * @status partial
+ * @status implemented
  * @pytorch F.max_pool2d
  */
 export function max_pool2d(
   input: Tensor,
   kernel_size: number | [number, number],
   stride?: number | [number, number],
-  padding: number | [number, number] = 0
+  padding: number | [number, number] = 0,
+  dilation: number | [number, number] = 1
 ): Tensor {
-  void input;
-  void kernel_size;
-  void stride;
-  void padding;
-  throw new Error('max_pool2d not yet implemented');
+  const ks = typeof kernel_size === 'number' ? [kernel_size, kernel_size] : kernel_size;
+  const st = stride ? (typeof stride === 'number' ? [stride, stride] : stride) : ks;
+  const pd = typeof padding === 'number' ? [padding, padding] : padding;
+  const dl = typeof dilation === 'number' ? [dilation, dilation] : dilation;
+
+  if (input.shape.length !== 4) {
+    throw new Error(`max_pool2d: expected 4D input (N, C, H, W), got ${input.shape.length}D`);
+  }
+
+  const [batch, channels, inH, inW] = input.shape as number[];
+  const [kH, kW] = ks;
+  const [sH, sW] = st;
+  const [pH, pW] = pd;
+  const [dH, dW] = dl;
+
+  const outH = Math.floor((inH + 2 * pH - dH * (kH - 1) - 1) / sH) + 1;
+  const outW = Math.floor((inW + 2 * pW - dW * (kW - 1) - 1) / sW) + 1;
+
+  const total = batch * channels * outH * outW;
+  const device = getDevice();
+  const outputBuffer = createStorageBuffer(total * getDTypeBytes(input.dtype));
+
+  const paramsData = new ArrayBuffer(64);
+  const view = new DataView(paramsData);
+  view.setUint32(0, batch, true);
+  view.setUint32(4, channels, true);
+  view.setUint32(8, inH, true);
+  view.setUint32(12, inW, true);
+  view.setUint32(16, outH, true);
+  view.setUint32(20, outW, true);
+  view.setUint32(24, kH, true);
+  view.setUint32(28, kW, true);
+  view.setUint32(32, sH, true);
+  view.setUint32(36, sW, true);
+  view.setUint32(40, pH, true);
+  view.setUint32(44, pW, true);
+  view.setUint32(48, dH, true);
+  view.setUint32(52, dW, true);
+
+  const paramsBuffer = device.createBuffer({ size: 64, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+  device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+
+  const pipeline = getOrCreatePipeline(MAX_POOL2D_SHADER, 'main');
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: input.buffer, offset: 0, size: input.buffer.size } },
+      { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+      { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+    ],
+  });
+
+  const commandEncoder = device.createCommandEncoder();
+  const passEncoder = commandEncoder.beginComputePass();
+  passEncoder.setPipeline(pipeline);
+  passEncoder.setBindGroup(0, bindGroup);
+  passEncoder.dispatchWorkgroups(...calculateWorkgroups(total));
+  passEncoder.end();
+  device.queue.submit([commandEncoder.finish()]);
+
+  return new Tensor({
+    buffer: outputBuffer,
+    shape: [batch, channels, outH, outW],
+    dtype: input.dtype,
+    device: 'webgpu',
+    requires_grad: input.requires_grad,
+  });
+}
+
+/**
+ * Apply 2D average pooling.
+ * @status implemented
+ * @pytorch F.avg_pool2d
+ */
+export function avg_pool2d(
+  input: Tensor,
+  kernel_size: number | [number, number],
+  stride?: number | [number, number],
+  padding: number | [number, number] = 0,
+  count_include_pad: boolean = true
+): Tensor {
+  const ks = typeof kernel_size === 'number' ? [kernel_size, kernel_size] : kernel_size;
+  const st = stride ? (typeof stride === 'number' ? [stride, stride] : stride) : ks;
+  const pd = typeof padding === 'number' ? [padding, padding] : padding;
+
+  if (input.shape.length !== 4) {
+    throw new Error(`avg_pool2d: expected 4D input (N, C, H, W), got ${input.shape.length}D`);
+  }
+
+  const [batch, channels, inH, inW] = input.shape as number[];
+  const [kH, kW] = ks;
+  const [sH, sW] = st;
+  const [pH, pW] = pd;
+
+  const outH = Math.floor((inH + 2 * pH - kH) / sH) + 1;
+  const outW = Math.floor((inW + 2 * pW - kW) / sW) + 1;
+
+  const total = batch * channels * outH * outW;
+  const device = getDevice();
+  const outputBuffer = createStorageBuffer(total * getDTypeBytes(input.dtype));
+
+  const paramsData = new ArrayBuffer(64);
+  const view = new DataView(paramsData);
+  view.setUint32(0, batch, true);
+  view.setUint32(4, channels, true);
+  view.setUint32(8, inH, true);
+  view.setUint32(12, inW, true);
+  view.setUint32(16, outH, true);
+  view.setUint32(20, outW, true);
+  view.setUint32(24, kH, true);
+  view.setUint32(28, kW, true);
+  view.setUint32(32, sH, true);
+  view.setUint32(36, sW, true);
+  view.setUint32(40, pH, true);
+  view.setUint32(44, pW, true);
+  view.setUint32(48, count_include_pad ? 1 : 0, true);
+
+  const paramsBuffer = device.createBuffer({ size: 64, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+  device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+
+  const pipeline = getOrCreatePipeline(AVG_POOL2D_SHADER, 'main');
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: input.buffer, offset: 0, size: input.buffer.size } },
+      { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+      { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+    ],
+  });
+
+  const commandEncoder = device.createCommandEncoder();
+  const passEncoder = commandEncoder.beginComputePass();
+  passEncoder.setPipeline(pipeline);
+  passEncoder.setBindGroup(0, bindGroup);
+  passEncoder.dispatchWorkgroups(...calculateWorkgroups(total));
+  passEncoder.end();
+  device.queue.submit([commandEncoder.finish()]);
+
+  return new Tensor({
+    buffer: outputBuffer,
+    shape: [batch, channels, outH, outW],
+    dtype: input.dtype,
+    device: 'webgpu',
+    requires_grad: input.requires_grad,
+  });
 }
 
 /**
  * Apply 2D convolution.
- * @status partial
+ * @status implemented
  * @pytorch F.conv2d
  */
 export function conv2d(
@@ -438,12 +696,75 @@ export function conv2d(
   weight: Tensor,
   bias?: Tensor,
   stride: number | [number, number] = 1,
-  padding: number | [number, number] = 0
+  padding: number | [number, number] = 0,
+  dilation: number | [number, number] = 1,
+  groups: number = 1
 ): Tensor {
-  void input;
-  void weight;
-  void bias;
-  void stride;
-  void padding;
-  throw new Error('conv2d not yet implemented');
+  const st = typeof stride === 'number' ? [stride, stride] : stride;
+  const pd = typeof padding === 'number' ? [padding, padding] : padding;
+  const dl = typeof dilation === 'number' ? [dilation, dilation] : dilation;
+
+  if (input.shape.length !== 4) {
+    throw new Error(`conv2d: expected 4D input (N, C, H, W), got ${input.shape.length}D`);
+  }
+
+  const [batch, inChannels, inH, inW] = input.shape as number[];
+  const [outChannels, _, kH, kW] = weight.shape as number[];
+  const [sH, sW] = st;
+  const [pH, pW] = pd;
+
+  const outH = Math.floor((inH + 2 * pH - kH) / sH) + 1;
+  const outW = Math.floor((inW + 2 * pW - kW) / sW) + 1;
+
+  const total = batch * outChannels * outH * outW;
+  const device = getDevice();
+  const outputBuffer = createStorageBuffer(total * getDTypeBytes(input.dtype));
+
+  const paramsData = new ArrayBuffer(64);
+  const view = new DataView(paramsData);
+  view.setUint32(0, batch, true);
+  view.setUint32(4, inChannels, true);
+  view.setUint32(8, outChannels, true);
+  view.setUint32(12, inH, true);
+  view.setUint32(16, inW, true);
+  view.setUint32(20, outH, true);
+  view.setUint32(24, outW, true);
+  view.setUint32(28, kH, true);
+  view.setUint32(32, kW, true);
+  view.setUint32(36, sH, true);
+  view.setUint32(40, sW, true);
+  view.setUint32(44, pH, true);
+  view.setUint32(48, pW, true);
+  view.setUint32(52, groups, true);
+
+  const paramsBuffer = device.createBuffer({ size: 64, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+  device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+
+  const pipeline = getOrCreatePipeline(CONV_SHADER, 'conv2d');
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: input.buffer, offset: 0, size: input.buffer.size } },
+      { binding: 1, resource: { buffer: weight.buffer, offset: 0, size: weight.buffer.size } },
+      { binding: 2, resource: { buffer: (bias ? bias.buffer : device.createBuffer({ size: 4, usage: BufferUsage.STORAGE })), offset: 0, size: (bias ? bias.buffer.size : 4) } },
+      { binding: 3, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+      { binding: 4, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+    ],
+  });
+
+  const commandEncoder = device.createCommandEncoder();
+  const passEncoder = commandEncoder.beginComputePass();
+  passEncoder.setPipeline(pipeline);
+  passEncoder.setBindGroup(0, bindGroup);
+  passEncoder.dispatchWorkgroups(...calculateWorkgroups(total));
+  passEncoder.end();
+  device.queue.submit([commandEncoder.finish()]);
+
+  return new Tensor({
+    buffer: outputBuffer,
+    shape: [batch, outChannels, outH, outW],
+    dtype: input.dtype,
+    device: 'webgpu',
+    requires_grad: input.requires_grad,
+  });
 }

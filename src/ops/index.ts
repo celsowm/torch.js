@@ -10,25 +10,35 @@ export {
   zeros,
   ones,
   full,
+  empty,
   zeros_like,
   ones_like,
   full_like,
   empty_like,
   rand,
   randn,
+  randint,
+  randperm,
+  normal,
   eye,
   arange,
   linspace,
   logspace,
+  scalar_tensor,
+  as_tensor,
+  from_numpy,
   manual_seed,
   tril,
   cat,
   stack,
+  split,
   vstack,
   row_stack,
   hstack,
   dstack,
   column_stack,
+  histc,
+  bincount,
 } from './creation';
 
 export const atleast_1d = (input: Tensor) => {
@@ -163,6 +173,17 @@ export const square = (input: Tensor) => input.square();
 
 export const sigmoid = (input: Tensor) => input.sigmoid();
 export const relu = (input: Tensor) => input.relu();
+export const sign = (input: Tensor) => input.sign();
+export const sgn = (input: Tensor) => input.sgn();
+export const erf = (input: Tensor) => input.erf();
+export const erfc = (input: Tensor) => input.erfc();
+export const expm1 = (input: Tensor) => input.expm1();
+export const deg2rad = (input: Tensor) => input.deg2rad();
+export const rad2deg = (input: Tensor) => input.rad2deg();
+export const logical_not = (input: Tensor) => input.logical_not();
+export const i0 = (input: Tensor) => input.i0();
+export const lgamma = (input: Tensor) => input.lgamma();
+export const digamma = (input: Tensor) => input.digamma();
 
 export const add = (input: Tensor, other: Tensor | number) => input.add(other);
 export const sub = (input: Tensor, other: Tensor | number) => input.sub(other);

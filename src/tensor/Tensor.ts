@@ -58,8 +58,9 @@ import {
 } from '../backend';
 import { numel, formatShape, inferShape, validateShape } from '../utils/shape';
 import { needsBroadcast, broadcastShapes } from '../utils/broadcast';
-import { ones, ones_like } from '../ops/creation';
+import { ones, ones_like, stack } from '../ops/creation';
 import { record_function } from '../profiler';
+import { is_grad_enabled } from '../grad_mode';
 import type { GradFn, TensorData, SliceSpec } from './types';
 
 /**
@@ -164,6 +165,15 @@ export class Tensor {
       this._grad = null;
     }
     this._grad_fn = null;
+  }
+
+  async toArray(): Promise<Float32Array | Int32Array | Uint32Array | Int8Array | Uint8Array> {
+    return readBuffer(this._buffer, this._dtype, this.numel());
+  }
+
+  async item(): Promise<number> {
+    const arr = await this.toArray();
+    return arr[0];
   }
 
   tile(reps: readonly number[]): Tensor {
@@ -348,6 +358,17 @@ export class Tensor {
   sigmoid(): Tensor { return record_function('torch.sigmoid', () => this._unaryOp('sigmoid')); }
   relu(): Tensor { return record_function('torch.relu', () => this._unaryOp('relu')); }
   gelu(): Tensor { return record_function('torch.gelu', () => this._unaryOp('gelu')); }
+  sign(): Tensor { return record_function('torch.sign', () => this._unaryOp('sign_op')); }
+  sgn(): Tensor { return record_function('torch.sgn', () => this._unaryOp('sgn_op')); }
+  erf(): Tensor { return record_function('torch.erf', () => this._unaryOp('erf_op')); }
+  erfc(): Tensor { return record_function('torch.erfc', () => this._unaryOp('erfc_op')); }
+  expm1(): Tensor { return record_function('torch.expm1', () => this._unaryOp('expm1_op')); }
+  deg2rad(): Tensor { return record_function('torch.deg2rad', () => this._unaryOp('deg2rad_op')); }
+  rad2deg(): Tensor { return record_function('torch.rad2deg', () => this._unaryOp('rad2deg_op')); }
+  logical_not(): Tensor { return record_function('torch.logical_not', () => this._unaryOp('logical_not_op')); }
+  i0(): Tensor { return record_function('torch.i0', () => this._unaryOp('i0_op')); }
+  lgamma(): Tensor { return record_function('torch.lgamma', () => this._unaryOp('lgamma_op')); }
+  digamma(): Tensor { return record_function('torch.digamma', () => this._unaryOp('digamma_op')); }
 
   softplus(): Tensor { return record_function('torch.softplus', () => this._unaryOp('softplus_op')); }
   silu(): Tensor { return record_function('torch.silu', () => this._unaryOp('silu_op')); }
@@ -1534,6 +1555,234 @@ export class Tensor {
     return new Tensor({ buffer: outputBuffer, shape: newShape, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
   }
 
+  mm(other: Tensor): Tensor {
+    return this.matmul(other);
+  }
+
+  matmul(other: Tensor): Tensor {
+    if (this._shape.length !== 2 || other._shape.length !== 2) throw new Error('matmul() only supports 2D tensors');
+    const [M, K1] = this._shape;
+    const [K2, N] = other._shape;
+    if (K1 !== K2) throw new Error(`matmul() shape mismatch: ${this._shape} x ${other._shape}`);
+    const device = getDevice();
+    const outputBuffer = createStorageBuffer(M * N * getDTypeBytes(this._dtype));
+    const dimsData = new Uint32Array([M, K1, N, 1]);
+    const dimsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+    device.queue.writeBuffer(dimsBuffer, 0, dimsData);
+    const pipeline = getOrCreatePipeline(MATMUL_SHADER, 'matmul');
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
+        { binding: 1, resource: { buffer: other._buffer, offset: 0, size: other._buffer.size } },
+        { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+        { binding: 3, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
+      ],
+    });
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginComputePass();
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.dispatchWorkgroups(...calculateWorkgroups(M * N));
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+
+    const self = this;
+    let grad_fn: GradFn | undefined;
+    if (this._requires_grad && is_grad_enabled()) {
+      grad_fn = {
+        backward(gradOutput: Tensor): void {
+          self.accumulateGrad(gradOutput.matmul(other.t()));
+        },
+      };
+    }
+
+    return new Tensor({ buffer: outputBuffer, shape: [M, N], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
+  }
+
+  addmm(mat1: Tensor, mat2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
+    const prod = mat1.matmul(mat2);
+    if (beta === 1) return this.add(prod.mul(alpha));
+    return this.mul(beta).add(prod.mul(alpha));
+  }
+
+  mv(vec: Tensor): Tensor {
+    if (this._shape.length !== 2) throw new Error('mv() expects 2D matrix');
+    if (vec._shape.length !== 1) throw new Error('mv() expects 1D vector');
+    return this.matmul(vec.unsqueeze(1)).squeeze(1);
+  }
+
+  addmv(mat: Tensor, vec: Tensor, beta: number = 1, alpha: number = 1): Tensor {
+    const prod = mat.mv(vec);
+    if (beta === 1) return this.add(prod.mul(alpha));
+    return this.mul(beta).add(prod.mul(alpha));
+  }
+
+  outer(vec2: Tensor): Tensor {
+    if (this._shape.length !== 1 || vec2._shape.length !== 1) throw new Error('outer() expects 1D vectors');
+    return this.unsqueeze(1).matmul(vec2.unsqueeze(0));
+  }
+
+  addr(vec1: Tensor, vec2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
+    const prod = vec1.outer(vec2);
+    if (beta === 1) return this.add(prod.mul(alpha));
+    return this.mul(beta).add(prod.mul(alpha));
+  }
+
+  bmm(mat2: Tensor): Tensor {
+    if (this._shape.length !== 3 || mat2._shape.length !== 3) throw new Error('bmm() expects 3D tensors');
+    const [B, M, K1] = this._shape;
+    const [B2, K2, N] = mat2._shape;
+    if (B !== B2) throw new Error(`bmm() batch size mismatch: ${B} vs ${B2}`);
+    if (K1 !== K2) throw new Error(`bmm() shape mismatch: ${this._shape} x ${mat2._shape}`);
+    const results: Tensor[] = [];
+    for (let i = 0; i < B; i++) {
+      results.push(this.select(0, i).matmul(mat2.select(0, i)));
+    }
+    return stack(results);
+  }
+
+  baddbmm(batch1: Tensor, batch2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
+    const prod = batch1.bmm(batch2);
+    if (beta === 1) return this.add(prod.mul(alpha));
+    return this.mul(beta).add(prod.mul(alpha));
+  }
+
+  addbmm(batch1: Tensor, batch2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
+    const prod = batch1.bmm(batch2);
+    if (beta === 1) return this.add(prod.mul(alpha));
+    return this.mul(beta).add(prod.mul(alpha));
+  }
+
+  dot(other: Tensor): Tensor {
+    if (this._shape.length !== 1 || other._shape.length !== 1) throw new Error('dot() expects 1D tensors');
+    return this.mul(other).sum();
+  }
+
+  vdot(other: Tensor): Tensor {
+    return this.dot(other);
+  }
+
+  // ============ Reduction Operations ============
+
+  private _reduceDim(op: string, dim: number | number[], keepdim: boolean): Tensor {
+    if (Array.isArray(dim)) {
+      let result: Tensor = this;
+      const sorted = [...dim].sort((a, b) => b - a);
+      for (const d of sorted) {
+        result = result._reduceDim(op, d, keepdim);
+      }
+      return result;
+    }
+    if (dim < 0) dim += this._shape.length;
+    const dimSize = this._shape[dim];
+    const outerSize = numel(this._shape.slice(0, dim));
+    const innerSize = numel(this._shape.slice(dim + 1));
+    const outShape = this._shape.filter((_, i) => i !== dim);
+    if (outShape.length === 0 || keepdim) {
+      const outShape2 = [...this._shape];
+      outShape2[dim] = 1;
+      if (!keepdim) {
+        const device = getDevice();
+        const outputBuffer = createStorageBuffer(outerSize * getDTypeBytes(this._dtype));
+        const paramsData = new Uint32Array([dimSize, outerSize, innerSize, 0]);
+        const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+        device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+        const pipeline = getOrCreatePipeline(REDUCE_DIM_SHADER, op);
+        const bindGroup = device.createBindGroup({
+          layout: pipeline.getBindGroupLayout(0),
+          entries: [
+            { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
+            { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+            { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+          ],
+        });
+        const commandEncoder = device.createCommandEncoder();
+        const passEncoder = commandEncoder.beginComputePass();
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setBindGroup(0, bindGroup);
+        passEncoder.dispatchWorkgroups(...calculateWorkgroups(outerSize));
+        passEncoder.end();
+        device.queue.submit([commandEncoder.finish()]);
+        return new Tensor({ buffer: outputBuffer, shape: outShape2.filter(s => s !== 1), dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+      }
+      return new Tensor({ buffer: this._buffer, shape: outShape2, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+    }
+    const reshaped = this.reshape([outerSize, dimSize, innerSize]);
+    const reduced = reshaped._reduce(op);
+    return reduced.reshape(keepdim ? [...this._shape].map((s, i) => i === dim ? 1 : s) : outShape);
+  }
+
+  sum(dim?: number | number[], keepdim: boolean = false): Tensor {
+    if (dim === undefined) return this._reduce('sum');
+    return this._reduceDim('sum', dim, keepdim);
+  }
+
+  mean(dim?: number | number[], keepdim: boolean = false): Tensor {
+    const s = this.sum(dim, keepdim);
+    const n = dim === undefined ? this.numel() : (Array.isArray(dim) ? dim.reduce((p, d) => p * this._shape[d < 0 ? d + this._shape.length : d], 1) : this._shape[dim < 0 ? dim + this._shape.length : dim]);
+    return s.div(n);
+  }
+
+  amax(dim?: number | number[], keepdim: boolean = false): Tensor {
+    if (dim === undefined) return this._reduce('max_reduce');
+    return this._reduceDim('max_reduce', dim, keepdim);
+  }
+
+  amin(dim?: number | number[], keepdim: boolean = false): Tensor {
+    if (dim === undefined) return this._reduce('min_reduce');
+    return this._reduceDim('min_reduce', dim, keepdim);
+  }
+
+  prod(dim?: number | number[], keepdim: boolean = false): Tensor {
+    if (dim === undefined) return this._reduce('prod');
+    return this._reduceDim('prod', dim, keepdim);
+  }
+
+  all(dim?: number | number[], keepdim: boolean = false): Tensor {
+    if (dim === undefined) return this._reduce('all');
+    return this._reduceDim('all', dim, keepdim);
+  }
+
+  any(dim?: number | number[], keepdim: boolean = false): Tensor {
+    if (dim === undefined) return this._reduce('any');
+    return this._reduceDim('any', dim, keepdim);
+  }
+
+  // ============ Argmax / Argmin ============
+
+  private _argReduce(op: string, dim?: number, keepdim?: boolean): Tensor {
+    const flat = this.flatten();
+    const device = getDevice();
+    const outputBuffer = createStorageBuffer(4);
+    const pipeline = getOrCreatePipeline(op === 'argmax' ? ARGMAX_SHADER : ARGMIN_SHADER, 'main');
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: flat._buffer, offset: 0, size: flat._buffer.size } },
+        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+      ],
+    });
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginComputePass();
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.dispatchWorkgroups(1, 1, 1);
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+    return new Tensor({ buffer: outputBuffer, shape: [], dtype: 'int32', device: 'webgpu', requires_grad: false });
+  }
+
+  argmax(dim?: number, keepdim?: boolean): Tensor {
+    if (dim !== undefined) throw new Error('argmax with dim not yet implemented');
+    return this._argReduce('argmax');
+  }
+
+  argmin(dim?: number, keepdim?: boolean): Tensor {
+    if (dim !== undefined) throw new Error('argmin with dim not yet implemented');
+    return this._argReduce('argmin');
+  }
+
   t(): Tensor {
     if (this._shape.length !== 2) throw new Error('t() only supports 2D tensors');
     const [M, N] = this._shape;
@@ -1561,589 +1810,10 @@ export class Tensor {
 
     const self = this;
     let grad_fn: GradFn | undefined;
-    if (this._requires_grad) {
+    if (this._requires_grad && is_grad_enabled()) {
       grad_fn = {
         backward(gradOutput: Tensor): void {
-          self.accumulateGrad(gradOutput.t());
-        },
-      };
-    }
-
-    return new Tensor({ buffer: outputBuffer, shape: [N, M], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
-  }
-
-  // ============ Matrix Multiplication ============
-
-  matmul(other: Tensor): Tensor {
-    return record_function('torch.matmul', () => this._matmul_impl(other));
-  }
-
-  mm(other: Tensor): Tensor {
-    return this.matmul(other);
-  }
-
-  private _matmul_impl(other: Tensor): Tensor {
-    const dimSelf = this._shape.length;
-    const dimOther = other._shape.length;
-
-    // Case 0: 1D @ 1D (Dot product)
-    if (dimSelf === 1 && dimOther === 1) {
-      if (this._shape[0] !== other._shape[0]) throw new Error('Shape mismatch for dot product');
-      return this.reshape([1, this._shape[0]]).matmul(other.reshape([other._shape[0], 1])).reshape([]);
-    }
-
-    // Case 1: Standard 2D @ 2D
-    if (dimSelf === 2 && dimOther === 2) {
-      const [M, K1] = this._shape;
-      const [K2, N] = other._shape;
-      if (K1 !== K2) throw new Error('matmul: incompatible shapes');
-      const device = getDevice();
-      const outputBuffer = createStorageBuffer(M * N * getDTypeBytes(this._dtype));
-      const dimsData = new Uint32Array([M, K1, N, 1]); // 1 batch
-      const dimsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
-      device.queue.writeBuffer(dimsBuffer, 0, dimsData);
-      const pipeline = getOrCreatePipeline(MATMUL_SHADER, 'matmul_2d');
-      const bindGroup = device.createBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        entries: [
-          { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-          { binding: 1, resource: { buffer: other._buffer, offset: 0, size: other._buffer.size } },
-          { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-          { binding: 3, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
-        ],
-      });
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginComputePass();
-      passEncoder.setPipeline(pipeline);
-      passEncoder.setBindGroup(0, bindGroup);
-      passEncoder.dispatchWorkgroups(...calculateWorkgroups(M * N));
-      passEncoder.end();
-      device.queue.submit([commandEncoder.finish()]);
-
-      const self = this;
-      const requires_grad = this._requires_grad || other._requires_grad;
-      let grad_fn: GradFn | undefined;
-      if (requires_grad) {
-        grad_fn = {
-          backward(gradOutput: Tensor): void {
-            if (self._requires_grad) {
-              self.accumulateGrad(gradOutput.matmul(other.t()));
-            }
-            if (other._requires_grad) {
-              other.accumulateGrad(self.t().matmul(gradOutput));
-            }
-          },
-        };
-      }
-
-      return new Tensor({ buffer: outputBuffer, shape: [M, N], dtype: this._dtype, device: 'webgpu', requires_grad, grad_fn });
-    }
-
-    // Case 2: 2D @ 1D (Matrix-vector)
-    if (dimSelf === 2 && dimOther === 1) {
-      const [M, K1] = this._shape;
-      const [K2] = other._shape;
-      if (K1 !== K2) throw new Error('matmul: incompatible shapes');
-      return this.matmul(other.unsqueeze(1)).squeeze(1);
-    }
-
-    // Case 3: 3D @ 3D (Batch Matmul)
-    if (dimSelf === 3 && dimOther === 3) {
-      const [B1, M, K1] = this._shape;
-      const [B2, K2, N] = other._shape;
-      if (B1 !== B2 || K1 !== K2) throw new Error('matmul: incompatible shapes');
-      const device = getDevice();
-      const outputBuffer = createStorageBuffer(B1 * M * N * getDTypeBytes(this._dtype));
-      const dimsData = new Uint32Array([M, K1, N, B1]);
-      const dimsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
-      device.queue.writeBuffer(dimsBuffer, 0, dimsData);
-      const pipeline = getOrCreatePipeline(MATMUL_SHADER, 'matmul_3d');
-      const bindGroup = device.createBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        entries: [
-          { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-          { binding: 1, resource: { buffer: other._buffer, offset: 0, size: other._buffer.size } },
-          { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-          { binding: 3, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
-        ],
-      });
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginComputePass();
-      passEncoder.setPipeline(pipeline);
-      passEncoder.setBindGroup(0, bindGroup);
-      passEncoder.dispatchWorkgroups(...calculateWorkgroups(B1 * M * N));
-      passEncoder.end();
-      device.queue.submit([commandEncoder.finish()]);
-      return new Tensor({ buffer: outputBuffer, shape: [B1, M, N], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad || other._requires_grad });
-    }
-    
-    throw new Error('Unsupported matmul dimensions');
-  }
-
-  addmm(mat1: Tensor, mat2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
-    const product = mat1.mm(mat2);
-    return this.mul(beta).add(product.mul(alpha));
-  }
-  
-  addmv(mat: Tensor, vec: Tensor, beta: number = 1, alpha: number = 1): Tensor {
-    const product = mat.matmul(vec); // Use matmul directly for mv
-    return this.mul(beta).add(product.mul(alpha));
-  }
-  
-  outer(vec2: Tensor): Tensor {
-    return this.unsqueeze(1).matmul(vec2.unsqueeze(0));
-  }
-  
-  addr(vec1: Tensor, vec2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
-    const product = vec1.outer(vec2);
-    return this.mul(beta).add(product.mul(alpha));
-  }
-  
-  baddbmm(batch1: Tensor, batch2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
-    const product = batch1.matmul(batch2); // matmul handles bmm
-    return this.mul(beta).add(product.mul(alpha));
-  }
-  
-  addbmm(batch1: Tensor, batch2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
-    const product = batch1.matmul(batch2);
-    const summed = product.sum(0);
-    return this.mul(beta).add(summed.mul(alpha));
-  }
-
-  mv(vec: Tensor): Tensor { return this.matmul(vec); }
-  bmm(mat2: Tensor): Tensor { return this.matmul(mat2); }
-  dot(other: Tensor): Tensor { return this.mul(other).sum(); }
-  vdot(other: Tensor): Tensor { return this.dot(other); }
-
-  // ============ Reductions ============
-
-  sum(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) {
-      const reduceResult = this._reduce('sum');
-      const self = this;
-      if (this._requires_grad) {
-        const grad_fn: GradFn = {
-          backward(gradOutput: Tensor): void {
-            self._expandGradAndAccumulate(gradOutput);
-          },
-        };
-        return new Tensor({ ...reduceResult._getState(), requires_grad: true, grad_fn });
-      }
-      return reduceResult;
-    }
-
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.sum(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-
-    const reduceResult = this._reduceDim('sum', dim as number, keepdim);
-    const self = this;
-    if (this._requires_grad) {
-      const grad_fn: GradFn = {
-        backward(gradOutput: Tensor): void {
-          let g = gradOutput;
-          if (!keepdim) g = g.unsqueeze(dim as number);
-          const expandedGrad = ones_like(self).mul(g);
-          self.accumulateGrad(expandedGrad);
-        },
-      };
-      return new Tensor({ ...reduceResult._getState(), requires_grad: true, grad_fn });
-    }
-    return reduceResult;
-  }
-
-  mean(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) {
-      const s = this.sum();
-      const n = this.numel();
-      const res = s.div(n);
-      const self = this;
-      if (this._requires_grad) {
-        const grad_fn: GradFn = {
-          backward(gradOutput: Tensor): void {
-            self._expandGradAndAccumulate(gradOutput.div(n));
-          },
-        };
-        return new Tensor({ ...res._getState(), requires_grad: true, grad_fn });
-      }
-      return res;
-    }
-
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.mean(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-
-    const reduceResult = this._reduceDim('mean', dim as number, keepdim);
-    const n = this._shape[dim as number];
-    const self = this;
-    if (this._requires_grad) {
-      const grad_fn: GradFn = {
-        backward(gradOutput: Tensor): void {
-          let g = gradOutput.div(n);
-          if (!keepdim) g = g.unsqueeze(dim as number);
-          const expandedGrad = ones_like(self).mul(g);
-          self.accumulateGrad(expandedGrad);
-        },
-      };
-      return new Tensor({ ...reduceResult._getState(), requires_grad: true, grad_fn });
-    }
-    return reduceResult;
-  }
-
-  _expandGradAndAccumulate(scalarGrad: Tensor): void {
-    const expandedGrad = ones_like(this).mul(scalarGrad);
-    this.accumulateGrad(expandedGrad);
-  }
-
-  private _reduceDim(opName: string, dim: number, keepdim: boolean): Tensor {
-    if (dim < 0) dim += this._shape.length;
-    
-    // 1. Transpose dim to the end
-    const permutation = Array.from({ length: this._shape.length }, (_, i) => i);
-    permutation.splice(dim, 1);
-    permutation.push(dim);
-    
-    const transposed = this.permute(permutation);
-    const reduceSize = this._shape[dim];
-    const batchSize = transposed.numel() / reduceSize;
-    
-    // 2. Reduce using shader
-    const device = getDevice();
-    const outputBuffer = createStorageBuffer(batchSize * getDTypeBytes(this._dtype));
-    
-    const opMap: Record<string, number> = { 
-        'sum': 0, 'mean': 1, 'max_reduce': 2, 'min_reduce': 3, 'prod': 4, 'any': 5, 'all': 6 
-    };
-    const op = opMap[opName] ?? 0;
-    
-    const paramsData = new Uint32Array([batchSize, reduceSize, op, 0]);
-    const paramsBuffer = device.createBuffer({
-      size: 16,
-      usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-    
-    const pipeline = getOrCreatePipeline(REDUCE_DIM_SHADER, 'main');
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: transposed.buffer, offset: 0, size: transposed.buffer.size } },
-        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-        { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-      ],
-    });
-    
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(batchSize));
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-    
-    // 3. Final shape
-    let finalShape = this._shape.filter((_, i) => i !== dim);
-    if (keepdim) {
-        finalShape.splice(dim, 0, 1);
-    }
-    
-    const result = new Tensor({
-      buffer: outputBuffer,
-      shape: finalShape,
-      dtype: this._dtype,
-      device: 'webgpu',
-      requires_grad: this._requires_grad,
-    });
-    
-    transposed.destroy();
-    return result;
-  }
-
-  max(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) return this._reduce('max_reduce');
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.max(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-    return this._reduceDim('max_reduce', dim as number, keepdim);
-  }
-
-  min(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) return this._reduce('min_reduce');
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.min(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-    return this._reduceDim('min_reduce', dim as number, keepdim);
-  }
-
-  any(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) return this._reduce('any');
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.any(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-    return this._reduceDim('any', dim as number, keepdim);
-  }
-
-  all(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) return this._reduce('all');
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.all(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-    return this._reduceDim('all', dim as number, keepdim);
-  }
-
-  prod(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor {
-    if (dim === undefined) return this._reduce('prod');
-    if (Array.isArray(dim) || typeof dim === 'object') {
-        const dims = Array.from(dim as number[]).sort((a, b) => b - a);
-        let res: Tensor = this;
-        for (const d of dims) {
-            const nextRes = res.prod(d, keepdim);
-            if (res !== this) res.destroy();
-            res = nextRes;
-        }
-        return res;
-    }
-    return this._reduceDim('prod', dim as number, keepdim);
-  }
-
-  amax(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor { return this.max(dim, keepdim); }
-  amin(dim?: number | number[] | readonly number[], keepdim: boolean = false): Tensor { return this.min(dim, keepdim); }
-
-  var(dim?: number, correction: number = 1, keepdim: boolean = false): Tensor {
-    let mean = this.mean(dim, true);
-    let diff = this.sub(mean);
-    let sq_diff = diff.square();
-    let sum_sq = sq_diff.sum(dim, keepdim);
-    
-    let n: number;
-    if (dim === undefined) {
-      n = this.numel();
-    } else {
-      const d = dim < 0 ? dim + this._shape.length : dim;
-      n = this._shape[d];
-    }
-    
-    return sum_sq.div(n - correction);
-  }
-
-  std(dim?: number, correction: number = 1, keepdim: boolean = false): Tensor {
-    return this.var(dim, correction, keepdim).sqrt();
-  }
-
-  /**
-   * Returns the indices of maximum values along a dimension.
-   * @pytorch tensor.argmax()
-   */
-  argmax(dim?: number, keepdim: boolean = false): Tensor {
-    if (dim === undefined) {
-      return this.flatten().argmax(0, keepdim);
-    }
-    return this._reduceArg('argmax', dim, keepdim);
-  }
-
-  /**
-   * Returns the indices of minimum values along a dimension.
-   * @pytorch tensor.argmin()
-   */
-  argmin(dim?: number, keepdim: boolean = false): Tensor {
-    if (dim === undefined) {
-      return this.flatten().argmin(0, keepdim);
-    }
-    return this._reduceArg('argmin', dim, keepdim);
-  }
-
-  private _reduceArg(op: 'argmax' | 'argmin', dim: number, keepdim: boolean): Tensor {
-    if (dim < 0) dim += this._shape.length;
-
-    // Transpose dim to the end
-    const permutation = Array.from({ length: this._shape.length }, (_, i) => i);
-    permutation.splice(dim, 1);
-    permutation.push(dim);
-
-    const transposed = this.permute(permutation);
-    const reduceSize = this._shape[dim];
-    const batchSize = transposed.numel() / reduceSize;
-
-    const device = getDevice();
-    const outputBuffer = createStorageBuffer(batchSize * 4); // int32
-    const dimsData = new Uint32Array([batchSize, reduceSize]);
-    const dimsBuffer = device.createBuffer({
-      size: 8,
-      usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(dimsBuffer, 0, dimsData);
-
-    const shader = op === 'argmax' ? ARGMAX_SHADER : ARGMIN_SHADER;
-    const pipeline = getOrCreatePipeline(shader, op);
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: transposed.buffer, offset: 0, size: transposed.buffer.size } },
-        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-        { binding: 2, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
-      ],
-    });
-
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(batchSize));
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-
-    let finalShape = this._shape.filter((_, i) => i !== dim);
-    if (keepdim) {
-      finalShape.splice(dim, 0, 1);
-    }
-
-    const result = new Tensor({
-      buffer: outputBuffer,
-      shape: finalShape,
-      dtype: 'int32',
-      device: 'webgpu',
-      requires_grad: false,
-    });
-
-    transposed.destroy();
-    return result;
-  }
-
-  // ============ Data Access ============
-
-  async toArray(): Promise<any> {
-    const data = await readBuffer(this._buffer, this._dtype, this.numel());
-    return Array.from(data as any);
-  }
-
-  async toNestedArray(): Promise<any> {
-    const flat = await this.toArray();
-    return this._nestArray(flat, [...this._shape]);
-  }
-
-  async tolist(): Promise<any> {
-    return this.toNestedArray();
-  }
-
-  async item(): Promise<number> {
-    if (this.numel() !== 1) throw new Error('item() only works for scalar tensors');
-    const data = await readBuffer(this._buffer, this._dtype, 1);
-    return data[0];
-  }
-
-  // ============ Autograd ============
-
-  async backward(gradient?: Tensor): Promise<void> {
-    if (!this._requires_grad && !this._grad_fn) return;
-    const grad = gradient || ones([], { dtype: this._dtype });
-    this.accumulateGrad(grad);
-  }
-
-  accumulateGrad(grad: Tensor): void {
-    if (this._grad_fn) {
-      this._grad_fn.backward(grad);
-    }
-    if (this._is_leaf && this._requires_grad) {
-      if (!this._grad) {
-        this._grad = grad.clone();
-      } else {
-        const oldGrad = this._grad;
-        this._grad = oldGrad.add(grad);
-        oldGrad.destroy();
-      }
-    }
-  }
-
-  // ============ Internal Helpers ============
-
-  private _getState(): TensorData {
-    return { buffer: this._buffer, shape: [...this._shape], dtype: this._dtype, device: this._device, requires_grad: this._requires_grad, grad_fn: this._grad_fn ?? undefined };
-  }
-
-  private _nestArray(flat: any[], shape: number[], offset: number = 0): any {
-    if (shape.length === 0) return flat[offset];
-    if (shape.length === 1) return flat.slice(offset, offset + shape[0]);
-    const result = [];
-    const stride = shape.slice(1).reduce((a, b) => a * b, 1);
-    for (let i = 0; i < shape[0]; i++) result.push(this._nestArray(flat, shape.slice(1), offset + i * stride));
-    return result;
-  }
-
-  private _unaryOp(op: string): Tensor {
-    const device = getDevice();
-    const outputBuffer = createStorageBuffer(this.numel() * getDTypeBytes(this._dtype));
-    const pipeline = getOrCreatePipeline(UNARY_SHADER, op);
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-      ],
-    });
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(this.numel()));
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-
-    const self = this;
-    let grad_fn: GradFn | undefined;
-    if (this._requires_grad) {
-      grad_fn = {
-        backward(gradOutput: Tensor): void {
-          let grad_self: Tensor;
-          if (op === 'neg') {
-            grad_self = gradOutput.neg();
-          } else if (op === 'abs_op') {
-            grad_self = gradOutput.mul(self.div(self.abs().add(1e-7)));
-          } else {
-            grad_self = gradOutput;
-          }
-          self.accumulateGrad(grad_self);
+          self.accumulateGrad(gradOutput.neg());
         },
       };
     }
@@ -2331,6 +2001,86 @@ export class Tensor {
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
     return new Tensor({ buffer: outputBuffer, shape: [features], dtype: input.dtype, device: 'webgpu', requires_grad: false });
+  }
+
+  private _unaryOp(op: string): Tensor {
+    const device = getDevice();
+    const outputBuffer = createStorageBuffer(this.numel() * getDTypeBytes(this._dtype));
+    const pipeline = getOrCreatePipeline(UNARY_SHADER, op);
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
+        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+      ],
+    });
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginComputePass();
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.dispatchWorkgroups(...calculateWorkgroups(this.numel()));
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+
+    const self = this;
+    let grad_fn: GradFn | undefined;
+    if (this._requires_grad) {
+      grad_fn = {
+        backward(gradOutput: Tensor): void {
+          let grad_self = gradOutput;
+          if (op === 'relu') {
+            const mask = self.gt(0);
+            grad_self = gradOutput.mul(mask);
+          } else if (op === 'sigmoid') {
+            const out = self.sigmoid();
+            grad_self = gradOutput.mul(out.mul(out.mul(-1).add(1)));
+          } else if (op === 'tanh_op') {
+            const out = self.tanh();
+            grad_self = gradOutput.mul(out.mul(-1).add(1).mul(out.add(1)));
+          } else if (op === 'gelu') {
+            const x = self;
+            const cdf = x.mul(0.7978845608).mul(x.mul(0.044715).mul(x).add(1)).tanh().add(1).mul(0.5);
+            const pdf = x.mul(0.7978845608).mul(x.mul(0.044715).mul(x).add(1)).tanh().mul(-1).add(1).mul(0.5);
+            const grad = cdf.add(x.mul(pdf));
+            grad_self = gradOutput.mul(grad);
+          } else if (op === 'sqrt_op') {
+            grad_self = gradOutput.div(self.sqrt().mul(2));
+          } else if (op === 'rsqrt_op') {
+            grad_self = gradOutput.mul(-0.5).div(self.pow(1.5));
+          } else if (op === 'square_op') {
+            grad_self = gradOutput.mul(self).mul(2);
+          } else if (op === 'reciprocal_op') {
+            grad_self = gradOutput.div(self.pow(2)).neg();
+          } else if (op === 'neg') {
+            grad_self = gradOutput.neg();
+          }
+          self.accumulateGrad(grad_self);
+        },
+      };
+    }
+
+    return new Tensor({ buffer: outputBuffer, shape: [...this._shape], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
+  }
+
+  private _getState(): TensorData {
+    return {
+      buffer: this._buffer,
+      shape: [...this._shape],
+      dtype: this._dtype,
+      device: this._device,
+      requires_grad: this._requires_grad,
+      grad_fn: this._grad_fn ?? undefined,
+    };
+  }
+
+  /** @internal */
+  accumulateGrad(grad: Tensor): void {
+    if (!this._requires_grad) return;
+    if (this._grad) {
+      this._grad = this._grad.add(grad);
+    } else {
+      this._grad = grad;
+    }
   }
 
   private _scalarOp(op: string, scalar: number): Tensor {

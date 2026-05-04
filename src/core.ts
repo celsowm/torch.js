@@ -20,7 +20,8 @@ export * from './ops';
 
 // Re-export modules
 export { nn, optim, linalg, webgpu, profiler };
-export const utils = { benchmark };
+import * as data from './utils/data';
+export const utils = { benchmark, data };
 
 // Re-export backend utilities
 export { initWebGPU as init, syncDevice } from './backend';

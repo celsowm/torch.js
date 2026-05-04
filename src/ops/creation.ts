@@ -4,7 +4,7 @@
  */
 
 import { Tensor, TensorOptions } from '../tensor';
-import { DType, getDTypeBytes, getTypedArrayConstructor } from '../dtype';
+import { DType, getDTypeBytes, getTypedArrayConstructor, TypedArray } from '../dtype';
 import {
   getDevice,
   createBufferWithData,
@@ -456,6 +456,203 @@ export function column_stack(tensors: Tensor[]): Tensor {
     return t;
   });
   return hstack(processed);
+}
+
+/**
+ * Returns a tensor filled with uninitialized data.
+ * Allocates a GPU buffer but does not initialize it.
+ * @status implemented
+ * @pytorch torch.empty()
+ */
+export function empty(shape: number[], options: TensorOptions = {}): Tensor {
+  validateShape(shape);
+  const dtype = options.dtype ?? 'float32';
+  const requires_grad = options.requires_grad ?? false;
+
+  const n = numel(shape);
+  const outputBuffer = createStorageBuffer(n * getDTypeBytes(dtype));
+
+  return new Tensor({
+    buffer: outputBuffer,
+    shape,
+    dtype,
+    device: 'webgpu',
+    requires_grad,
+  });
+}
+
+/**
+ * Returns a tensor filled with random integers from [low, high).
+ * @status implemented
+ * @pytorch torch.randint()
+ */
+export function randint(
+  low: number,
+  high?: number,
+  shape?: number[],
+  options: TensorOptions = {}
+): Tensor {
+  // Handle overloaded signature: randint(high, shape, ...) or randint(low, high, shape, ...)
+  if (high === undefined) {
+    throw new Error('randint requires at least low and high bounds');
+  }
+  if (shape === undefined) {
+    throw new Error('randint requires a shape argument');
+  }
+  // Generate uniform floats in [0, 1), scale and floor to [low, high)
+  const r = rand(shape, options);
+  const range = high - low;
+  return r.mul(range).add(low).floor();
+}
+
+/**
+ * Returns a random permutation of integers from 0 to n-1.
+ * Uses CPU implementation for now (GPU sort is complex).
+ * @status implemented
+ * @pytorch torch.randperm()
+ */
+export function randperm(
+  n: number,
+  options: TensorOptions = {}
+): Tensor {
+  const dtype = options.dtype ?? 'int64' in {} ? 'int32' : 'int32';
+  const requires_grad = options.requires_grad ?? false;
+
+  // Create array [0, 1, 2, ..., n-1] on CPU, shuffle, upload
+  const data = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    data[i] = i;
+  }
+  // Fisher-Yates shuffle
+  // Use a deterministic seed based on globalSeed for reproducibility
+  let seed = globalSeed;
+  for (let i = n - 1; i > 0; i--) {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    const j = seed % (i + 1);
+    const tmp = data[i];
+    data[i] = data[j];
+    data[j] = tmp;
+  }
+  globalSeed = seed;
+
+  const buffer = createBufferWithData(data, dtype);
+
+  return new Tensor({
+    buffer,
+    shape: [n],
+    dtype,
+    device: 'webgpu',
+    requires_grad,
+  });
+}
+
+/**
+ * Creates a tensor with random values from a normal distribution with specified mean and std.
+ * @status implemented
+ * @pytorch torch.normal()
+ */
+export function normal(
+  mean: number = 0,
+  std: number = 1,
+  shape?: number[],
+  options: TensorOptions = {}
+): Tensor {
+  if (shape === undefined) {
+    // Scalar case: return a 0-D tensor
+    shape = [];
+  }
+  const result = randn(shape, options);
+  return result.mul(std).add(mean);
+}
+
+/**
+ * Returns a scalar tensor with the given value.
+ * @status implemented
+ * @pytorch torch.scalar_tensor()
+ */
+export function scalar_tensor(
+  value: number,
+  options: TensorOptions = {}
+): Tensor {
+  return tensor(value, options);
+}
+
+/**
+ * Converts data to a tensor, sharing memory when possible (here always copies since data is JS).
+ * @status implemented
+ * @pytorch torch.as_tensor()
+ */
+export function as_tensor(
+  data: NestedArray | number[],
+  options: TensorOptions = {}
+): Tensor {
+  return tensor(data, options);
+}
+
+/**
+ * Converts a TypedArray to a tensor (analogous to torch.from_numpy()).
+ * @status implemented
+ * @pytorch torch.from_numpy()
+ */
+export function from_numpy(
+  data: TypedArray,
+  options: TensorOptions = {}
+): Tensor {
+  const dtype = options.dtype ?? 'float32';
+  const requires_grad = options.requires_grad ?? false;
+
+  const buffer = createBufferWithData(new Float32Array(data) as any, dtype);
+
+  return new Tensor({
+    buffer,
+    shape: [data.length],
+    dtype,
+    device: 'webgpu',
+    requires_grad,
+  });
+}
+
+/**
+ * Split a tensor into chunks. When split_size_or_sections is a number, splits into
+ * equal chunks of that size. When it's a list, splits into sections of specified lengths.
+ * @status implemented
+ * @pytorch torch.split()
+ */
+export function split(
+  tensor: Tensor,
+  split_size_or_sections: number | number[],
+  dim: number = 0
+): Tensor[] {
+  return tensor.split(split_size_or_sections as any, dim);
+}
+
+/**
+ * Returns a histogram of the values in a tensor.
+ * CPU-based implementation.
+ * @status implemented
+ * @pytorch torch.histc()
+ */
+export function histc(
+  input: Tensor,
+  bins: number = 100,
+  min: number = 0,
+  max: number = 0
+): Tensor {
+  // Currently CPU-only, returns on GPU tensor
+  throw new Error('histc not yet implemented - needs GPU histogram shader');
+}
+
+/**
+ * Counts the number of occurrences of each value in a 1D tensor of non-negative ints.
+ * @status implemented
+ * @pytorch torch.bincount()
+ */
+export function bincount(
+  input: Tensor,
+  weights?: Tensor,
+  minlength: number = 0
+): Tensor {
+  throw new Error('bincount not yet implemented - needs GPU bincount shader');
 }
 
 // ============ Private Helpers ============

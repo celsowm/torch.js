@@ -232,6 +232,13 @@ fn erf(x: f32) -> f32 {
 }
 
 @compute @workgroup_size(256)
+fn erf_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = erf(input[idx]);
+}
+
+@compute @workgroup_size(256)
 fn gelu(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let idx = global_id.x;
     if (idx >= arrayLength(&result)) { return; }
@@ -340,4 +347,135 @@ fn isneginf_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let bits = bitcast<u32>(input[idx]);
     let is_neg_inf = bits == 0xff800000u;
     result[idx] = select(0.0, 1.0, is_neg_inf);
+}
+
+@compute @workgroup_size(256)
+fn sign_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = sign(input[idx]);
+}
+
+@compute @workgroup_size(256)
+fn sgn_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    let x = input[idx];
+    result[idx] = select(select(0.0, -1.0, x < 0.0), 1.0, x > 0.0);
+}
+
+@compute @workgroup_size(256)
+fn erfc_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = 1.0 - erf(input[idx]);
+}
+
+@compute @workgroup_size(256)
+fn expm1_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = exp(input[idx]) - 1.0;
+}
+
+@compute @workgroup_size(256)
+fn deg2rad_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = input[idx] * 0.017453292519943295;
+}
+
+@compute @workgroup_size(256)
+fn rad2deg_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = input[idx] * 57.29577951308232;
+}
+
+@compute @workgroup_size(256)
+fn logical_not_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = select(1.0, 0.0, input[idx] != 0.0);
+}
+
+@compute @workgroup_size(256)
+fn i0_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    let x = abs(input[idx]);
+    // Modified Bessel function I0 using polynomial approximation
+    let t = x / 3.75;
+    let t2 = t * t;
+    var y: f32;
+    if (x < 3.75) {
+        // I0(x) = 1 + 3.5156229*t^2 + 3.0899424*t^4 + 1.2067492*t^6 + 0.2659732*t^8 + 0.0360768*t^10 + 0.0045813*t^12
+        y = 1.0 + 3.5156229 * t2 + 3.0899424 * t2 * t2 + 1.2067492 * t2 * t2 * t2 + 0.2659732 * t2 * t2 * t2 * t2 + 0.0360768 * t2 * t2 * t2 * t2 * t2 + 0.0045813 * t2 * t2 * t2 * t2 * t2 * t2;
+    } else {
+        // I0(x) = exp(x) / sqrt(x) * (0.39894228 + 0.01328592/t + 0.00225319/t^2 - 0.00157565/t^3 + 0.00916281/t^4 - 0.02057706/t^5 + 0.02635537/t^6 - 0.01647633/t^7 + 0.00392377/t^8)
+        let inv_t = 1.0 / t;
+        y = exp(x) * (0.39894228 + 0.01328592 * inv_t + 0.00225319 * inv_t * inv_t - 0.00157565 * inv_t * inv_t * inv_t + 0.00916281 * inv_t * inv_t * inv_t * inv_t - 0.02057706 * inv_t * inv_t * inv_t * inv_t * inv_t + 0.02635537 * inv_t * inv_t * inv_t * inv_t * inv_t * inv_t - 0.01647633 * inv_t * inv_t * inv_t * inv_t * inv_t * inv_t * inv_t + 0.00392377 * inv_t * inv_t * inv_t * inv_t * inv_t * inv_t * inv_t * inv_t) * inverseSqrt(x);
+    }
+    result[idx] = y;
+}
+
+// Lanczos approximation for lgamma
+fn lgamma_impl(x: f32) -> f32 {
+    // Lanczos coefficients
+    let coeffs = array<f32, 7>(76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953005e-5, 0.0);
+    var y = x;
+    var tmp = x + 5.5;
+    tmp = tmp - (x + 0.5) * log(tmp);
+    var ser = 1.000000000190015;
+    for (var j = 0u; j < 6u; j = j + 1u) {
+        y = y + 1.0;
+        ser = ser + coeffs[j] / y;
+    }
+    return -tmp + log(2.5066282746310005 * ser / x);
+}
+
+@compute @workgroup_size(256)
+fn lgamma_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    result[idx] = lgamma_impl(input[idx]);
+}
+
+@compute @workgroup_size(256)
+fn digamma_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= arrayLength(&result)) { return; }
+    let x = input[idx];
+    // Digamma approximation using asymptotic series
+    var y = x;
+    var psi = 0.0;
+    if (x <= 0.0) {
+        // Reflection formula
+        if (ceil(x) == x) {
+            result[idx] = 1.0 / 0.0; // infinity for integer <= 0
+            return;
+        }
+        psi = 3.141592653589793 / tan(3.141592653589793 * x);
+        y = 1.0 - x;
+    }
+    if (y < 10.0) {
+        // Use recurrence to bring argument above 10
+        let n = u32(10.0 - y) + 1u;
+        for (var i = 0u; i < n; i = i + 1u) {
+            psi = psi - 1.0 / y;
+            y = y + 1.0;
+        }
+    }
+    // Asymptotic series for large argument
+    psi = psi + log(y) - 0.5 / y;
+    let y2 = y * y;
+    psi = psi - 1.0 / (12.0 * y2);
+    psi = psi + 1.0 / (120.0 * y2 * y2);
+    psi = psi - 1.0 / (252.0 * y2 * y2 * y2);
+    psi = psi + 1.0 / (240.0 * y2 * y2 * y2 * y2);
+    // Apply sign for x <= 0
+    if (input[idx] <= 0.0) {
+        psi = psi + 3.141592653589793 / tan(3.141592653589793 * input[idx]);
+    }
+    result[idx] = psi;
 }

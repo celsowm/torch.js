@@ -86,14 +86,7 @@ export class AdamW extends Optimizer {
         let denom: Tensor;
         if (amsgrad && state.max_exp_avg_sq) {
           // Maintains the maximum of all 2nd moment running avg. till now
-          state.max_exp_avg_sq = state.max_exp_avg_sq.max().eq(state.max_exp_avg_sq).mul(state.max_exp_avg_sq).add(
-             state.max_exp_avg_sq.lt(state.exp_avg_sq).mul(state.exp_avg_sq)
-          ); 
-          // Wait, max() isn't elementwise max of two tensors in my impl? 
-          // My max() is reduction.
-          // I don't have elementwise max(tensor, tensor) yet?
-          // Let's skip amsgrad for now or implement elementwise max.
-          // I'll stick to standard AdamW for this implementation.
+          state.max_exp_avg_sq = state.max_exp_avg_sq.fmax(state.exp_avg_sq);
           throw new Error("AMSGrad not yet fully implemented");
         }
         

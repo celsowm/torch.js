@@ -18,11 +18,22 @@
 | `torch.ones_like()` | ✅ | Ones with same shape as input |
 | `torch.randn()` | ✅ | Random normal distribution (Box-Muller) |
 | `torch.rand()` | ✅ | Random uniform [0, 1) |
+| `torch.randint()` | ✅ | Random integers |
+| `torch.randperm()` | ✅ | Random permutation |
 | `torch.arange()` | ✅ | Range of values |
 | `torch.linspace()` | ✅ | Linearly spaced values |
+| `torch.logspace()` | ✅ | Logarithmically spaced values |
 | `torch.eye()` | ✅ | Identity matrix |
-| `torch.empty()` | ❌ | Uninitialized tensor |
+| `torch.empty()` | ✅ | Uninitialized tensor |
 | `torch.full()` | ✅ | Tensor filled with value |
+| `torch.full_like()` | ✅ | Full with same shape |
+| `torch.empty_like()` | ✅ | Empty with same shape |
+| `torch.normal()` | ✅ | Normal distribution |
+| `torch.as_tensor()` | ✅ | Convert without copy if possible |
+| `torch.from_numpy()` | ✅ | Convert from numpy array |
+| `torch.scalar_tensor()` | ✅ | Scalar tensor |
+| `torch.bincount()` | ✅ | Count frequencies |
+| `torch.histc()` | ✅ | Histogram |
 
 ## Tensor Properties
 
@@ -36,6 +47,7 @@
 | `tensor.numel()` | ✅ | Number of elements |
 | `tensor.dim()` | ✅ | Number of dimensions |
 | `tensor.size()` | ✅ | Alias for shape |
+| `tensor.ndim` | ✅ | Number of dimensions |
 
 ## Element-wise Math Operations
 
@@ -45,31 +57,89 @@
 | `tensor.sub()` / `-` | ✅ | Subtraction |
 | `tensor.mul()` / `*` | ✅ | Multiplication |
 | `tensor.div()` / `/` | ✅ | Division |
-| `tensor.pow()` / `**` | ✅ | Power (scalar exponent only) |
+| `tensor.pow()` / `**` | ✅ | Power (scalar or tensor exponent) |
 | `tensor.neg()` | ✅ | Negation |
 | `tensor.abs()` | ✅ | Absolute value |
 | `tensor.sqrt()` | ✅ | Square root |
+| `tensor.rsqrt()` | ✅ | Reciprocal square root |
 | `tensor.exp()` | ✅ | Exponential |
+| `tensor.exp2()` | ✅ | Base-2 exponential |
+| `tensor.expm1()` | ✅ | exp(x) - 1 |
 | `tensor.log()` | ✅ | Natural logarithm |
+| `tensor.log2()` | ✅ | Base-2 logarithm |
+| `tensor.log10()` | ✅ | Base-10 logarithm |
+| `tensor.log1p()` | ✅ | log(1 + x) |
+| `tensor.logaddexp()` | ✅ | log(exp(x) + exp(y)) |
 | `tensor.sin()` | ✅ | Sine |
 | `tensor.cos()` | ✅ | Cosine |
+| `tensor.tan()` | ✅ | Tangent |
+| `tensor.sinh()` | ✅ | Hyperbolic sine |
+| `tensor.cosh()` | ✅ | Hyperbolic cosine |
 | `tensor.tanh()` | ✅ | Hyperbolic tangent |
+| `tensor.asin()` | ✅ | Arc sine |
+| `tensor.acos()` | ✅ | Arc cosine |
+| `tensor.atan()` | ✅ | Arc tangent |
+| `tensor.atan2()` | ✅ | 2-argument arc tangent |
+| `tensor.asinh()` | ✅ | Inverse hyperbolic sine |
+| `tensor.acosh()` | ✅ | Inverse hyperbolic cosine |
+| `tensor.atanh()` | ✅ | Inverse hyperbolic tangent |
 | `tensor.sigmoid()` | ✅ | Sigmoid function |
 | `tensor.relu()` | ✅ | ReLU activation |
+| `tensor.gelu()` | ✅ | GELU activation (tanh approximation) |
+| `tensor.softplus()` | ✅ | Softplus |
+| `tensor.silu()` | ✅ | SiLU / Swish |
+| `tensor.mish()` | ✅ | Mish |
+| `tensor.hardsigmoid()` | ✅ | Hard sigmoid |
+| `tensor.hardswish()` | ✅ | Hard swish |
+| `tensor.softsign()` | ✅ | Soft sign |
+| `tensor.tanhshrink()` | ✅ | Tanh shrink |
+| `tensor.leaky_relu()` | ✅ | Leaky ReLU |
+| `tensor.elu()` | ✅ | ELU |
+| `tensor.selu()` | ✅ | SELU |
+| `tensor.glu()` | ✅ | Gated Linear Unit |
+| `tensor.threshold()` | ✅ | Threshold |
+| `tensor.sign()` | ✅ | Sign |
+| `tensor.sgn()` | ✅ | Sign (complex-aware) |
+| `tensor.erf()` | ✅ | Error function |
+| `tensor.erfc()` | ✅ | Complementary error function |
+| `tensor.erfinv()` | ❌ | Inverse error function |
+| `tensor.erfcinv()` | ❌ | Inverse complementary error function |
+| `tensor.ceil()` | ✅ | Ceil |
+| `tensor.floor()` | ✅ | Floor |
+| `tensor.round()` | ✅ | Round |
+| `tensor.trunc()` | ✅ | Truncate |
+| `tensor.frac()` | ✅ | Fractional part |
+| `tensor.clamp()` | ✅ | Clamp to [min, max] |
+| `tensor.reciprocal()` | ✅ | 1/x |
+| `tensor.square()` | ✅ | x^2 |
+| `tensor.deg2rad()` | ✅ | Degrees to radians |
+| `tensor.rad2deg()` | ✅ | Radians to degrees |
+| `tensor.logical_not()` | ✅ | Logical NOT |
+| `tensor.i0()` | ✅ | Modified Bessel function I0 |
+| `tensor.lgamma()` | ✅ | Log-gamma |
+| `tensor.digamma()` | ✅ | Digamma (psi) |
+| `tensor.hypot()` | ✅ | sqrt(x^2 + y^2) |
+| `tensor.heaviside()` | ✅ | Heaviside step |
 
 ## Reduction Operations
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `tensor.sum()` | 🔶 | Full reduction only, no dim support yet |
-| `tensor.mean()` | 🔶 | Full reduction only, no dim support yet |
-| `tensor.max()` | 🔶 | Full reduction only, no dim support yet |
-| `tensor.min()` | 🔶 | Full reduction only, no dim support yet |
-| `tensor.argmax()` | ❌ | Index of maximum |
-| `tensor.argmin()` | ❌ | Index of minimum |
-| `tensor.prod()` | ❌ | Product of elements |
+| `tensor.sum()` | ✅ | Sum with optional dim/keepdim |
+| `tensor.mean()` | ✅ | Mean with optional dim/keepdim |
+| `tensor.max()` | ✅ | Max with optional dim/keepdim |
+| `tensor.min()` | ✅ | Min with optional dim/keepdim |
+| `tensor.argmax()` | ✅ | Index of maximum (flat or along dim) |
+| `tensor.argmin()` | ✅ | Index of minimum (flat or along dim) |
+| `tensor.amax()` | ✅ | Max with dim/keepdim |
+| `tensor.amin()` | ✅ | Min with dim/keepdim |
+| `tensor.prod()` | ✅ | Product with optional dim/keepdim |
 | `tensor.std()` | ❌ | Standard deviation |
 | `tensor.var()` | ❌ | Variance |
+| `tensor.all()` | ✅ | Logical AND reduction |
+| `tensor.any()` | ✅ | Logical OR reduction |
+| `tensor.cumsum()` | ✅ | Cumulative sum |
+| `tensor.cumprod()` | ✅ | Cumulative product |
 
 ## Matrix Operations
 
@@ -77,12 +147,22 @@
 |-----|--------|-------|
 | `tensor.matmul()` / `@` | ✅ | 2D matrix multiplication (tiled for large matrices) |
 | `tensor.mm()` | ✅ | Alias for matmul |
-| `tensor.mv()` | ❌ | Matrix-vector multiplication |
-| `tensor.bmm()` | ❌ | Batched matrix multiplication |
+| `tensor.bmm()` | ✅ | Batched matrix multiplication |
+| `tensor.baddbmm()` | ✅ | Batched addmm |
+| `tensor.addbmm()` | ✅ | Batch addmm |
+| `tensor.addmm()` | ✅ | addmm(beta, mat1, mat2, alpha) |
+| `tensor.addmv()` | ✅ | Matrix-vector add |
+| `tensor.mv()` | ✅ | Matrix-vector multiplication |
+| `tensor.dot()` | ✅ | Dot product (1D) |
+| `tensor.vdot()` | ✅ | Conjugate dot product |
+| `tensor.outer()` | ✅ | Outer product |
+| `tensor.addr()` | ✅ | Outer product add |
 | `tensor.t()` | ✅ | Transpose (2D) |
 | `tensor.T` | ✅ | Transpose property |
-| `tensor.transpose()` | ❌ | Transpose arbitrary dimensions |
-| `tensor.permute()` | ❌ | Permute dimensions |
+| `tensor.transpose()` | ✅ | Transpose arbitrary dims (2D) |
+| `tensor.permute()` | ✅ | Permute dimensions |
+| `tensor.movedim()` | ✅ | Move dimension |
+| `tensor.swapaxes()` | ✅ | Swap axes |
 
 ## Shape Operations
 
@@ -93,11 +173,14 @@
 | `tensor.squeeze()` | ✅ | Remove size-1 dimensions |
 | `tensor.unsqueeze()` | ✅ | Add dimension |
 | `tensor.flatten()` | ✅ | Flatten to 1D |
-| `tensor.expand()` | ❌ | Expand to larger size |
-| `tensor.repeat()` | ❌ | Repeat tensor |
-| `tensor.contiguous()` | ❌ | Make contiguous in memory |
+| `tensor.expand()` | ✅ | Expand to larger size (GPU) |
+| `tensor.broadcast_to()` | ✅ | Alias for expand |
+| `tensor.tile()` | ✅ | Repeat tensor |
+| `tensor.repeat()` | ❌ | Missing alias |
+| `tensor.contiguous()` | ❌ | Make contiguous (always contiguous currently) |
 | `tensor.clone()` | ✅ | Deep copy |
 | `tensor.detach()` | ✅ | Detach from autograd |
+| `tensor.copy_()` | ✅ | In-place copy |
 
 ## Indexing & Slicing
 
@@ -105,32 +188,58 @@
 |-----|--------|-------|
 | `tensor[i]` | ❌ | Basic indexing |
 | `tensor[i:j]` | ❌ | Slicing |
-| `tensor.index_select()` | ❌ | Select along dimension |
+| `tensor.index_select()` | ✅ | Select along dimension (GPU) |
+| `tensor.select()` | ✅ | Select single index along dim |
+| `tensor.take()` | ✅ | Gather elements by indices |
 | `tensor.gather()` | ❌ | Gather values |
 | `tensor.scatter()` | ❌ | Scatter values |
-| `tensor.masked_select()` | ❌ | Select by mask |
-| `tensor.masked_fill()` | ❌ | Fill by mask |
+| `tensor.masked_select()` | ✅ | Select by mask (GPU) |
+| `tensor.masked_fill()` | ✅ | Fill by mask (GPU) |
+| `tensor.where()` | ✅ | Element-wise conditional |
+| `tensor.chunk()` | ✅ | Split into chunks |
+| `tensor.narrow()` | ✅ | Narrow view |
+| `tensor.unbind()` | ✅ | Remove a dimension |
+| `tensor.split()` | ✅ | Split into sections |
+| `tensor.tril()` | ✅ | Lower triangular |
+| `tensor.triu()` | ✅ | Upper triangular |
+| `tensor.diag()` | ✅ | Diagonal (1D<->2D) |
+| `tensor.flip()` | ✅ | Reverse order |
+| `tensor.fliplr()` | ✅ | Flip left-right |
+| `tensor.flipud()` | ✅ | Flip up-down |
 
 ## Comparison Operations
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `tensor.eq()` | ❌ | Element-wise equal |
-| `tensor.ne()` | ❌ | Element-wise not equal |
-| `tensor.gt()` | ❌ | Greater than |
-| `tensor.ge()` | ❌ | Greater than or equal |
-| `tensor.lt()` | ❌ | Less than |
-| `tensor.le()` | ❌ | Less than or equal |
+| `tensor.eq()` | ✅ | Element-wise equal |
+| `tensor.ne()` | ✅ | Element-wise not equal |
+| `tensor.gt()` | ✅ | Greater than |
+| `tensor.ge()` | ✅ | Greater than or equal |
+| `tensor.lt()` | ✅ | Less than |
+| `tensor.le()` | ✅ | Less than or equal |
+| `tensor.equal()` | ✅ | All elements equal |
+| `tensor.isclose()` | ✅ | Element-wise close |
+| `tensor.allclose()` | ✅ | All elements close |
+| `tensor.isnan()` | ✅ | NaN test |
+| `tensor.isinf()` | ✅ | Infinity test |
+| `tensor.isfinite()` | ✅ | Finite test |
+| `tensor.isposinf()` | ✅ | Positive infinity test |
+| `tensor.isneginf()` | ✅ | Negative infinity test |
+| `tensor.maximum()` | ✅ | Element-wise max |
+| `tensor.minimum()` | ✅ | Element-wise min |
+| `tensor.fmax()` | ✅ | NaN-avoiding max |
+| `tensor.fmin()` | ✅ | NaN-avoiding min |
 
 ## Autograd
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `tensor.backward()` | 🔶 | Basic structure, grad_fn not wired up |
+| `tensor.backward()` | 🔶 | Basic structure, grad_fn not fully wired |
 | `tensor.requires_grad_()` | ✅ | Set requires_grad in-place |
-| `torch.no_grad()` | ❌ | Disable gradient tracking |
-| `torch.enable_grad()` | ❌ | Enable gradient tracking |
-| `tensor.grad_fn` | 🔶 | Property exists, grad functions not implemented |
+| `torch.no_grad()` | ✅ | Context manager, decorator, static run() |
+| `torch.enable_grad()` | ✅ | Context manager, decorator, static run() |
+| `torch.inference_mode()` | ✅ | Context manager, decorator, static run() |
+| `tensor.grad_fn` | 🔶 | Property exists, grad functions on some ops |
 | `tensor.is_leaf` | ✅ | Is leaf tensor |
 | `tensor.retain_grad()` | ❌ | Retain non-leaf gradient |
 
@@ -138,73 +247,100 @@
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `nn.Module` | ❌ | Base module class |
-| `module.forward()` | ❌ | Forward pass |
-| `module.parameters()` | ❌ | Parameter iterator |
-| `module.named_parameters()` | ❌ | Named parameter iterator |
-| `module.modules()` | ❌ | Module iterator |
-| `module.train()` | ❌ | Set training mode |
-| `module.eval()` | ❌ | Set evaluation mode |
-| `module.state_dict()` | ❌ | Get state dictionary |
-| `module.load_state_dict()` | ❌ | Load state dictionary |
+| `nn.Module` | ✅ | Base module class |
+| `module.forward()` | ✅ | Abstract forward pass |
+| `module.call()` | ✅ | Alias for forward |
+| `module.parameters()` | ✅ | Parameter iterator |
+| `module.named_parameters()` | ✅ | Named parameter iterator |
+| `module.modules()` | ✅ | Module iterator |
+| `module.children()` | ✅ | Child module iterator |
+| `module.train()` | ✅ | Set training mode |
+| `module.eval()` | ✅ | Set evaluation mode |
+| `module.state_dict()` | ✅ | Get state dictionary |
+| `module.load_state_dict()` | ✅ | Load state dictionary |
+| `module.zero_grad()` | ✅ | Zero gradients |
+| `module.register_buffer()` | ✅ | Register buffer |
+| `module.register_parameter()` | ✅ | Register parameter |
+| `module.add_module()` | ✅ | Register submodule |
 | `module.to()` | ❌ | Move to device |
 
 ## nn Layers
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `nn.Linear` | ❌ | Fully connected layer |
-| `nn.Conv2d` | ❌ | 2D convolution |
-| `nn.MaxPool2d` | ❌ | 2D max pooling |
-| `nn.AvgPool2d` | ❌ | 2D average pooling |
-| `nn.BatchNorm2d` | ❌ | 2D batch normalization |
-| `nn.LayerNorm` | ❌ | Layer normalization |
-| `nn.Dropout` | ❌ | Dropout |
-| `nn.Embedding` | ❌ | Embedding layer |
+| `nn.Linear` | ✅ | Fully connected layer |
+| `nn.Conv1d` | ✅ | 1D convolution (GPU, via reshape to conv2d) |
+| `nn.Conv2d` | ✅ | 2D convolution (GPU shader, supports groups) |
+| `nn.MaxPool2d` | ✅ | 2D max pooling (GPU shader, supports dilation) |
+| `nn.AvgPool2d` | ✅ | 2D average pooling (GPU shader, count_include_pad) |
+| `nn.BatchNorm1d` | ✅ | 1D batch normalization (GPU shader, CPU stats) |
+| `nn.BatchNorm2d` | ✅ | 2D batch normalization (GPU shader, CPU stats) |
+| `nn.LayerNorm` | ✅ | Layer normalization (GPU shader) |
+| `nn.Dropout` | ✅ | Dropout |
+| `nn.Dropout2d` | ✅ | 2D dropout |
+| `nn.Embedding` | ✅ | Embedding layer (GPU shader) |
+| `nn.Flatten` | ✅ | Flatten layer |
+| `nn.Parameter` | ✅ | Learnable parameter |
+| `nn.Sequential` | ✅ | Sequential container |
+| `nn.ModuleList` | ✅ | Module list |
+| `nn.ModuleDict` | ✅ | Module dictionary |
 
 ## nn Activations
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `nn.ReLU` | ❌ | ReLU activation |
-| `nn.GELU` | ❌ | GELU activation |
-| `nn.Sigmoid` | ❌ | Sigmoid activation |
-| `nn.Tanh` | ❌ | Tanh activation |
-| `nn.Softmax` | ❌ | Softmax activation |
-| `nn.LogSoftmax` | ❌ | Log softmax |
-
-## nn Containers
-
-| API | Status | Notes |
-|-----|--------|-------|
-| `nn.Sequential` | ❌ | Sequential container |
-| `nn.ModuleList` | ❌ | Module list |
-| `nn.ModuleDict` | ❌ | Module dictionary |
-| `nn.Parameter` | ❌ | Learnable parameter |
+| `nn.ReLU` | ✅ | ReLU activation |
+| `nn.GELU` | ✅ | GELU activation |
+| `nn.Sigmoid` | ✅ | Sigmoid activation |
+| `nn.Tanh` | ✅ | Tanh activation |
+| `nn.Softmax` | ✅ | Softmax activation |
+| `nn.LogSoftmax` | ✅ | Log softmax |
 
 ## nn.functional
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `F.relu()` | ❌ | ReLU function |
-| `F.gelu()` | ❌ | GELU function |
-| `F.sigmoid()` | ❌ | Sigmoid function |
-| `F.softmax()` | ❌ | Softmax function |
-| `F.cross_entropy()` | ❌ | Cross entropy loss |
-| `F.mse_loss()` | ❌ | MSE loss |
-| `F.linear()` | ❌ | Linear function |
-| `F.conv2d()` | ❌ | 2D convolution |
-| `F.dropout()` | ❌ | Dropout function |
+| `F.relu()` | ✅ | ReLU function |
+| `F.gelu()` | ✅ | GELU function |
+| `F.sigmoid()` | ✅ | Sigmoid function |
+| `F.softmax()` | ✅ | Softmax function |
+| `F.log_softmax()` | ✅ | Log softmax (GPU shader) |
+| `F.cross_entropy()` | ✅ | Cross entropy loss (GPU shader) |
+| `F.nll_loss()` | ✅ | NLL loss (GPU shader) |
+| `F.mse_loss()` | ✅ | MSE loss (via tensor ops) |
+| `F.binary_cross_entropy()` | ✅ | BCE loss (via tensor ops) |
+| `F.binary_cross_entropy_with_logits()` | ✅ | BCE with logits (via tensor ops) |
+| `F.smooth_l1_loss()` | ✅ | Smooth L1 loss (via tensor ops) |
+| `F.l1_loss()` | ✅ | L1 loss (via tensor ops) |
+| `F.linear()` | ✅ | Linear function |
+| `F.conv2d()` | ✅ | 2D convolution (GPU shader) |
+| `F.dropout()` | ✅ | Dropout function |
+| `F.leaky_relu()` | ✅ | Leaky ReLU |
+| `F.elu()` | ✅ | ELU |
+| `F.selu()` | ✅ | SELU |
+| `F.glu()` | ✅ | Gated Linear Unit |
+| `F.threshold()` | ✅ | Threshold |
+| `F.softplus()` | ✅ | Softplus |
+| `F.silu()` | ✅ | SiLU/Swish |
+| `F.mish()` | ✅ | Mish |
+| `F.hardsigmoid()` | ✅ | Hard sigmoid |
+| `F.hardswish()` | ✅ | Hard swish |
+| `F.softsign()` | ✅ | Soft sign |
+| `F.tanhshrink()` | ✅ | Tanh shrink |
+| `F.tanh()` | ✅ | Tanh |
+| `F.sigmoid()` | ✅ | Sigmoid |
+| `F.max_pool2d()` | ✅ | 2D max pooling (GPU shader, supports dilation) |
+| `F.avg_pool2d()` | ✅ | 2D average pooling (GPU shader, count_include_pad) |
 
 ## Optimizers
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `optim.SGD` | ❌ | Stochastic gradient descent |
-| `optim.Adam` | ❌ | Adam optimizer |
-| `optim.AdamW` | ❌ | AdamW optimizer |
-| `optimizer.step()` | ❌ | Update parameters |
-| `optimizer.zero_grad()` | ❌ | Zero gradients |
+| `optim.SGD` | ✅ | Stochastic gradient descent |
+| `optim.Adam` | ✅ | Adam optimizer |
+| `optim.AdamW` | ✅ | AdamW optimizer |
+| `optimizer.step()` | ✅ | Update parameters |
+| `optimizer.zero_grad()` | ✅ | Zero gradients |
 
 ## Data Utilities
 
@@ -215,15 +351,65 @@
 | `datasets.MNIST` | ❌ | MNIST dataset |
 | `datasets.CIFAR10` | ❌ | CIFAR-10 dataset |
 
+## Serialization
+
+| API | Status | Notes |
+|-----|--------|-------|
+| `torch.save()` | ✅ | Save model/tensor |
+| `torch.load()` | ✅ | Load model/tensor |
+
 ## Utility Functions
 
 | API | Status | Notes |
 |-----|--------|-------|
 | `torch.init()` | ✅ | Initialize WebGPU |
+| `torch.syncDevice()` | ✅ | Synchronize WebGPU device |
 | `tensor.toArray()` | ✅ | Convert to JS array (async) |
 | `tensor.toNestedArray()` | ✅ | Convert to nested JS array (async) |
 | `tensor.item()` | ✅ | Get scalar value (async) |
+| `tensor.toString()` | ✅ | String representation |
 | `torch.manual_seed()` | ✅ | Set random seed |
-| `torch.stack()` | ❌ | Stack tensors |
-| `torch.cat()` | ❌ | Concatenate tensors |
-| `torch.split()` | ❌ | Split tensor |
+| `torch.stack()` | ✅ | Stack tensors |
+| `torch.cat()` | ✅ | Concatenate tensors |
+| `torch.split()` | ✅ | Split tensor |
+| `torch.chunk()` | ✅ | Chunk into pieces |
+| `torch.vstack()` | ✅ | Vertical stack |
+| `torch.hstack()` | ✅ | Horizontal stack |
+| `torch.dstack()` | ✅ | Depth stack |
+| `torch.column_stack()` | ✅ | Column stack |
+| `torch.atleast_1d()` | ✅ | At least 1D |
+| `torch.atleast_2d()` | ✅ | At least 2D |
+| `torch.atleast_3d()` | ✅ | At least 3D |
+| `torch.triu()` | ✅ | Upper triangular |
+| `torch.tril()` | ✅ | Lower triangular |
+| `torch.diag()` | ✅ | Diagonal |
+| `torch.trapezoid()` | ✅ | Trapezoidal integration |
+| `torch.cumulative_trapezoid()` | ✅ | Cumulative trapezoidal |
+
+## Linear Algebra
+
+| API | Status | Notes |
+|-----|--------|-------|
+| `linalg.cholesky()` | ✅ | Cholesky decomposition (GPU) |
+| `linalg.lu_factor()` | ✅ | LU factorization (GPU) |
+| `linalg.lu_solve()` | ✅ | LU solve (GPU) |
+| `linalg.inv()` | ✅ | Matrix inverse via LU |
+| `linalg.det()` | ✅ | Determinant via LU |
+| `linalg.svd()` | ❌ | Singular value decomposition |
+| `linalg.eig()` | ❌ | Eigenvalue decomposition |
+| `linalg.eigvals()` | ❌ | Eigenvalues only |
+| `linalg.qr()` | ❌ | QR decomposition |
+| `linalg.solve()` | ❌ | Solve linear systems |
+| `linalg.matrix_power()` | ❌ | Matrix power |
+| `linalg.matrix_rank()` | ❌ | Matrix rank |
+| `linalg.norm()` | ❌ | Matrix norm |
+
+## WebGPU Features
+
+| API | Status | Notes |
+|-----|--------|-------|
+| `torch.webgpu` | ✅ | WebGPU backend module |
+| `webgpu.setBufferSize()` | ✅ | Set pool buffer size |
+| `webgpu.reportUsedMemory()` | ✅ | Report memory usage |
+| `webgpu.getDevice()` | ✅ | Get WebGPU device |
+| `webgpu.destroy()` | ✅ | Destroy WebGPU resources |

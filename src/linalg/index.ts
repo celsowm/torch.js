@@ -437,9 +437,18 @@ export const det = (A: Tensor): Tensor => {
  * @pytorch torch.linalg.cross
  */
 export const cross = (input: Tensor, other: Tensor, dim: number = -1): Tensor => {
-    if (input.shape[dim] !== 3 || other.shape[dim] !== 3) {
+    const d = dim < 0 ? dim + input.dim() : dim;
+    if (input.shape[d] !== 3 || other.shape[d] !== 3) {
         throw new Error('linalg.cross: expected dimension of size 3');
     }
-    // TODO: implement cross product
-    throw new Error('linalg.cross: not yet implemented');
+    const ux = input.narrow(d, 0, 1).squeeze(d);
+    const uy = input.narrow(d, 1, 1).squeeze(d);
+    const uz = input.narrow(d, 2, 1).squeeze(d);
+    const vx = other.narrow(d, 0, 1).squeeze(d);
+    const vy = other.narrow(d, 1, 1).squeeze(d);
+    const vz = other.narrow(d, 2, 1).squeeze(d);
+    const cx = uy.mul(vz).sub(uz.mul(vy)).unsqueeze(d);
+    const cy = uz.mul(vx).sub(ux.mul(vz)).unsqueeze(d);
+    const cz = ux.mul(vy).sub(uy.mul(vx)).unsqueeze(d);
+    return ops.cat([cx, cy, cz], d);
 };

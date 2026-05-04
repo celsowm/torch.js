@@ -54,6 +54,10 @@ import CLAMP_SHADER from './clamp.wgsl';
 import CHOLESKY_SHADER from './cholesky.wgsl';
 import TRIANGULAR_SOLVE_SHADER from './triangular_solve.wgsl';
 import LU_SHADER from './lu.wgsl';
+import CONV_SHADER from './conv.wgsl';
+import MAX_POOL2D_SHADER from './max_pool2d.wgsl';
+import AVG_POOL2D_SHADER from './avg_pool2d.wgsl';
+import BATCHNORM_SHADER from './batchnorm.wgsl';
 
 export {
   ELEMENTWISE_SHADER,
@@ -106,4 +110,8 @@ export {
   CHOLESKY_SHADER,
   TRIANGULAR_SOLVE_SHADER,
   LU_SHADER,
+  CONV_SHADER,
+  MAX_POOL2D_SHADER,
+  AVG_POOL2D_SHADER,
+  BATCHNORM_SHADER,
 };
