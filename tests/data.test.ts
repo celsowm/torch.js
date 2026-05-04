@@ -24,13 +24,13 @@ describe('torch.utils.data', () => {
       expect(() => new (torch.utils.data.TensorDataset as any)()).toThrow();
     });
 
-    it('returns [input, target] from get()', () => {
+    it('returns [input, target] from get()', async () => {
       const x = torch.tensor([1, 2, 3]);
       const y = torch.tensor([10, 20, 30]);
       const ds = new torch.utils.data.TensorDataset(x, y);
       const [xi, yi] = ds.get(1);
-      expect(xi.item()).toBe(2);
-      expect(yi.item()).toBe(20);
+      expect(await xi.item()).toBe(2);
+      expect(await yi.item()).toBe(20);
     });
   });
 

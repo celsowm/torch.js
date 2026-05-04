@@ -13,7 +13,7 @@ describe('torch.js Browser Smoke Test', () => {
     const c = a.add(b);
     
     expect(c.shape).toEqual([3]);
-    expect(await c.toArray()).toEqual([5, 7, 9]);
+    expect(Array.from(await c.toArray())).toEqual([5, 7, 9]);
   });
 
   it('can perform matrix multiplication', async () => {
@@ -21,6 +21,7 @@ describe('torch.js Browser Smoke Test', () => {
     const b = torch.tensor([[5, 6], [7, 8]]);
     const c = a.matmul(b);
     
-    expect(await c.toNestedArray()).toEqual([[19, 22], [43, 50]]);
+    const data = Array.from(await c.toArray());
+    expect([data.slice(0, 2), data.slice(2, 4)]).toEqual([[19, 22], [43, 50]]);
   });
 });

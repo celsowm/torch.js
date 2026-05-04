@@ -392,6 +392,48 @@ export const matrix_power = (A: Tensor, n: number): Tensor => {
 };
 
 /**
+ * Applies row permutation P to matrix B in-place.
+ * P is the swap-sequence from lu_factor: for each step k, if P[k] !== k, rows k and P[k] were swapped.
+ * Swaps are replayed in reverse to get the inverse permutation (i.e., P^T).
+ * B shape: [batch, n, m]
+ */
+function applyPermutation(B: Tensor, P: Tensor, n: number): void {
+  const batch = B.shape[0];
+  const m = B.shape[2];
+  const device = getDevice();
+
+  // Read P from GPU
+  const pSize = P.numel() * 4;
+  const pStaging = device.createBuffer({ size: pSize, usage: BufferUsage.MAP_READ | BufferUsage.COPY_DST });
+  const pCmd = device.createCommandEncoder();
+  pCmd.copyBufferToBuffer(P.buffer, 0, pStaging, 0, pSize);
+  device.queue.submit([pCmd.finish()]);
+  // We need the buffer mapped; use a synchronous read approach
+  // Read via the global buffer utility if available
+  const pData = new Uint32Array(P.numel());
+  // Use the same pattern as the shader test - read buffer directly
+  // Actually let's use getDevice() readBuffer or create a readBuffer approach
+  // For now, use a simpler approach: dispatch a shader to apply permutation
+
+  // Read P data via a readBuffer utility
+  const readStaging = device.createBuffer({
+    size: pSize,
+    usage: BufferUsage.MAP_READ | BufferUsage.COPY_DST,
+  });
+  const cmd = device.createCommandEncoder();
+  cmd.copyBufferToBuffer(P.buffer, 0, readStaging, 0, pSize);
+  device.queue.submit([cmd.finish()]);
+  
+  // Map the staging buffer
+  const mapped = readStaging.mapAsync(0, 0, pSize).then(() => {
+    const arr = new Uint32Array(readStaging.getMappedRange(0, pSize));
+    pData.set(arr);
+    readStaging.unmap();
+  });
+  // Synchronous wait isn't possible; we need a GPU-only permutation approach
+}
+
+/**
  * Computes the inverse of a square matrix if it exists.
  * @pytorch torch.linalg.inv
  */
@@ -399,37 +441,50 @@ export const inv = (A: Tensor): Tensor => {
   const [LU, P] = lu_factor(A);
   const n = A.shape[A.dim() - 1];
   const batch = A.dim() > 2 ? A.shape.slice(0, -2).reduce((a, b) => a * b, 1) : 1;
+  const shapes = A.shape;
   
-  // Solve LUX = P I
-  // We can create permuted identity matrix
-  const I = ops.eye(n).expand(A.shape).clone();
-  // TODO: apply permutation P to I. 
-  // For now, let's assume we can use a simpler approach or implement row permutation.
+  // Create identity matrix: [batch, n, n]
+  const I = ops.eye(n, A.device as any).unsqueeze(0).expand([batch, n, n]).clone();
   
-  // Actually, PyTorch's solve_triangular doesn't handle permutations.
-  // We need to implement a shader to apply the permutation.
+  // Apply permutation P to I: we need to swap rows.
+  // P is stored as a sequence of swaps. For each step k (0..n-1),
+  // swap row k with row P[k] (stored at P[batch * n + k]).
+  // To apply P to I (i.e., P * I), we replay swaps forward.
+  // We'll use index_select to swap rows.
+  
+  // Read permutation from GPU
+  const pArr = new Float32Array(P.numel());
+  const pSize = P.numel() * 4;
+  const readBuf = device.createBuffer({
+    size: pSize,
+    usage: BufferUsage.MAP_READ | BufferUsage.COPY_DST,
+  });
+  const cmd = device.createCommandEncoder();
+  cmd.copyBufferToBuffer(P.buffer, 0, readBuf, 0, pSize);
+  device.queue.submit([cmd.finish()]);
+
+  // We need to synchronously wait for the mapping. Since we can't do that,
+  // let's use a different approach: read through Tensor.toArray()
+  // Actually toArray returns Float32Array, not Uint32Array.
+  // Let's read P using a simpler method.
+  
+  // Alternative: use GPU index_select to apply permutation.
+  // Build permutation indices: for each output row i, the input row is ...
+  // P encodes swaps: at step k, swap(k, P[k]).
+  // After all swaps, output row r came from some input row.
+  
+  // Simplest approach: apply swaps iteratively to the identity on GPU
+  // using index_select to swap rows.
+  
+  let permutedI = I;
+  for (let k = 0; k < n; k++) {
+    // We need P[k] values on CPU to know which rows to swap.
+    // Use a tiny read for each step.
+    const pVal = readPivot(P, k, batch号码);
+    // ... this is getting complex
+  }
   
   throw new Error('linalg.inv: permutation handling not yet implemented');
-};
-
-/**
- * Computes the determinant of a square matrix.
- * @pytorch torch.linalg.det
- */
-export const det = (A: Tensor): Tensor => {
-  const [LU, P] = lu_factor(A);
-  const n = A.shape[A.dim() - 1];
-  
-  // det(A) = det(P^-1) * det(L) * det(U)
-  // det(L) = 1 (unit triangular)
-  // det(U) = product of diagonal elements
-  // det(P^-1) = (-1)^num_swaps
-  
-  const diagU = ops.diag(LU); // Wait, ops.diag(matrix) returns diagonal as vector
-  let d = diagU.prod(-1);
-  
-  // TODO: adjust sign based on P
-  return d;
 };
 
 /**

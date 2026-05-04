@@ -58,6 +58,7 @@ import CONV_SHADER from './conv.wgsl';
 import MAX_POOL2D_SHADER from './max_pool2d.wgsl';
 import AVG_POOL2D_SHADER from './avg_pool2d.wgsl';
 import BATCHNORM_SHADER from './batchnorm.wgsl';
+import PERMUTE_SHADER from './permute.wgsl';
 
 export {
   ELEMENTWISE_SHADER,
@@ -114,4 +115,5 @@ export {
   MAX_POOL2D_SHADER,
   AVG_POOL2D_SHADER,
   BATCHNORM_SHADER,
+  PERMUTE_SHADER,
 };
