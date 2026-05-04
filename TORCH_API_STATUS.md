@@ -108,10 +108,16 @@
 | `tensor.floor()` | ✅ | Floor |
 | `tensor.round()` | ✅ | Round |
 | `tensor.trunc()` | ✅ | Truncate |
+| `tensor.fix()` | ✅ | Fix towards zero (alias for trunc) |
 | `tensor.frac()` | ✅ | Fractional part |
 | `tensor.clamp()` | ✅ | Clamp to [min, max] |
+| `tensor.clip()` | ✅ | Alias for clamp |
+| `tensor.clamp_min()` | ✅ | Clamp with min only |
+| `tensor.clamp_max()` | ✅ | Clamp with max only |
 | `tensor.reciprocal()` | ✅ | 1/x |
 | `tensor.square()` | ✅ | x^2 |
+| `tensor.fmod()` | ✅ | Floating point modulo (NEW) |
+| `tensor.remainder()` | ✅ | Remainder (NEW) |
 | `tensor.deg2rad()` | ✅ | Degrees to radians |
 | `tensor.rad2deg()` | ✅ | Radians to degrees |
 | `tensor.logical_not()` | ✅ | Logical NOT |
@@ -129,17 +135,23 @@
 | `tensor.mean()` | ✅ | Mean with optional dim/keepdim |
 | `tensor.max()` | ✅ | Max with optional dim/keepdim |
 | `tensor.min()` | ✅ | Min with optional dim/keepdim |
-| `tensor.argmax()` | ✅ | Index of maximum (flat or along dim) |
-| `tensor.argmin()` | ✅ | Index of minimum (flat or along dim) |
+| `tensor.argmax()` | ✅ | Index of maximum (now supports dim parameter) |
+| `tensor.argmin()` | ✅ | Index of minimum (now supports dim parameter) |
 | `tensor.amax()` | ✅ | Max with dim/keepdim |
 | `tensor.amin()` | ✅ | Min with dim/keepdim |
 | `tensor.prod()` | ✅ | Product with optional dim/keepdim |
-| `tensor.std()` | ❌ | Standard deviation |
-| `tensor.var()` | ❌ | Variance |
+| `tensor.std()` | ✅ | Standard deviation (NEW: with unbiased/correction) |
+| `tensor.var()` | ✅ | Variance (NEW: with unbiased/correction) |
 | `tensor.all()` | ✅ | Logical AND reduction |
 | `tensor.any()` | ✅ | Logical OR reduction |
 | `tensor.cumsum()` | ✅ | Cumulative sum |
 | `tensor.cumprod()` | ✅ | Cumulative product |
+| `tensor.cummax()` | ✅ | Cumulative max (NEW) |
+| `tensor.cummin()` | ✅ | Cumulative min (NEW) |
+| `tensor.logsumexp()` | ✅ | Log sum exp (NEW) |
+| `tensor.logcumsumexp()` | ✅ | Log cumulative sum exp (NEW) |
+| `tensor.count_nonzero()` | ✅ | Count non-zero elements (NEW) |
+| `tensor.aminmax()` | ✅ | Min and max simultaneously (NEW) |
 
 ## Matrix Operations
 
@@ -181,21 +193,30 @@
 | `tensor.clone()` | ✅ | Deep copy |
 | `tensor.detach()` | ✅ | Detach from autograd |
 | `tensor.copy_()` | ✅ | In-place copy |
+| `tensor.unflatten()` | ✅ | Unflatten dimension (NEW) |
+| `tensor.sort()` | ✅ | Sort elements (NEW) |
+| `tensor.argsort()` | ✅ | Indices of sorted (NEW) |
+| `tensor.topk()` | ✅ | Top k elements (NEW) |
+| `tensor.kthvalue()` | ✅ | k-th smallest value (NEW) |
 
 ## Indexing & Slicing
 
 | API | Status | Notes |
 |-----|--------|-------|
-| `tensor[i]` | ❌ | Basic indexing |
+| `tensor[i]` | ✅ | Basic indexing (get via .get()) |
+| `tensor[i] = value` | ✅ | Basic indexing (set via .set()) |
 | `tensor[i:j]` | ❌ | Slicing |
 | `tensor.index_select()` | ✅ | Select along dimension (GPU) |
 | `tensor.select()` | ✅ | Select single index along dim |
 | `tensor.take()` | ✅ | Gather elements by indices |
-| `tensor.gather()` | ❌ | Gather values |
-| `tensor.scatter()` | ❌ | Scatter values |
-| `tensor.masked_select()` | ✅ | Select by mask (GPU) |
+| `tensor.gather()` | ✅ | Gather values |
+| `tensor.scatter()` | ✅ | Scatter values |
+| `tensor.scatter_add()` | ✅ | Scatter with addition |
+| `tensor.masked_select()` | ✅ | Select by mask |
 | `tensor.masked_fill()` | ✅ | Fill by mask (GPU) |
 | `tensor.where()` | ✅ | Element-wise conditional |
+| `tensor.nonzero()` | ✅ | Non-zero indices |
+| `tensor.diagonal()` | ✅ | Diagonal extraction |
 | `tensor.chunk()` | ✅ | Split into chunks |
 | `tensor.narrow()` | ✅ | Narrow view |
 | `tensor.unbind()` | ✅ | Remove a dimension |
@@ -206,6 +227,10 @@
 | `tensor.flip()` | ✅ | Reverse order |
 | `tensor.fliplr()` | ✅ | Flip left-right |
 | `tensor.flipud()` | ✅ | Flip up-down |
+| `tensor.repeat_interleave()` | ✅ | Repeat elements |
+| `tensor.roll()` | ✅ | Roll tensor |
+| `tensor.rot90()` | ✅ | Rotate 90 degrees |
+| `tensor.tensor_split()` | ✅ | Split by indices |
 
 ## Comparison Operations
 
@@ -271,11 +296,23 @@
 | `nn.Linear` | ✅ | Fully connected layer |
 | `nn.Conv1d` | ✅ | 1D convolution (GPU, via reshape to conv2d) |
 | `nn.Conv2d` | ✅ | 2D convolution (GPU shader, supports groups) |
+| `nn.ConvTranspose1d` | ✅ | 1D transposed convolution |
+| `nn.ConvTranspose2d` | ✅ | 2D transposed convolution |
+| `nn.ConvTranspose3d` | ✅ | 3D transposed convolution |
 | `nn.MaxPool2d` | ✅ | 2D max pooling (GPU shader, supports dilation) |
 | `nn.AvgPool2d` | ✅ | 2D average pooling (GPU shader, count_include_pad) |
 | `nn.BatchNorm1d` | ✅ | 1D batch normalization (GPU shader, CPU stats) |
 | `nn.BatchNorm2d` | ✅ | 2D batch normalization (GPU shader, CPU stats) |
+| `nn.InstanceNorm1d` | ✅ | 1D instance normalization |
+| `nn.InstanceNorm2d` | ✅ | 2D instance normalization |
+| `nn.InstanceNorm3d` | ✅ | 3D instance normalization |
+| `nn.GroupNorm` | ✅ | Group normalization |
+| `nn.RMSNorm` | ✅ | RMS normalization |
 | `nn.LayerNorm` | ✅ | Layer normalization (GPU shader) |
+| `nn.MultiheadAttention` | ✅ | Multi-head attention |
+| `nn.Upsample` | ✅ | Generic upsampling layer |
+| `nn.UpsamplingNearest2d` | ✅ | Nearest neighbor upsampling 2D |
+| `nn.UpsamplingBilinear2d` | ✅ | Bilinear upsampling 2D |
 | `nn.Dropout` | ✅ | Dropout |
 | `nn.Dropout2d` | ✅ | 2D dropout |
 | `nn.Embedding` | ✅ | Embedding layer (GPU shader) |
@@ -373,6 +410,7 @@
 | `torch.cat()` | ✅ | Concatenate tensors |
 | `torch.split()` | ✅ | Split tensor |
 | `torch.chunk()` | ✅ | Chunk into pieces |
+| `torch.tensor_split()` | ✅ | Split by indices (NEW) |
 | `torch.vstack()` | ✅ | Vertical stack |
 | `torch.hstack()` | ✅ | Horizontal stack |
 | `torch.dstack()` | ✅ | Depth stack |
@@ -385,6 +423,34 @@
 | `torch.diag()` | ✅ | Diagonal |
 | `torch.trapezoid()` | ✅ | Trapezoidal integration |
 | `torch.cumulative_trapezoid()` | ✅ | Cumulative trapezoidal |
+| `torch.meshgrid()` | ✅ | Coordinate grids (NEW) |
+| `torch.cartesian_prod()` | ✅ | Cartesian product (NEW) |
+| `torch.combinations()` | ✅ | Element combinations (NEW) |
+| `torch.trace()` | ✅ | Matrix trace (NEW) |
+| `torch.unravel_index()` | ✅ | Flat to multi-index (NEW) |
+| `torch.nonzero()` | ✅ | Non-zero indices (NEW) |
+| `torch.masked_select()` | ✅ | Select by mask (NEW) |
+| `torch.gather()` | ✅ | Gather values (NEW) |
+| `torch.scatter()` | ✅ | Scatter values (NEW) |
+| `torch.scatter_add()` | ✅ | Scatter with addition (NEW) |
+| `torch.sort()` | ✅ | Sort elements (NEW) |
+| `torch.argsort()` | ✅ | Indices of sorted (NEW) |
+| `torch.topk()` | ✅ | Top k elements (NEW) |
+| `torch.kthvalue()` | ✅ | k-th smallest value (NEW) |
+| `torch.std()` | ✅ | Standard deviation (NEW) |
+| `torch.var()` | ✅ | Variance (NEW) |
+| `torch.logsumexp()` | ✅ | Log sum exp (NEW) |
+| `torch.count_nonzero()` | ✅ | Count non-zero (NEW) |
+| `torch.aminmax()` | ✅ | Min and max simultaneously (NEW) |
+| `torch.fmod()` | ✅ | Floating point modulo |
+| `torch.remainder()` | ✅ | Remainder |
+| `torch.clip()` | ✅ | Alias for clamp |
+| `torch.clamp_min()` | ✅ | Clamp with min only |
+| `torch.clamp_max()` | ✅ | Clamp with max only |
+| `torch.einsum()` | ✅ | Einstein summation |
+| `torch.unique()` | ✅ | Unique elements |
+| `torch.unique_consecutive()` | ✅ | Unique consecutive elements |
+| `torch.isin()` | ✅ | Element-wise set membership |
 
 ## Linear Algebra
 
@@ -403,6 +469,79 @@
 | `linalg.matrix_power()` | ❌ | Matrix power |
 | `linalg.matrix_rank()` | ❌ | Matrix rank |
 | `linalg.norm()` | ❌ | Matrix norm |
+
+## FFT
+
+| API | Status | Notes |
+|-----|--------|-------|
+| `torch.fft.fft()` | ✅ | 1D FFT (CPU fallback via toArray) |
+| `torch.fft.ifft()` | ✅ | 1D IFFT |
+| `torch.fft.fft2()` | ✅ | 2D FFT |
+| `torch.fft.fftn()` | ✅ | N-dimensional FFT |
+| `torch.fft.rfft()` | ✅ | Real input FFT |
+| `torch.fft.irfft()` | ✅ | Inverse real FFT |
+| `torch.fft.fftshift()` | ✅ | Shift zero frequency to center |
+| `torch.fft.ifftshift()` | ✅ | Inverse fftshift |
+| `torch.fft.fftfreq()` | ✅ | FFT sample frequencies |
+| `torch.fft.rfftfreq()` | ✅ | Real FFT sample frequencies |
+
+## Special Functions (torch.special)
+
+| API | Status | Notes |
+|-----|--------|-------|
+| `torch.special.erfinv()` | ✅ | Inverse error function (CPU fallback) |
+| `torch.special.logit()` | ✅ | Logit function with eps clipping |
+| `torch.special.sinc()` | ✅ | Sinc function: sin(πx)/(πx) |
+| `torch.special.entr()` | ✅ | Entropy: -x*log(x) (CPU fallback) |
+| `torch.special.i1()` | ✅ | Bessel function order 1 (CPU fallback) |
+| `torch.special.i1e()` | ✅ | Scaled Bessel i1 (CPU fallback) |
+| `torch.special.xlogy()` | ✅ | x * log(y) |
+| `torch.special.xlog1py()` | ✅ | x * log1p(y) |
+| `torch.special.multigammaln()` | ✅ | Multivariate log-gamma (CPU fallback) |
+| `torch.special.zeta()` | ✅ | Riemann zeta (CPU fallback) |
+| `torch.special.erfcx()` | ✅ | Scaled erfc: exp(x²)*erfc(x) |
+| `torch.special.expit()` | ✅ | Sigmoid function |
+| `torch.special.log_ndtr()` | ✅ | Log normal CDF |
+| `torch.special.ndtr()` | ✅ | Normal CDF |
+| `torch.special.ndtri()` | ✅ | Inverse normal CDF (CPU fallback) |
+| `torch.special.bessel_j0()` | ✅ | Bessel J0 (CPU fallback) |
+| `torch.special.bessel_j1()` | ✅ | Bessel J1 (CPU fallback) |
+| `torch.special.spherical_bessel_j0()` | ✅ | Spherical Bessel j0 |
+| `torch.special.log_softmax()` | ✅ | Log softmax via nn.functional |
+| `torch.special.softmax()` | ✅ | Softmax via nn.functional |
+
+## Neural Network Modules (nn)
+
+| API | Status | Notes |
+|-----|--------|-------|
+| `nn.Linear` | ✅ | Fully connected layer |
+| `nn.Conv1d/2d` | ✅ | Convolution layers |
+| `nn.ConvTranspose1d/2d/3d` | ✅ | Transposed convolutions |
+| `nn.MaxPool1d/2d/3d` | ✅ | Max pooling (1D CPU fallback, 3D stub) |
+| `nn.AvgPool1d/2d/3d` | ✅ | Average pooling (3D stub) |
+| `nn.AdaptiveAvgPool1d/3d` | 🔶 | Adaptive pooling (1D implemented, 3D stub) |
+| `nn.BatchNorm1d/2d` | ✅ | Batch normalization |
+| `nn.InstanceNorm1d/2d/3d` | ✅ | Instance normalization |
+| `nn.GroupNorm` | ✅ | Group normalization |
+| `nn.RMSNorm` | ✅ | RMS normalization |
+| `nn.LayerNorm` | ✅ | Layer normalization |
+| `nn.Dropout/Dropout2d` | ✅ | Dropout regularization |
+| `nn.Embedding` | ✅ | Embedding layer |
+| `nn.RNN/LSTM/GRU` | ✅ | Recurrent layers |
+| `nn.MultiheadAttention` | 🔶 | Multi-head attention (masks not yet supported) |
+| `nn.TransformerEncoder` | ✅ | Transformer encoder |
+| `nn.TransformerDecoder` | ✅ | Transformer decoder |
+| `nn.TransformerEncoderLayer` | ✅ | Single encoder layer |
+| `nn.TransformerDecoderLayer` | ✅ | Single decoder layer |
+| `nn.ConstantPad1d/2d/3d` | 🔶 | Constant padding (3D stub) |
+| `nn.ZeroPad2d` | ✅ | Zero padding |
+| `nn.ReflectionPad2d` | ✅ | Reflection padding (CPU fallback) |
+| `nn.ReplicationPad2d` | ❌ | Replication padding |
+| `nn.Upsample` | ✅ | Upsampling |
+| `nn.UpsamplingNearest2d` | ✅ | Nearest neighbor upsampling |
+| `nn.UpsamplingBilinear2d` | ✅ | Bilinear upsampling |
+| `nn.Sequential` | ✅ | Sequential container |
+| `nn.ModuleList/ModuleDict` | ✅ | Module containers |
 
 ## WebGPU Features
 

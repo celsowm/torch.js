@@ -1,0 +1,86 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/quick_wins.test.ts[2m:5:1[22m[2m[2m > [22m[2mQuick Wins: Compatibility Tests
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/quick_wins.test.ts[2m:5:1[22m[2m[2m > [22m[2mQuick Wins: Compatibility Tests
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:14:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.no_grad[2m > [22mdisables requires_grad for tensors created inside the context[32m 6[2mms[22m[39m
+[31m   → expected true to be false // Object.is equality[39m
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:23:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.no_grad[2m > [22mrestores requires_grad after context exits[32m 1[2mms[22m[39m
+[31m   → expected true to be false // Object.is equality[39m
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:37:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.no_grad[2m > [22mworks with no_grad.run() wrapper[32m 1[2mms[22m[39m
+[31m   → expected true to be false // Object.is equality[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:51:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.enable_grad[2m > [22menables requires_grad for tensors created inside the context[32m 1[2mms[22m[39m
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:60:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.enable_grad[2m > [22mrestores previous grad state after context exits[32m 1[2mms[22m[39m
+[31m   → expected true to be false // Object.is equality[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:76:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.enable_grad[2m > [22mworks with enable_grad.run() wrapper[32m 1[2mms[22m[39m
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:90:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.inference_mode[2m > [22mdisables gradient tracking inside the context[32m 1[2mms[22m[39m
+[31m   → expected true to be false // Object.is equality[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:99:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.inference_mode[2m > [22mis_grad_enabled returns false inside inference_mode[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:107:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.inference_mode[2m > [22mrestores previous state after context exits[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:122:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.is_grad_enabled[2m > [22mreturns true by default[32m 0[2mms[22m[39m
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:126:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.is_grad_enabled[2m > [22mreturns false inside no_grad[32m 1[2mms[22m[39m
+[31m   → expected true to be false // Object.is equality[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:134:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.is_grad_enabled[2m > [22mreturns false inside inference_mode[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:147:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.contiguous()[2m > [22mreturns a contiguous tensor after transpose[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:155:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.contiguous()[2m > [22mpreserves shape after contiguous[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:165:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.contiguous()[2m > [22mcontiguous on already contiguous tensor returns same data[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:177:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.copy_()[2m > [22mcopies data from src into self[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:185:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.copy_()[2m > [22mreturns self for chaining[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:194:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.copy_()[2m > [22mworks with multi-dimensional tensors[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:207:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.destroy()[2m > [22mdoes not throw on valid tensor[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:212:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.destroy()[2m > [22mcan be called multiple times without error[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:218:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.destroy()[2m > [22mcleans up tensor with grad[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:231:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.bincount()[2m > [22mthrows "not yet implemented" error[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:236:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.bincount()[2m > [22mthrows "not yet implemented" with minlength[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:246:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.histc()[2m > [22mthrows "not yet implemented" error[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:251:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.histc()[2m > [22mthrows "not yet implemented" with different bins[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:261:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.from_numpy()[2m > [22mcreates tensor from array-like data[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:269:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.from_numpy()[2m > [22mcreates tensor with correct shape from multi-element array[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:277:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.from_numpy()[2m > [22mrespects dtype option[32m 0[2mms[22m[39m
+ [31m×[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:288:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.aminmax()[2m > [22mreturns min and max for 1D tensor[32m 7[2mms[22m[39m
+[31m   → expected 5 to be less than or equal to 0[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:303:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.aminmax()[2m > [22mworks with dim parameter on 2D tensor[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:316:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.aminmax()[2m > [22mworks with keepdim[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:334:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.std_mean()[2m > [22mreturns std and mean tensors for 1D input[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:345:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.std_mean()[2m > [22mstd is non-negative[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:352:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.std_mean()[2m > [22mworks with dim parameter[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:372:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.var_mean()[2m > [22mvar equals std squared[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:384:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.var_mean()[2m > [22mvar computed with unbiased=false[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:394:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.var_mean()[2m > [22mvar works with dim parameter[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:412:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.logcumsumexp()[2m > [22moutput has same shape as input[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:418:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.logcumsumexp()[2m > [22mcomputes correct values along dim 0[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:431:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mTensor.logcumsumexp()[2m > [22mworks with negative values[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:447:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.cumulative_trapezoid()[2m > [22moutput has shape [..., N-1] for input [..., N][32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:453:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.cumulative_trapezoid()[2m > [22mcomputes cumulative integration with default dx=1[32m 100[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:465:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.cumulative_trapezoid()[2m > [22mworks with different dx values[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:479:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.trapz()[2m > [22mreturns scalar for 1D input[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:486:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.trapz()[2m > [22mscales with dx[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:498:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.trapz()[2m > [22mtrapz is alias for trapezoid[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:507:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.chain_matmul()[2m > [22mchain_matmul(A, B, C) equals matmul(matmul(A,B), C)[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:523:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.chain_matmul()[2m > [22mworks with two matrices[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts[2m:531:5[22m[2m > [22mQuick Wins: Compatibility Tests[2m > [22mtorch.chain_matmul()[2m > [22mworks with three or more matrices[32m 9[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (49)[39m
+[2m   Start at [22m 16:49:34
+[2m   Duration [22m 5.17s[2m (transform 0ms, setup 0ms, import 648ms, tests 755ms, environment 0ms)[22m
+

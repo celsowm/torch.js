@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Parser, NameRegistry } from '../';
+import { Parser, NameRegistry } from '../src';
 
 class Document extends Map {}
 
@@ -9,8 +9,8 @@ async function unpickle(fname: string) {
     const buffer = Buffer.from(pkl, 'binary');
 
     const registry = new NameRegistry()
-        .register('pathlib', 'WindowsPath', (...args) => args.join('\\'))
-        .register('pathlib', 'PosixPath', (...args) => args.join('/'))
+        .register('pathlib', 'WindowsPath', (...args: string[]) => args.join('\\'))
+        .register('pathlib', 'PosixPath', (...args: string[]) => args.join('/'))
         .register('langchain.schema', 'Document', Document);
 
     const parser = new Parser({

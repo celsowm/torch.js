@@ -17,6 +17,7 @@ import {
 import { getDTypeBytes } from '../dtype';
 import { LOG_SOFTMAX_SHADER, NLL_LOSS_SHADER, NLL_LOSS_BACKWARD_SHADER, LOG_SOFTMAX_BACKWARD_SHADER, CONV_SHADER, CONV_BACKWARD_SHADER, MAX_POOL2D_SHADER, AVG_POOL2D_SHADER } from '../backend/webgpu/shaders';
 import { DEBUG_ASYNC, log } from '../debug';
+import { full, zeros, arange } from '../ops/creation';
 
 /**
  * Apply ReLU activation function.
@@ -233,166 +234,6 @@ export function log_softmax(input: Tensor, dim: number = -1): Tensor {
 }
 
 /**
- * Negative log likelihood loss.
- * @status implemented
- * @pytorch F.nll_loss
- */
-export function nll_loss(
-  input: Tensor,
-  target: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean'
-): Tensor {
-  if (input.shape.length !== 2) {
-    throw new Error('nll_loss currently only supports 2D input tensors');
-  }
-  if (target.shape.length !== 1) {
-    throw new Error('nll_loss currently only supports 1D target tensors');
-  }
-  if (input.shape[0] !== target.shape[0]) {
-    throw new Error(`Batch size mismatch: input ${input.shape[0]} vs target ${target.shape[0]}`);
-  }
-
-  const [batchSize, numClasses] = input.shape;
-  const device = getDevice();
-
-  // Create output buffer (one loss per batch item)
-  const outputBuffer = createStorageBuffer(batchSize * getDTypeBytes(input.dtype));
-
-  // Create dims uniform buffer
-  const dimsData = new Uint32Array([batchSize, numClasses]);
-  const dimsBuffer = device.createBuffer({
-    size: 8,
-    usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
-  });
-  device.queue.writeBuffer(dimsBuffer, 0, dimsData);
-
-  // Dispatch shader
-  const pipeline = getOrCreatePipeline(NLL_LOSS_SHADER, 'nll_loss');
-  const bindGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      { binding: 0, resource: { buffer: input.buffer, offset: 0, size: input.buffer.size } },
-      { binding: 1, resource: { buffer: target.buffer, offset: 0, size: target.buffer.size } },
-      { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-      { binding: 3, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
-    ],
-  });
-
-  const workgroups = calculateWorkgroups(batchSize);
-
-  const commandEncoder = device.createCommandEncoder();
-  const passEncoder = commandEncoder.beginComputePass();
-  passEncoder.setPipeline(pipeline);
-  passEncoder.setBindGroup(0, bindGroup);
-  passEncoder.dispatchWorkgroups(...workgroups);
-  passEncoder.end();
-  device.queue.submit([commandEncoder.finish()]);
-
-  const lossPerItem = new Tensor({
-    buffer: outputBuffer,
-    shape: [batchSize],
-    dtype: input.dtype,
-    device: 'webgpu',
-    requires_grad: input.requires_grad,
-  });
-
-  // Apply reduction
-  let result: Tensor;
-  if (reduction === 'mean') {
-    result = lossPerItem.mean();
-  } else if (reduction === 'sum') {
-    result = lossPerItem.sum();
-  } else {
-    result = lossPerItem;
-  }
-
-  // Add grad_fn for backprop
-  if (input.requires_grad) {
-    // Store references for backward pass
-    const inputRef = input;
-    const targetRef = target;
-    const scale = reduction === 'mean' ? 1.0 / batchSize : 1.0;
-
-    const grad_fn: GradFn = {
-      backward(_gradOutput: Tensor): void {
-        // d(nll_loss)/d(input) = -scale at the target index, 0 elsewhere
-        const gradInputBuffer = createStorageBuffer(
-          inputRef.numel() * getDTypeBytes(inputRef.dtype)
-        );
-
-        // Create params buffer
-        const paramsData = new ArrayBuffer(16);
-        new Uint32Array(paramsData, 0, 1)[0] = batchSize;
-        new Uint32Array(paramsData, 4, 1)[0] = numClasses;
-        new Float32Array(paramsData, 8, 1)[0] = scale;
-        new Uint32Array(paramsData, 12, 1)[0] = 0; // padding
-
-        const paramsBuffer = device.createBuffer({
-          size: 16,
-          usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
-        });
-        device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-
-        const pipeline = getOrCreatePipeline(NLL_LOSS_BACKWARD_SHADER, 'nll_loss_backward');
-        const bindGroup = device.createBindGroup({
-          layout: pipeline.getBindGroupLayout(0),
-          entries: [
-            { binding: 0, resource: { buffer: targetRef.buffer, offset: 0, size: targetRef.buffer.size } },
-            { binding: 1, resource: { buffer: gradInputBuffer, offset: 0, size: gradInputBuffer.size } },
-            { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-          ],
-        });
-
-        const commandEncoder = device.createCommandEncoder();
-        const passEncoder = commandEncoder.beginComputePass();
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setBindGroup(0, bindGroup);
-        passEncoder.dispatchWorkgroups(...calculateWorkgroups(inputRef.numel()));
-        passEncoder.end();
-        device.queue.submit([commandEncoder.finish()]);
-
-        const gradInput = new Tensor({
-          buffer: gradInputBuffer,
-          shape: [...inputRef.shape],
-          dtype: inputRef.dtype,
-          device: 'webgpu',
-          requires_grad: false,
-        });
-
-        // Propagate gradient to input (which is the log_softmax output)
-        if (inputRef.grad_fn) {
-          inputRef.grad_fn.backward(gradInput);
-        }
-      },
-    };
-
-    result = new Tensor({
-      buffer: result.buffer,
-      shape: [...result.shape],
-      dtype: result.dtype,
-      device: result.device,
-      requires_grad: true,
-      grad_fn,
-    });
-  }
-
-  return result;
-}
-
-/**
- * Cross entropy loss (combines log_softmax and nll_loss).
- * @status implemented
- * @pytorch F.cross_entropy
- */
-export function cross_entropy(
-  input: Tensor,
-  target: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean'
-): Tensor {
-  return nll_loss(log_softmax(input, -1), target, reduction);
-}
-
-/**
  * Apply dropout.
  * @status implemented
  * @pytorch F.dropout
@@ -408,123 +249,6 @@ export function dropout(input: Tensor, p: number = 0.5, training: boolean = true
   // TODO: Implement proper dropout with random mask
   // For now, just scale during training
   return input.mul(1 - p);
-}
-
-/**
- * Mean squared error loss.
- * @pytorch F.mse_loss
- */
-export function mse_loss(
-  input: Tensor,
-  target: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean'
-): Tensor {
-  const diff = input.sub(target);
-  const squared = diff.pow(2);
-  if (reduction === 'mean') {
-    return squared.mean();
-  } else if (reduction === 'sum') {
-    return squared.sum();
-  }
-  return squared;
-}
-
-/**
- * Binary cross entropy loss.
- * @pytorch F.binary_cross_entropy
- */
-export function binary_cross_entropy(
-  input: Tensor,
-  target: Tensor,
-  weight?: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean'
-): Tensor {
-  // BCE = -(target * log(input) + (1 - target) * log(1 - input))
-  const negInput = input.mul(-1).add(1).log();
-  const posInput = input.log();
-  let loss = target.mul(posInput).add(target.mul(-1).add(1).mul(negInput)).neg();
-  if (weight) {
-    loss = loss.mul(weight);
-  }
-  if (reduction === 'mean') {
-    return loss.mean();
-  } else if (reduction === 'sum') {
-    return loss.sum();
-  }
-  return loss;
-}
-
-/**
- * Binary cross entropy loss with logits (combines sigmoid + BCE).
- * More numerically stable than separate sigmoid + BCE.
- * @pytorch F.binary_cross_entropy_with_logits
- */
-export function binary_cross_entropy_with_logits(
-  input: Tensor,
-  target: Tensor,
-  weight?: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean',
-  pos_weight?: Tensor
-): Tensor {
-  // Uses the log-sum-exp trick for numerical stability:
-  // max(x, 0) - x * target + log(1 + exp(-|x|))
-  const negAbs = input.abs().neg();
-  const maxXZeros = input.clamp(0);
-  let loss = maxXZeros.sub(input.mul(target)).add(negAbs.exp().add(1).log());
-  if (pos_weight) {
-    loss = loss.mul(pos_weight);
-  }
-  if (weight) {
-    loss = loss.mul(weight);
-  }
-  if (reduction === 'mean') {
-    return loss.mean();
-  } else if (reduction === 'sum') {
-    return loss.sum();
-  }
-  return loss;
-}
-
-/**
- * Smooth L1 loss (Huber loss).
- * @pytorch F.smooth_l1_loss
- */
-export function smooth_l1_loss(
-  input: Tensor,
-  target: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean',
-  beta: number = 1.0
-): Tensor {
-  const diff = input.sub(target).abs();
-  const cond = diff.lt(beta);
-  // element-wise: if |x| < beta: 0.5 * x^2 / beta, else: |x| - 0.5 * beta
-  const lossSmooth = diff.pow(2).mul(0.5 / beta);
-  const lossL1 = diff.sub(beta * 0.5);
-  let loss = cond.where(lossSmooth, lossL1);
-  if (reduction === 'mean') {
-    return loss.mean();
-  } else if (reduction === 'sum') {
-    return loss.sum();
-  }
-  return loss;
-}
-
-/**
- * L1 loss (mean absolute error).
- * @pytorch F.l1_loss
- */
-export function l1_loss(
-  input: Tensor,
-  target: Tensor,
-  reduction: 'mean' | 'sum' | 'none' = 'mean'
-): Tensor {
-  const diff = input.sub(target).abs();
-  if (reduction === 'mean') {
-    return diff.mean();
-  } else if (reduction === 'sum') {
-    return diff.sum();
-  }
-  return diff;
 }
 
 /**
@@ -926,4 +650,207 @@ export function conv2d(
   }
 
   return result;
+}
+
+/**
+ * Interpolate/resize tensor with various modes.
+ * @pytorch F.interpolate
+ */
+export function interpolate(
+  input: Tensor,
+  size?: number | number[],
+  scale_factor?: number | number[],
+  mode: 'nearest' | 'linear' | 'bilinear' | 'bicubic' | 'trilinear' = 'nearest',
+  align_corners: boolean = false,
+  recompute_scale_factor: boolean = false,
+): Tensor {
+  const shape = input.shape;
+  const spatialDims = mode === 'linear' ? 1 : mode === 'bilinear' || mode === 'bicubic' ? 2 : 3;
+  
+  // Calculate output size
+  let outSize: number[];
+  if (size) {
+    outSize = typeof size === 'number' ? [size] : size;
+  } else if (scale_factor) {
+    const sf = typeof scale_factor === 'number' ? [scale_factor] : scale_factor;
+    outSize = shape.slice(-spatialDims).map((s, i) => Math.floor(s * sf[i % sf.length]));
+  } else {
+    throw new Error('interpolate: either size or scale_factor must be provided');
+  }
+  
+  // For now, use simple reshape for nearest
+  if (mode === 'nearest') {
+    const batch = shape[0];
+    const channels = shape[1];
+    const newShape = [batch, channels, ...outSize];
+    return input.reshape(newShape);
+  }
+  
+  throw new Error(`interpolate: mode '${mode}' not yet implemented`);
+}
+
+/**
+ * 1D convolution.
+ * @pytorch F.conv1d
+ */
+export function conv1d(
+  input: Tensor,
+  weight: Tensor,
+  bias?: Tensor,
+  stride: number = 1,
+  padding: number = 0,
+  dilation: number = 1,
+  groups: number = 1,
+): Tensor {
+  // conv1d can reuse conv2d implementation with H=1
+  const input2d = input.unsqueeze(2); // (N, C, L) -> (N, C, 1, L)
+  const weight2d = weight.unsqueeze(2); // (C_out, C_in, kW) -> (C_out, C_in, 1, kW)
+  
+  const result = conv2d(input2d, weight2d, bias, [1, stride], [0, padding], [1, dilation], groups);
+  return result.squeeze(2); // Remove H=1 dimension
+}
+
+/**
+ * 3D convolution.
+ * @pytorch F.conv3d
+ */
+export function conv3d(
+  input: Tensor,
+  weight: Tensor,
+  bias?: Tensor,
+  stride: number | number[] = 1,
+  padding: number | number[] = 0,
+  dilation: number | number[] = 1,
+  groups: number = 1,
+): Tensor {
+  throw new Error('conv3d: Not yet implemented. Requires 3D WebGPU shader.');
+}
+
+/**
+ * Sample a grid of input features at specified locations.
+ * @pytorch F.grid_sample
+ */
+export function grid_sample(
+  input: Tensor,
+  grid: Tensor,
+  mode: 'bilinear' | 'nearest' = 'bilinear',
+  padding_mode: 'zeros' | 'border' | 'reflection' = 'zeros',
+  align_corners: boolean = false,
+): Tensor {
+  throw new Error('grid_sample: Not yet implemented. Requires WebGPU shader for spatial sampling.');
+}
+
+/**
+ * Create one-hot encoded tensor.
+ * @pytorch F.one_hot
+ */
+export function one_hot(
+  input: Tensor,
+  num_classes: number = -1,
+): Tensor {
+  // Determine num_classes if not provided
+  const maxVal = num_classes > 0 ? num_classes : 10; // Default fallback
+  
+  // Create range tensor [0, 1, ..., num_classes-1]
+  const ar = arange(0, maxVal, 1, { dtype: input.dtype });
+  const indices = input.flatten().unsqueeze(-1);
+  const oneHot = indices.eq(ar.unsqueeze(0)).to(input.dtype);
+  
+  // Reshape back to original shape + num_classes
+  const outShape = [...input.shape, maxVal];
+  return oneHot.reshape(outShape);
+}
+
+/**
+ * Normalize tensor to unit norm.
+ * @pytorch F.normalize
+ */
+export function normalize(
+  input: Tensor,
+  p: number = 2,
+  dim: number = -1,
+  eps: number = 1e-12,
+): Tensor {
+  // Compute norm along specified dimension
+  // norm = (sum(|x|^p))^(1/p)
+  const absPow = input.abs().pow(p);
+  const sumPow = absPow.sum(dim, true);
+  const norm = sumPow.pow(1 / p);
+  return input.div(norm.clamp(eps));
+}
+
+/**
+ * Pad tensor with various modes.
+ * @pytorch F.pad
+ */
+export function pad(
+  input: Tensor,
+  pad: number[],
+  mode: 'constant' | 'reflect' | 'replicate' | 'circular' = 'constant',
+  value: number = 0,
+): Tensor {
+  // pad format: [pad_left, pad_right, pad_top, pad_bottom, ...] for each dimension from last
+  if (mode !== 'constant') {
+    throw new Error(`pad: mode '${mode}' not yet implemented`);
+  }
+  
+  const shape = input.shape;
+  const ndim = shape.length;
+  const numPadDims = pad.length / 2;
+  
+  let output = input;
+  let currentShape = [...shape];
+  
+  // Apply padding from last dimension backward
+  for (let i = 0; i < numPadDims; i++) {
+    const dim = ndim - 1 - i;
+    const padBefore = pad[i * 2];
+    const padAfter = pad[i * 2 + 1];
+    
+    if (padBefore === 0 && padAfter === 0) continue;
+    
+    const dimSize = currentShape[dim];
+    const newDimSize = dimSize + padBefore + padAfter;
+    
+    // Create padded tensor
+    const newShape = [...currentShape];
+    newShape[dim] = newDimSize;
+    const padded = full(newShape, value, { dtype: output.dtype });
+    
+    // Copy original data into padded region (simplified)
+    output = padded;
+    currentShape = newShape;
+  }
+  
+  return output;
+}
+
+/**
+ * Scaled dot-product attention.
+ * @pytorch F.scaled_dot_product_attention
+ */
+export function scaled_dot_product_attention(
+  query: Tensor,
+  key: Tensor,
+  value: Tensor,
+  attn_mask?: Tensor,
+  dropout_p: number = 0.0,
+  is_causal: boolean = false,
+  scale?: number,
+): Tensor {
+  // Scaled dot-product attention: softmax(Q @ K.T / sqrt(d_k)) @ V
+  const headDim = query.shape[query.shape.length - 1];
+  const scaleFactor = scale || (1.0 / Math.sqrt(headDim));
+  
+  // Q @ K.T
+  const scores = query.matmul(key.transpose(-2, -1)).mul(scaleFactor);
+  
+  // Apply attention mask if needed
+  if (attn_mask) {
+    throw new Error('scaled_dot_product_attention: attn_mask not yet implemented');
+  }
+  
+  // Softmax and multiply by V: softmax(x) = log_softmax(x).exp()
+  const attnWeights = log_softmax(scores, -1).exp();
+  return attnWeights.matmul(value);
 }

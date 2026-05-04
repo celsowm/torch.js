@@ -21,13 +21,15 @@ const torch = {
 (torch as any).webgpu = _core.webgpu;
 
 export default torch;
+// Also export torch as a named export so `import * as torch` works
+export { torch };
 export * from './core';
-export { 
-  getDevice, 
-  getOrCreatePipeline, 
-  calculateWorkgroups, 
+export {
+  getDevice,
+  getOrCreatePipeline,
+  calculateWorkgroups,
   getCapabilities,
-  BufferUsage, 
-  readBuffer 
+  BufferUsage,
+  readBuffer
 } from './backend';
 export type { Tensor, DType, TensorOptions } from './core';

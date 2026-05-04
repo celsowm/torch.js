@@ -9,6 +9,7 @@ import { Tensor } from '../tensor';
 export interface ParamGroup {
   params: Tensor[];
   lr: number;
+  initial_lr?: number;
   [key: string]: unknown;
 }
 
@@ -27,9 +28,11 @@ export abstract class Optimizer {
     const paramArray = Array.isArray(params) ? params : Array.from(params);
 
     // Create initial param group
+    const lr = (defaults.lr as number) ?? 0.01;
     this.param_groups.push({
       params: paramArray,
-      lr: (defaults.lr as number) ?? 0.01,
+      lr,
+      initial_lr: lr,
       ...defaults,
     });
   }

@@ -17,7 +17,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>,
     if (idx < params.length) {
         shared_data[lid] = input[idx];
     } else {
-        shared_data[lid] = -3.4028235e+38;
+        shared_data[lid] = -1.0e38;
     }
     workgroupBarrier();
     for (var stride = 128u; stride > 0u; stride >>= 1u) {

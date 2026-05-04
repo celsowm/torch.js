@@ -1,0 +1,3766 @@
+{
+  "Tensor.abs": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.acos": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.acosh": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.add": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.addbmm": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.addmm": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.addmv": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.addr": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.advancedSlice": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.all": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.allclose": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.amax": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.amin": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.aminmax": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.any": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.argmax": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.argmin": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.argsort": {
+    "category": "tensor_sort",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.asin": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.asinh": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.at": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.atan": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.atan2": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.atanh": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.backward": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_backward.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.baddbmm": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.bitwise_and": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.bitwise_or": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.bitwise_xor": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.bmm": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.bool": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.broadcast_to": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.ceil": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.chunk": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.clamp": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "nn/functional.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.clone": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_backward.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.contiguous": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.copy_": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cos": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cosh": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.count_nonzero": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cummax": {
+    "category": "tensor_sort",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cummin": {
+    "category": "tensor_sort",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cumprod": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cumsum": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.cumulative_trapezoid": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.deg2rad": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.destroy": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.detach": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_backward.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.diag": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.diagonal": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.digamma": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.dim": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.div": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.dot": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.elu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.eq": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.equal": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.erf": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.erfc": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.exp": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.exp2": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.expand": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.expm1": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.flatten": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.flip": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.floor": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.fmax": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.fmin": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.frac": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.gather": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.ge": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.gelu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.get": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.glu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.greater": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.greater_equal": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.gt": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.hardsigmoid": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.hardswish": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.heaviside": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.hypot": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.i0": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.index_select": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.isclose": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.isfinite": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.isinf": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.isnan": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.isneginf": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.isposinf": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.item": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.kthvalue": {
+    "category": "tensor_sort",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.le": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.leaky_relu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "nn/init.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.less": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.less_equal": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.lgamma": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.log": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.log10": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.log1p": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.log2": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.log_softmax": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.logaddexp": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.logcumsumexp": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.logical_not": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.logsumexp": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.lt": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.masked_fill": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.masked_select": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.matmul": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.maximum": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.mean": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "nn/losses.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.minimum": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.mish": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.mm": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.moveaxis": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.movedim": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.mul": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.multinomial": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/sampling.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.mv": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.narrow": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.ne": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.neg": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.nonzero": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.nonzeroIndices": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.not_equal": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.numel": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.ones_like": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.outer": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.permute": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.pow": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.prod": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.rad2deg": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.reciprocal": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.relu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.repeat": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.repeat_interleave": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.requires_grad_": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_backward.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.reshape": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.roll": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.rot90": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.round": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.rsqrt": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.scatter": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.scatter_": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.scatter_add": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.select": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.selu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.set": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sgn": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sigmoid": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sign": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.silu": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sin": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sinh": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.size": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.slice": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.softmax": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.softplus": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.softsign": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sort": {
+    "category": "tensor_sort",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.split": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sqrt": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.square": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.squeeze": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.std": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.stride": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "nn/modules.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sub": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.sum": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "tensor/tensor_backward.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.swapaxes": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.swapdims": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.t": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.take": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.tan": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.tanh": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.tanhshrink": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.threshold": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.tile": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.to": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.toArray": {
+    "category": "tensor_basic",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.topk": {
+    "category": "tensor_sort",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.transpose": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.trapezoid": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.tril": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.triu": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.trunc": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.unbind": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.unflatten": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.unsqueeze": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.var": {
+    "category": "tensor_reduction",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.vdot": {
+    "category": "tensor_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.view": {
+    "category": "tensor_shape",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.where": {
+    "category": "tensor_advanced",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "Tensor.zeros_like": {
+    "category": "tensor_math",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.abs": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.absolute": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.acos": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.acosh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.add": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.addbmm": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.addmm": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.addmv": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.addr": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.all": {
+    "category": "torch_reduction",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.allclose": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.amax": {
+    "category": "torch_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.amin": {
+    "category": "torch_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.aminmax": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.any": {
+    "category": "torch_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arange": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arccos": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arccosh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arcsin": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arcsinh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arctan": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arctan2": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.arctanh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.argmax": {
+    "category": "torch_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.argmin": {
+    "category": "torch_reduction",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.argsort": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.as_tensor": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.asin": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.asinh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.atan": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.atan2": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.atanh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.atleast_1d": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.atleast_2d": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.atleast_3d": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.autograd.Function": {
+    "category": "autograd",
+    "tested": true,
+    "testFile": "autograd/autograd.test.ts"
+  },
+  "torch.autograd.grad": {
+    "category": "autograd",
+    "tested": true,
+    "testFile": "tensor/tensor_backward.test.ts"
+  },
+  "torch.autograd.gradcheck": {
+    "category": "autograd",
+    "tested": true,
+    "testFile": "autograd/autograd.test.ts"
+  },
+  "torch.autograd.jvp": {
+    "category": "autograd",
+    "tested": true,
+    "testFile": "autograd/autograd.test.ts"
+  },
+  "torch.autograd.vjp": {
+    "category": "autograd",
+    "tested": true,
+    "testFile": "autograd/autograd.test.ts"
+  },
+  "torch.baddbmm": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.bincount": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.bitwise_and": {
+    "category": "torch_bitwise",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.bitwise_or": {
+    "category": "torch_bitwise",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.bitwise_xor": {
+    "category": "torch_bitwise",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.bmm": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.broadcast_to": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cartesian_prod": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cat": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.ceil": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.chain_matmul": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.chunk": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.clamp": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "nn/functional.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.clamp_max": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.clamp_min": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.clip": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.column_stack": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.combinations": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cos": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cosh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.count_nonzero": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cummax": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cummin": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cumprod": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cumsum": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.cumulative_trapezoid": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.deg2rad": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.diag": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.diagonal": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.digamma": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.distributions.Bernoulli": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Beta": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Categorical": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Dirichlet": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Exponential": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.distributions.Gamma": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Normal": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Poisson": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.distributions.Uniform": {
+    "category": "distributions",
+    "tested": true,
+    "testFile": "distributions/distributions.test.ts"
+  },
+  "torch.div": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.divide": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.dot": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.dstack": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.einsum": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.empty": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.empty_like": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.enable_grad": {
+    "category": "torch_grad_mode",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.eq": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.equal": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.erf": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.erfc": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.exp": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.exp2": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.expm1": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.eye": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "nn/init.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.fft.fft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/stft_ops.test.ts"
+  },
+  "torch.fft.fft2": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.fft.fftfreq": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.fftn": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.fft.fftshift": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.hfft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/stft_ops.test.ts"
+  },
+  "torch.fft.ifft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.ifftshift": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.ihfft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/stft_ops.test.ts"
+  },
+  "torch.fft.irfft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.istft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/stft_ops.test.ts"
+  },
+  "torch.fft.rfft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.rfftfreq": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/fft_ops.test.ts"
+  },
+  "torch.fft.stft": {
+    "category": "fft",
+    "tested": true,
+    "testFile": "fft/stft_ops.test.ts"
+  },
+  "torch.fix": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.flatten": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.flip": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.fliplr": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.flipud": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.floor": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.fmax": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.fmin": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.fmod": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.frac": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.from_numpy": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.full": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.full_like": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.gather": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.ge": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.ger": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.greater": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.greater_equal": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.gt": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.heaviside": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.histc": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.hstack": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.hypot": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.i0": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.index_select": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.inference_mode": {
+    "category": "torch_grad_mode",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.inner": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "nn/modules.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.is_grad_enabled": {
+    "category": "torch_grad_mode",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isclose": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isfinite": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isinf": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isnan": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isneginf": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isposinf": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.isreal": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_aliases.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.kthvalue": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.le": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.less": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.less_equal": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.lgamma": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.linalg.cholesky": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.cross": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.linalg.diagonal": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts"
+  },
+  "torch.linalg.eigh": {
+    "category": "linalg.advanced",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.inv": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.lu_factor": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.linalg.matrix_norm": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "linalg/norm.test.ts"
+  },
+  "torch.linalg.matrix_power": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.norm": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.linalg.pinv": {
+    "category": "linalg.advanced",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.qr": {
+    "category": "linalg.advanced",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.solve": {
+    "category": "linalg.advanced",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.solve_triangular": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.linalg.svd": {
+    "category": "linalg.advanced",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.vander": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.linalg.vecdot": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts"
+  },
+  "torch.linalg.vector_norm": {
+    "category": "linalg",
+    "tested": true,
+    "testFile": "linalg/norm.test.ts"
+  },
+  "torch.linspace": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.log": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.log10": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.log1p": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.log2": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.logaddexp": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.logcumsumexp": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.logical_not": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.logspace": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.logsumexp": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.lt": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.manual_seed": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.masked_select": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.matmul": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "linalg/decomp.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.maximum": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.meshgrid": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.minimum": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.mm": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.moveaxis": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.movedim": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.mul": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.multinomial": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/sampling.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.multiply": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.mv": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.narrow": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.ne": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.neg": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.negative": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.nn.AlphaDropout": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.AvgPool2d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.BCELoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.BCEWithLogitsLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.BatchNorm1d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.BatchNorm2d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.CELU": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.CTCLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.nn.Conv1d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.Conv2d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.CosineEmbeddingLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.CrossEntropyLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.Dropout": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Dropout1d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Dropout2d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Dropout3d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Embedding": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.Flatten": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.GELU": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.GRU": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/rnn.test.ts"
+  },
+  "torch.nn.Hardshrink": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Hardtanh": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.HingeEmbeddingLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.HuberLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.KLDivLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.L1Loss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.LSTM": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/rnn.test.ts"
+  },
+  "torch.nn.LayerNorm": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.Linear": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.LogSigmoid": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.LogSoftmax": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.MSELoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.MaxPool2d": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.Module": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.ModuleDict": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.ModuleList": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.MultiMarginLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.nn.MultiheadAttention": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.NLLLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.PReLU": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Parameter": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.nn.RNN": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/rnn.test.ts"
+  },
+  "torch.nn.RReLU": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.ReLU": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Sequential": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.Sigmoid": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.SmoothL1Loss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.Softmax": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Softmin": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Softshrink": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.Tanh": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/activations.test.ts"
+  },
+  "torch.nn.TransformerDecoder": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.TransformerDecoderLayer": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.TransformerEncoder": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.TransformerEncoderLayer": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.TripletMarginLoss": {
+    "category": "nn",
+    "tested": true,
+    "testFile": "nn/losses.test.ts"
+  },
+  "torch.nn.functional.avg_pool2d": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/functional.test.ts"
+  },
+  "torch.nn.functional.conv2d": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.functional.dropout": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts"
+  },
+  "torch.nn.functional.gelu": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.nn.functional.grid_sample": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.nn.functional.interpolate": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/functional.test.ts"
+  },
+  "torch.nn.functional.log_softmax": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.nn.functional.max_pool2d": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/functional.test.ts"
+  },
+  "torch.nn.functional.normalize": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.functional.one_hot": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/functional.test.ts"
+  },
+  "torch.nn.functional.pad": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "nn/modules.test.ts"
+  },
+  "torch.nn.functional.relu": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.nn.functional.scaled_dot_product_attention": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.nn.functional.sigmoid": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.nn.functional.softmax": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.nn.functional.tanh": {
+    "category": "nn.functional",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.nn.init.calculate_gain": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.constant_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.eye_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.kaiming_normal_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.kaiming_uniform_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.normal_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.ones_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.orthogonal_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.sparse_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.nn.init.uniform_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.xavier_normal_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.xavier_uniform_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.nn.init.zeros_": {
+    "category": "nn.init",
+    "tested": true,
+    "testFile": "nn/init.test.ts"
+  },
+  "torch.no_grad": {
+    "category": "torch_grad_mode",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.nonzero": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.normal": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "nn/modules.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.not_equal": {
+    "category": "torch_comparison",
+    "tested": true,
+    "testFile": "core/comparison_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.ones": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.ones_like": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.optim.ASGD": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.Adagrad": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.Adam": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.AdamW": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.Adamax": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.LBFGS": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.NAdam": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.RAdam": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.RMSprop": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.SGD": {
+    "category": "optim",
+    "tested": true,
+    "testFile": "optim/optimizers.test.ts"
+  },
+  "torch.optim.lr_scheduler.ConstantLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.optim.lr_scheduler.CosineAnnealingLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.optim.lr_scheduler.ExponentialLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.optim.lr_scheduler.LambdaLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.optim.lr_scheduler.LinearWarmupLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.optim.lr_scheduler.MultiStepLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.optim.lr_scheduler.MultiplicativeLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.optim.lr_scheduler.ReduceLROnPlateau": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.optim.lr_scheduler.StepLR": {
+    "category": "optim.lr_scheduler",
+    "tested": true,
+    "testFile": "optim/lr_scheduler.test.ts"
+  },
+  "torch.outer": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.permute": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.pow": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.prod": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.rad2deg": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.rand": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.randint": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.randn": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "nn/transformer.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.randperm": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.reciprocal": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.relu": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.remainder": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.repeat_interleave": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.roll": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.rot90": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.round": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.row_stack": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.rsqrt": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "core/math_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.scalar_tensor": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.scatter": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.scatter_add": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.select": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sgn": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_activations.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sigmoid": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sign": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sin": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sinh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sort": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sparse.SparseTensor": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.sparse.sparse_add": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.sparse.sparse_coo_tensor": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.sparse.sparse_eye": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.sparse.sparse_matmul": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.sparse.sparse_mul": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.sparse.to_sparse": {
+    "category": "sparse",
+    "tested": true,
+    "testFile": "sparse/sparse.test.ts"
+  },
+  "torch.special.bessel_j0": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.bessel_j1": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.entr": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.erfcx": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.erfinv": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.expit": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.i1": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.i1e": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.log_ndtr": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.log_softmax": {
+    "category": "special",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.special.logit": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.multigammaln": {
+    "category": "special",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.special.ndtr": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.ndtri": {
+    "category": "special",
+    "tested": true,
+    "testFile": "core/edge_cases.test.ts"
+  },
+  "torch.special.sinc": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.softmax": {
+    "category": "special",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts"
+  },
+  "torch.special.spherical_bessel_j0": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.xlog1py": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.xlogy": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.special.zeta": {
+    "category": "special",
+    "tested": true,
+    "testFile": "special/special_funcs.test.ts"
+  },
+  "torch.split": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sqrt": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.square": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.squeeze": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.stack": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.std": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/reduction_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.std_mean": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.sub": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.subtract": {
+    "category": "torch_arithmetic",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.swapaxes": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.swapdims": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.take": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.tan": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.tanh": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.tensor": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.tensor_split": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.tile": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.topk": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_sort.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.trace": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.trapezoid": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.trapz": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.tril": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.triu": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.trunc": {
+    "category": "torch_math",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.unbind": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.unflatten": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.unravel_index": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/shape_manipulation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.unsqueeze": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_shape.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.var": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.var_mean": {
+    "category": "torch_stats",
+    "tested": true,
+    "testFile": "core/quick_wins.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.vdot": {
+    "category": "torch_linalg",
+    "tested": true,
+    "testFile": "core/linear_algebra.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.vstack": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "core/tensor_ops.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.where": {
+    "category": "torch_manipulation",
+    "tested": true,
+    "testFile": "tensor/tensor_index.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.zeros": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "tensor/tensor_methods.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  },
+  "torch.zeros_like": {
+    "category": "torch_creation",
+    "tested": true,
+    "testFile": "core/tensor_creation.test.ts",
+    "pytorchTest": null,
+    "notes": ""
+  }
+}

@@ -223,6 +223,9 @@ fn square_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
     result[idx] = val * val;
 }
 
+const POS_INF: f32 = 1e30;  // Large finite value approximating infinity
+const NEG_INF: f32 = -1e30; // Large negative value
+
 fn erf(x: f32) -> f32 {
     let s = sign(x);
     let a = abs(x);
@@ -452,7 +455,7 @@ fn digamma_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
     if (x <= 0.0) {
         // Reflection formula
         if (ceil(x) == x) {
-            result[idx] = 1.0 / 0.0; // infinity for integer <= 0
+            result[idx] = POS_INF; // +inf for integer <= 0
             return;
         }
         psi = 3.141592653589793 / tan(3.141592653589793 * x);

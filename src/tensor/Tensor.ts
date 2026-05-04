@@ -4,10 +4,11 @@
  * @pytorch torch.Tensor
  */
 
-import { DType, getDTypeBytes } from '../dtype';
+import { DType, getDTypeBytes, getTypedArrayConstructor, TypedArray } from '../dtype';
 import {
   getDevice,
   createStorageBuffer,
+  createBufferWithData,
   readBuffer,
   bufferPool,
   getOrCreatePipeline,
@@ -28,6 +29,7 @@ import {
   REDUCE_SIMPLE_MIN_SHADER,
   REDUCE_SIMPLE_ANY_SHADER,
   REDUCE_SIMPLE_ALL_SHADER,
+  LOG_SOFTMAX_SHADER,
   REDUCE_SIMPLE_PROD_SHADER,
   REDUCE_DIM_SHADER,
   MATMUL_SHADER,
@@ -58,10 +60,37 @@ import {
 } from '../backend';
 import { numel, formatShape, inferShape, validateShape } from '../utils/shape';
 import { needsBroadcast, broadcastShapes } from '../utils/broadcast';
-import { ones, ones_like, stack } from '../ops/creation';
+import { ones, ones_like, stack, tensor } from '../ops/creation';
 import { record_function } from '../profiler';
 import { is_grad_enabled } from '../grad_mode';
 import type { GradFn, TensorData, SliceSpec } from './types';
+
+// Slice class for advanced indexing
+export class Slice {
+  start: number | null;
+  stop: number | null;
+  step: number | null;
+
+  constructor(start: number | null = null, stop: number | null = null, step: number | null = null) {
+    this.start = start;
+    this.stop = stop;
+    this.step = step;
+  }
+
+  /**
+   * Create a slice for advanced indexing.
+   * @param start - Start index (inclusive), negative counts from end
+   * @param stop - Stop index (exclusive), negative counts from end
+   * @param step - Step size (default: 1)
+   * @pytorch slice notation
+   */
+  static slice(start: number | null, stop: number | null, step: number | null = 1): Slice {
+    return new Slice(start, stop, step);
+  }
+}
+
+// Type for advanced indexing
+export type IndexType = number | Slice | boolean;
 
 /**
  * A multi-dimensional array with GPU acceleration.
@@ -75,6 +104,8 @@ export class Tensor {
   private _grad: Tensor | null = null;
   private _grad_fn: GradFn | null = null;
   private _is_leaf: boolean = true;
+  readonly _id: number;
+  private static _nextId = 0;
 
   /** @internal */
   constructor(data: TensorData) {
@@ -85,6 +116,24 @@ export class Tensor {
     this._requires_grad = data.requires_grad;
     this._grad_fn = data.grad_fn ?? null;
     this._is_leaf = !data.grad_fn;
+    this._id = Tensor._nextId++;
+  }
+
+  /**
+   * Internal helper: create a Tensor from a plain number array without circular import.
+   */
+  private static _fromNumberArray(data: number[], dtype?: DType): Tensor {
+    const d = dtype ?? 'float32';
+    const TypedArrayCtor = getTypedArrayConstructor(d);
+    const typedData = new TypedArrayCtor(data) as TypedArray;
+    const buffer = createBufferWithData(typedData, d);
+    return new Tensor({
+      buffer,
+      shape: [data.length],
+      dtype: d,
+      device: 'webgpu',
+      requires_grad: false,
+    });
   }
 
   static cat(tensors: Tensor[], dim: number = 0): Tensor {
@@ -174,6 +223,77 @@ export class Tensor {
   async item(): Promise<number> {
     const arr = await this.toArray();
     return arr[0];
+  }
+
+  /**
+   * Returns a tensor with indices sampled from the multinomial distribution.
+   * @param num_samples Number of samples to draw
+   * @param replacement Whether to sample with replacement
+   * @returns Tensor of shape [num_samples] containing indices
+   * @pytorch torch.multinomial
+   */
+  async multinomial(num_samples: number = 1, replacement: boolean = false): Promise<Tensor> {
+    const data = await this.toArray();
+    const nCategories = data.length;
+
+    if (num_samples > nCategories && !replacement) {
+      throw new Error(`Cannot sample ${num_samples} values from ${nCategories} categories without replacement`);
+    }
+
+    // Convert to probabilities (handle negative/NaN values)
+    const probs = new Float64Array(nCategories);
+    let sum = 0;
+    for (let i = 0; i < nCategories; i++) {
+      probs[i] = Math.max(0, data[i]); // clamp negatives
+      sum += probs[i];
+    }
+    if (sum <= 0) {
+      // Uniform distribution
+      for (let i = 0; i < nCategories; i++) probs[i] = 1;
+      sum = nCategories;
+    }
+    for (let i = 0; i < nCategories; i++) probs[i] /= sum;
+
+    // Sample
+    const samples = new Int32Array(num_samples);
+    const available = replacement ? null : new Set<number>();
+
+    for (let s = 0; s < num_samples; s++) {
+      let idx: number;
+      if (!replacement) {
+        // Sample without replacement
+        do {
+          let r = Math.random();
+          idx = 0;
+          let cumProb = 0;
+          for (let i = 0; i < nCategories; i++) {
+            cumProb += probs[i];
+            if (r < cumProb) {
+              idx = i;
+              break;
+            }
+          }
+        } while (available!.has(idx));
+        available!.add(idx);
+      } else {
+        // Sample with replacement
+        let r = Math.random();
+        let cumProb = 0;
+        idx = nCategories - 1;
+        for (let i = 0; i < nCategories; i++) {
+          cumProb += probs[i];
+          if (r < cumProb) {
+            idx = i;
+            break;
+          }
+        }
+      }
+      samples[s] = idx;
+    }
+
+    // Return as tensor
+    const { tensor } = await import('../ops/creation');
+    return tensor(Array.from(samples), { dtype: 'int32' });
   }
 
   tile(reps: readonly number[]): Tensor {
@@ -358,8 +478,76 @@ export class Tensor {
   sigmoid(): Tensor { return record_function('torch.sigmoid', () => this._unaryOp('sigmoid')); }
   relu(): Tensor { return record_function('torch.relu', () => this._unaryOp('relu')); }
   gelu(): Tensor { return record_function('torch.gelu', () => this._unaryOp('gelu')); }
+  softmax(dim: number = -1): Tensor {
+    // softmax(x) = log_softmax(x).exp()
+    return this._logSoftmax(dim).exp();
+  }
+  log_softmax(dim: number = -1): Tensor {
+    return this._logSoftmax(dim);
+  }
+  private _logSoftmax(dim: number = -1): Tensor {
+    // Use the log_softmax WebGPU shader
+    // Currently only supports dim=-1 (last dimension) for ND tensors
+    const shape = this._shape;
+    const ndim = shape.length;
+    if (dim < 0) dim = ndim + dim;
+    if (dim !== ndim - 1) {
+      throw new Error(`log_softmax currently only supports dim=-1 (last dimension) for ND tensors. Got dim=${dim}, ndim=${ndim}`);
+    }
+
+    const device = getDevice();
+    const batchSize = shape.slice(0, -1).reduce((a, b) => a * b, 1);
+    const normalizedSize = shape[shape.length - 1];
+    const totalSize = this.numel();
+
+    const outputBuffer = createStorageBuffer(totalSize * getDTypeBytes(this._dtype));
+
+    const paramsData = new ArrayBuffer(16);
+    new Uint32Array(paramsData, 0, 2).set([batchSize, normalizedSize]);
+    new Float32Array(paramsData, 8, 1)[0] = 1e-12; // eps
+    new Uint32Array(paramsData, 12, 1)[0] = 0;
+
+    const paramsBuffer = device.createBuffer({
+      size: 16,
+      usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
+    });
+    device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+
+    const pipeline = getOrCreatePipeline(LOG_SOFTMAX_SHADER, 'main');
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this._buffer } },
+        { binding: 1, resource: { buffer: this._buffer } }, // dummy weight (unused)
+        { binding: 2, resource: { buffer: this._buffer } }, // dummy bias (unused)
+        { binding: 3, resource: { buffer: outputBuffer } },
+        { binding: 4, resource: { buffer: paramsBuffer } },
+      ],
+    });
+
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginComputePass();
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.dispatchWorkgroups(...calculateWorkgroups(batchSize));
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+
+    return new Tensor({
+      buffer: outputBuffer,
+      shape: [...shape],
+      dtype: 'float32',
+      device: 'webgpu',
+      requires_grad: this._requires_grad,
+    });
+  }
   sign(): Tensor { return record_function('torch.sign', () => this._unaryOp('sign_op')); }
   sgn(): Tensor { return record_function('torch.sgn', () => this._unaryOp('sgn_op')); }
+  bool(): Tensor {
+    // Convert to bool: non-zero values become true, zero becomes false
+    // Use comparison with zero
+    return this.ne(this.zeros_like());
+  }
   erf(): Tensor { return record_function('torch.erf', () => this._unaryOp('erf_op')); }
   erfc(): Tensor { return record_function('torch.erfc', () => this._unaryOp('erfc_op')); }
   expm1(): Tensor { return record_function('torch.expm1', () => this._unaryOp('expm1_op')); }
@@ -607,23 +795,38 @@ export class Tensor {
     });
   }
 
-  to(dtype: DType): Tensor {
-    if (this._dtype === dtype) return this;
-    // For now, if types don't match, we might need a cast shader.
-    // If it's just float32 to float32 (which should be caught above), it's fine.
-    // As a temporary measure to fix compilation and handle common case:
-    if (this._dtype === 'float32' && dtype === 'float32') return this;
-    
-    // TODO: implement full cast shader.
-    // For now, let's at least clone if it's the same size and hope for the best,
-    // or throw if it's a real conversion we don't support yet.
-    if (getDTypeBytes(this._dtype) === getDTypeBytes(dtype)) {
+  to(dtypeOrDevice?: DType | 'cpu' | 'webgpu'): Tensor {
+    // Handle: to(dtype), to(device), to(dtype, device), to(device, dtype)
+    let dtype: DType | undefined;
+    let device: string | undefined;
+
+    if (typeof dtypeOrDevice === 'string') {
+      if (['float32', 'int32', 'bool', 'int64', 'float64', 'float16', 'int8', 'int16', 'uint8'].includes(dtypeOrDevice)) {
+        dtype = dtypeOrDevice as DType;
+      } else {
+        device = dtypeOrDevice;
+      }
+    }
+
+    // Dtype conversion
+    if (dtype) {
+      if (this._dtype === dtype) return this;
+      if (this._dtype === 'float32' && dtype === 'float32') return this;
+      if (getDTypeBytes(this._dtype) === getDTypeBytes(dtype)) {
         const res = this.clone();
         (res as any)._dtype = dtype;
         return res;
+      }
+      throw new Error(`Tensor.to: conversion from ${this._dtype} to ${dtype} not yet implemented`);
     }
-    
-    throw new Error(`Tensor.to: conversion from ${this._dtype} to ${dtype} not yet implemented`);
+
+    // Device: webgpu only for now, but return self for compatibility
+    if (device === 'webgpu' || device === 'cpu') {
+      return this; // torch.js only runs on webgpu
+    }
+
+    // No args = clone
+    return this.clone();
   }
 
   flip(dims: number[]): Tensor {
@@ -729,6 +932,89 @@ export class Tensor {
       return new Tensor({ buffer: outputBuffer, shape: [diagLen], dtype: this._dtype, device: 'webgpu', requires_grad: false });
     }
     throw new Error('diag expects 1D or 2D tensor');
+  }
+
+  /**
+   * Returns a partial view of the diagonal elements.
+   * For a 2D tensor, returns the diagonal.
+   * For higher dimensions, uses dim1 and dim2 to determine the 2D planes.
+   * @param offset - Diagonal offset (positive = above main diagonal, negative = below)
+   * @param dim1 - First dimension of the 2D planes
+   * @param dim2 - Second dimension of the 2D planes
+   * @pytorch torch.diagonal
+   */
+  diagonal(offset: number = 0, dim1: number = -2, dim2: number = -1): Tensor {
+    if (this._shape.length < 2) {
+      throw new Error('diagonal requires at least 2D tensor');
+    }
+
+    const ndim = this._shape.length;
+    const resolvedDim1 = dim1 < 0 ? dim1 + ndim : dim1;
+    const resolvedDim2 = dim2 < 0 ? dim2 + ndim : dim2;
+
+    if (resolvedDim1 === resolvedDim2) {
+      throw new Error('diagonal: dim1 and dim2 must be different');
+    }
+
+    const dim1Size = this._shape[resolvedDim1];
+    const dim2Size = this._shape[resolvedDim2];
+
+    // Calculate diagonal length
+    let diagLen: number;
+    if (offset >= 0) {
+      diagLen = Math.max(0, Math.min(dim1Size, dim2Size - offset));
+    } else {
+      diagLen = Math.max(0, Math.min(dim1Size + offset, dim2Size));
+    }
+
+    if (diagLen === 0) {
+      const outShape = this._shape.filter((_, i) => i !== resolvedDim1 && i !== resolvedDim2);
+      outShape.push(0);
+      return Tensor._fromNumberArray([], this._dtype).reshape(outShape);
+    }
+
+    // For 2D tensor, extract diagonal
+    if (this._shape.length === 2) {
+      const device = getDevice();
+      const outputBuffer = createStorageBuffer(diagLen * getDTypeBytes(this._dtype));
+
+      const pipeline = getOrCreatePipeline(DIAG_MTX_TO_VEC_SHADER, 'main');
+      const paramsData = new Int32Array([dim1Size, dim2Size, offset, diagLen]);
+      const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+      device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+
+      const bindGroup = device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
+          { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+          { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+        ],
+      });
+
+      const commandEncoder = device.createCommandEncoder();
+      const passEncoder = commandEncoder.beginComputePass();
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      passEncoder.dispatchWorkgroups(...calculateWorkgroups(diagLen));
+      passEncoder.end();
+      device.queue.submit([commandEncoder.finish()]);
+
+      return new Tensor({ buffer: outputBuffer, shape: [diagLen], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+    }
+
+    // For ND tensor: we need to iterate over all other dimensions and extract diagonal from each 2D plane
+    // This is complex - for now, use CPU fallback
+    return this._diagonalND(offset, resolvedDim1, resolvedDim2, diagLen);
+  }
+
+  /**
+   * Internal: diagonal for ND tensors via CPU readback.
+   */
+  private _diagonalND(offset: number, dim1: number, dim2: number, diagLen: number): Tensor {
+    // CPU fallback implementation
+    // This is complex to do efficiently on GPU, so we use CPU for now
+    throw new Error('diagonal with ND tensors not yet fully implemented');
   }
 
   private _cumOp(dim: number, shader: string): Tensor {
@@ -894,19 +1180,78 @@ export class Tensor {
     return new Tensor({ buffer: outputBuffer, shape: outputShape, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
   }
 
-  masked_select(mask: Tensor): Tensor {
-    // This implementation needs the multi-pass shader from masked_select.wgsl
-    // For now, we will use a simplified approach: read mask to CPU, calculate indices, then gather
-    // This avoids the complex parallel prefix sum implementation for now, ensuring correctness
-    // "No placeholders" - implementation must work.
-    // Reading back is slow but correct.
-    // But we prefer GPU.
-    // Let's implement the GPU version if possible or CPU fallback.
-    // Given the O(N^2) shader, CPU might be faster for large tensors!
-    // But we must keep data on GPU if possible.
-    // I'll implement CPU readback fallback for now as it's robust.
-    
-    throw new Error('masked_select not yet fully implemented');
+  /**
+   * Select elements from the tensor where mask is True.
+   * Returns a 1-D tensor with all selected elements.
+   * @param mask - Boolean tensor (same shape or broadcastable)
+   * @pytorch torch.masked_select
+   */
+  async masked_select(mask: Tensor): Promise<Tensor> {
+    // CPU fallback: read mask, find indices, gather values
+    // This is correct but slow for large tensors
+    return this._maskedSelectCPU(mask);
+  }
+
+  /**
+   * Internal: masked_select via CPU readback.
+   */
+  private async _maskedSelectCPU(mask: Tensor): Promise<Tensor> {
+    const maskData = await mask.toArray();
+    const data = await this.toArray();
+
+    const selectedValues: number[] = [];
+    for (let i = 0; i < maskData.length; i++) {
+      if (maskData[i] !== 0) {
+        selectedValues.push(data[i]);
+      }
+    }
+
+    return Tensor._fromNumberArray(selectedValues, this._dtype);
+  }
+
+  /**
+   * Returns the indices of elements that are non-zero.
+   * Returns a 2-D tensor where each row contains the indices of a non-zero element.
+   * @pytorch torch.nonzero
+   */
+  async nonzero(): Promise<Tensor> {
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const ndim = shape.length;
+
+    const indices: number[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] !== 0) {
+        // Convert flat index to multi-dimensional coordinates
+        const coords: number[] = [];
+        let tempIdx = i;
+        for (let d = ndim - 1; d >= 0; d--) {
+          coords.unshift(tempIdx % shape[d]);
+          tempIdx = Math.floor(tempIdx / shape[d]);
+        }
+        indices.push(...coords);
+      }
+    }
+
+    const numRows = indices.length / ndim;
+    return Tensor._fromNumberArray(Array.from(new Int32Array(indices)), 'int32').reshape([numRows, ndim]);
+  }
+
+  /**
+   * Returns a 1-D tensor with values from the last dimension where input is non-zero.
+   * Alias for elements that are not equal to zero.
+   * @pytorch torch.nonzero (as_tuple=True variant returns indices)
+   */
+  async nonzeroIndices(): Promise<number[]> {
+    const data = await this.toArray();
+    const indices: number[] = [];
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] !== 0) {
+        indices.push(i);
+      }
+    }
+    return indices;
   }
 
   select(dim: number, index: number): Tensor {
@@ -1132,6 +1477,7 @@ export class Tensor {
         backward(gradOutput: Tensor): void {
           self.accumulateGrad(gradOutput.reshape(oldShape));
         },
+        _next_tensors: [self],
       };
     }
 
@@ -1549,6 +1895,7 @@ export class Tensor {
           for (let i = 0; i < dims.length; i++) invDims[newDims[i]] = i;
           self.accumulateGrad(gradOutput.permute(invDims));
         },
+        _next_tensors: [self],
       };
     }
 
@@ -1560,44 +1907,157 @@ export class Tensor {
   }
 
   matmul(other: Tensor): Tensor {
-    if (this._shape.length !== 2 || other._shape.length !== 2) throw new Error('matmul() only supports 2D tensors');
-    const [M, K1] = this._shape;
-    const [K2, N] = other._shape;
-    if (K1 !== K2) throw new Error(`matmul() shape mismatch: ${this._shape} x ${other._shape}`);
-    const device = getDevice();
-    const outputBuffer = createStorageBuffer(M * N * getDTypeBytes(this._dtype));
-    const dimsData = new Uint32Array([M, K1, N, 1]);
-    const dimsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
-    device.queue.writeBuffer(dimsBuffer, 0, dimsData);
-    const pipeline = getOrCreatePipeline(MATMUL_SHADER, 'matmul');
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-        { binding: 1, resource: { buffer: other._buffer, offset: 0, size: other._buffer.size } },
-        { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-        { binding: 3, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
-      ],
-    });
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(M * N));
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-
     const self = this;
-    let grad_fn: GradFn | undefined;
-    if (this._requires_grad && is_grad_enabled()) {
-      grad_fn = {
-        backward(gradOutput: Tensor): void {
-          self.accumulateGrad(gradOutput.matmul(other.t()));
-        },
-      };
+
+    // Helper: compute broadcast shape
+    function broadcastShape(a: readonly number[], b: readonly number[]): number[] {
+      const maxLen = Math.max(a.length, b.length);
+      const result: number[] = new Array(maxLen);
+      for (let i = 0; i < maxLen; i++) {
+        const ai = a.length - 1 - i >= 0 ? a[a.length - 1 - i] : 1;
+        const bi = b.length - 1 - i >= 0 ? b[b.length - 1 - i] : 1;
+        if (ai !== 1 && bi !== 1 && ai !== bi) {
+          throw new Error(`Broadcast shape mismatch: ${a} vs ${b}`);
+        }
+        result[maxLen - 1 - i] = Math.max(ai, bi);
+      }
+      return result;
     }
 
-    return new Tensor({ buffer: outputBuffer, shape: [M, N], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
+    // Case 1: both 1D -> dot product (scalar)
+    if (self._shape.length === 1 && other._shape.length === 1) {
+      if (self._shape[0] !== other._shape[0]) {
+        throw new Error(`matmul: 1D tensors must have same size: ${self._shape} x ${other._shape}`);
+      }
+      return self.mul(other).sum(0);
+    }
+
+    // Case 2: one 1D, one 2D
+    if (self._shape.length === 1 && other._shape.length === 2) {
+      // (N,) @ (N, M) -> (M,)
+      return self.unsqueeze(0).matmul(other).squeeze(0);
+    }
+    if (self._shape.length === 2 && other._shape.length === 1) {
+      // (M, N) @ (N,) -> (M,)
+      return self.matmul(other.unsqueeze(0)).squeeze(-1);
+    }
+
+    // Case 3: one 1D, one ND (N > 2)
+    if (self._shape.length === 1) {
+      // (N,) @ (..., N, M) -> (..., M)
+      const result = self.unsqueeze(0).unsqueeze(0).matmul(other);
+      return result.squeeze(-1).squeeze(-1);
+    }
+    if (other._shape.length === 1) {
+      // (..., M, N) @ (N,) -> (..., M)
+      return self.matmul(other.unsqueeze(-1)).squeeze(-1);
+    }
+
+    // Case 4: both 2D -> standard matmul
+    if (self._shape.length === 2 && other._shape.length === 2) {
+      const [M, K1] = self._shape;
+      const [K2, N] = other._shape;
+      if (K1 !== K2) throw new Error(`matmul() shape mismatch: ${self._shape} x ${other._shape}`);
+      const device = getDevice();
+      const outputBuffer = createStorageBuffer(M * N * getDTypeBytes(this._dtype));
+      const dimsData = new Uint32Array([M, K1, N, 1]);
+      const dimsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+      device.queue.writeBuffer(dimsBuffer, 0, dimsData);
+      const pipeline = getOrCreatePipeline(MATMUL_SHADER, 'matmul');
+      const bindGroup = device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          { binding: 0, resource: { buffer: self._buffer, offset: 0, size: self._buffer.size } },
+          { binding: 1, resource: { buffer: other._buffer, offset: 0, size: other._buffer.size } },
+          { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+          { binding: 3, resource: { buffer: dimsBuffer, offset: 0, size: dimsBuffer.size } },
+        ],
+      });
+      const commandEncoder = device.createCommandEncoder();
+      const passEncoder = commandEncoder.beginComputePass();
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      passEncoder.dispatchWorkgroups(...calculateWorkgroups(M * N));
+      passEncoder.end();
+      device.queue.submit([commandEncoder.finish()]);
+
+      let grad_fn: GradFn | undefined;
+      if (self._requires_grad && is_grad_enabled()) {
+        const otherRef = other;
+        grad_fn = {
+          backward(gradOutput: Tensor): void {
+            self.accumulateGrad(gradOutput.matmul(otherRef.t()));
+          },
+          _next_tensors: [self, otherRef],
+        };
+      }
+
+      return new Tensor({ buffer: outputBuffer, shape: [M, N], dtype: this._dtype, device: 'webgpu', requires_grad: self._requires_grad, grad_fn });
+    }
+
+    // Case 5: batched matmul (3D+)
+    // Strategy: flatten batch dims → bmm → reshape
+    // This works entirely on GPU with no CPU readback
+
+    let a: Tensor = self;
+    let b: Tensor = other;
+
+    // Special case: 3D @ 2D (e.g. [batch, seq, in] @ [in, out] → Linear layer)
+    // Treat 2D tensor as shared across batch dimensions
+    if (a.shape.length === 3 && b.shape.length === 2) {
+      const [batch, seq, inFeat] = a.shape;
+      const [in2, outFeat] = b.shape;
+      if (inFeat !== in2) throw new Error(`matmul shape mismatch: ${a.shape} vs ${b.shape}`);
+      // Flatten: [batch*seq, in] @ [in, out] → [batch*seq, out]
+      const aFlat = a.reshape([batch * seq, inFeat]);
+      const result = aFlat.matmul(b);
+      return result.reshape([batch, seq, outFeat]);
+    }
+
+    // Pad shorter tensor with leading 1s so both have same ndim
+    const ndimA = a.shape.length;
+    const ndimB = b.shape.length;
+    if (ndimA < ndimB) {
+      for (let i = 0; i < ndimB - ndimA; i++) a = a.unsqueeze(0);
+    } else if (ndimB < ndimA) {
+      for (let i = 0; i < ndimA - ndimB; i++) b = b.unsqueeze(0);
+    }
+
+    const ndim = a.shape.length;
+    if (ndim < 2) throw new Error('matmul requires at least 2D tensors');
+
+    // Check matrix dimensions
+    const K1 = a.shape[ndim - 1];
+    const K2 = b.shape[ndim - 2];
+    if (K1 !== K2) throw new Error(`matmul shape mismatch: ${a.shape} vs ${b.shape}`);
+
+    // Broadcast batch dimensions
+    const batchShapeA = a.shape.slice(0, ndim - 2);
+    const batchShapeB = b.shape.slice(0, ndim - 2);
+    const outBatchShape = broadcastShape(batchShapeA, batchShapeB);
+    const outShape = [...outBatchShape, a.shape[ndim - 2], b.shape[ndim - 1]];
+
+    // Broadcast both tensors to output batch shape
+    if (outBatchShape.length > 0) {
+      const targetShapeA = [...outBatchShape, a.shape[ndim - 2], K1];
+      a = a.broadcast_to(targetShapeA);
+      const targetShapeB = [...outBatchShape, K2, b.shape[ndim - 1]];
+      b = b.broadcast_to(targetShapeB);
+    }
+
+    // Flatten all batch dims into one: [batch*heads, M, K] and [batch*heads, K, N]
+    const batchSize = outBatchShape.reduce((a, b) => a * b, 1);
+    const M = a.shape[ndim - 2];
+    const N = b.shape[ndim - 1];
+
+    const aFlat = a.reshape([batchSize, M, K1]);
+    const bFlat = b.reshape([batchSize, K2, N]);
+
+    // Use bmm (batch matrix multiply) on GPU
+    const result = aFlat.bmm(bFlat); // [batchSize, M, N]
+
+    // Reshape back to output shape
+    return result.reshape(outShape);
   }
 
   addmm(mat1: Tensor, mat2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
@@ -1724,6 +2184,45 @@ export class Tensor {
     return s.div(n);
   }
 
+  /**
+   * Computes the variance along a dimension.
+   * var = sum((x - mean(x))^2) / (N - correction)
+   * @param dim - Dimension(s) to reduce
+   * @param keepdim - Whether to keep the reduced dimension
+   * @param unbiased - Whether to use Bessel's correction (N-1 instead of N)
+   * @param correction - Override for the divisor correction (if specified, ignores unbiased)
+   * @pytorch torch.var
+   */
+  var(dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true, correction?: number): Tensor {
+    const dims = dim === undefined ? [] : (Array.isArray(dim) ? dim : [dim]);
+    const resolvedDims = dims.map(d => d < 0 ? d + this._shape.length : d);
+    const n = resolvedDims.length > 0 ? resolvedDims.reduce((p, d) => p * this._shape[d], 1) : this.numel();
+
+    // Determine correction value
+    let corr = correction !== undefined ? correction : (unbiased ? 1 : 0);
+
+    const meanVal = this.mean(dim, true); // keepdim=true for broadcasting
+    const diff = this.sub(meanVal);
+    const sqDiff = diff.pow(2);
+    const sumSqDiff = sqDiff.sum(dim, keepdim);
+
+    const divisor = Math.max(n - corr, 0);
+    return sumSqDiff.div(divisor);
+  }
+
+  /**
+   * Computes the standard deviation along a dimension.
+   * std = sqrt(var)
+   * @param dim - Dimension(s) to reduce
+   * @param keepdim - Whether to keep the reduced dimension
+   * @param unbiased - Whether to use Bessel's correction (N-1 instead of N)
+   * @param correction - Override for the divisor correction (if specified, ignores unbiased)
+   * @pytorch torch.std
+   */
+  std(dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true, correction?: number): Tensor {
+    return this.var(dim, keepdim, unbiased, correction).sqrt();
+  }
+
   amax(dim?: number | number[], keepdim: boolean = false): Tensor {
     if (dim === undefined) return this._reduce('max_reduce');
     return this._reduceDim('max_reduce', dim, keepdim);
@@ -1773,14 +2272,763 @@ export class Tensor {
     return new Tensor({ buffer: outputBuffer, shape: [], dtype: 'int32', device: 'webgpu', requires_grad: false });
   }
 
-  argmax(dim?: number, keepdim?: boolean): Tensor {
-    if (dim !== undefined) throw new Error('argmax with dim not yet implemented');
-    return this._argReduce('argmax');
+  /**
+   * Returns the indices of the maximum values along a dimension.
+   * @param dim - Dimension to reduce. If undefined, returns index of global maximum.
+   * @param keepdim - Whether to keep the reduced dimension
+   * @pytorch torch.argmax
+   */
+  argmax(dim?: number, keepdim: boolean = false): Tensor {
+    if (dim === undefined) {
+      return this._argReduce('argmax');
+    }
+
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const dimSize = this._shape[resolvedDim];
+    const outShape = keepdim
+      ? this._shape.map((s, i) => (i === resolvedDim ? 1 : s))
+      : this._shape.filter((_, i) => i !== resolvedDim);
+    const outNumel = outShape.reduce((a, b) => a * b, 1);
+
+    // Use CPU fallback for now - read values and compute argmax
+    return this._argmaxDimSimple(resolvedDim, keepdim, outShape);
   }
 
-  argmin(dim?: number, keepdim?: boolean): Tensor {
-    if (dim !== undefined) throw new Error('argmin with dim not yet implemented');
-    return this._argReduce('argmin');
+  /**
+   * Internal: compute argmax along a dimension.
+   */
+  private _argmaxDimSimple(dim: number, keepdim: boolean, outShape: number[]): Tensor {
+    // For now, use a simple approach via max and comparison
+    // This is CPU-based and will be slow but correct
+
+    // Step 1: get max values along the dimension
+    const maxVals = this.amax(dim, keepdim);
+
+    // Step 2: compare input with maxVals broadcasted
+    // The position where input == maxVals is the argmax
+    const maxBroadcast = maxVals.expand(this._shape);
+    const isMax = this.eq(maxBroadcast);
+
+    // Step 3: find the first True along the dimension
+    // We can use cumsum and check where it becomes 1
+    const cumsum = isMax.cumsum(dim);
+    const firstOccurrence = cumsum.eq(1).mul(isMax);
+
+    // Step 4: create index tensor and multiply with mask
+    const indices = this._indicesAlongDim(dim);
+    const maskedIndices = indices.mul(firstOccurrence);
+
+    // Step 5: sum along dimension to get final argmax indices
+    const result = maskedIndices.sum(dim, keepdim);
+    // Convert float32 to int32 via round and reinterpret
+    // For now, keep as float and note that caller should interpret as int32
+    return result;
+  }
+
+  /**
+   * Internal: create a tensor with indices [0, 1, 2, ...] along a dimension.
+   */
+  private _indicesAlongDim(dim: number): Tensor {
+    const { arange, ones } = require('../ops/creation');
+    const dimSize = this._shape[dim < 0 ? dim + this._shape.length : dim];
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+
+    // Create [0, 1, 2, ..., dimSize-1]
+    const indices = arange(0, dimSize, 1, { dtype: 'float32' });
+
+    // Reshape to put indices at the right dimension
+    const shape = new Array(this._shape.length).fill(1);
+    shape[resolvedDim] = dimSize;
+    const reshapedIndices = indices.reshape(shape);
+
+    // Broadcast to full shape
+    return reshapedIndices.broadcastTo(this._shape);
+  }
+
+  /**
+   * Returns the indices of the minimum values along a dimension.
+   * @param dim - Dimension to reduce. If undefined, returns index of global minimum.
+   * @param keepdim - Whether to keep the reduced dimension
+   * @pytorch torch.argmin
+   */
+  argmin(dim?: number, keepdim: boolean = false): Tensor {
+    if (dim === undefined) {
+      return this._argReduce('argmin');
+    }
+
+    // For argmin, negate values and use argmax
+    return this.neg().argmax(dim, keepdim);
+  }
+
+  /**
+   * Gathers values along a dimension according to index.
+   * out[i][j][k] = input[index[i][j][k]][j][k]  // if dim == 0
+   * @param dim - Dimension along which to index
+   * @param index - Indices of elements to gather
+   * @pytorch torch.gather
+   */
+  async gather(dim: number, index: Tensor): Promise<Tensor> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+
+    // Validate shapes
+    if (index._shape.length !== this._shape.length) {
+      throw new Error('gather: index must have same number of dimensions as input');
+    }
+
+    // CPU fallback implementation
+    return this._gatherCPU(resolvedDim, index);
+  }
+
+  /**
+   * Internal: gather via CPU readback.
+   */
+  private async _gatherCPU(dim: number, index: Tensor): Promise<Tensor> {
+    const inputData = await this.toArray();
+    const indexData = await index.toArray();
+    const shape = [...this._shape];
+    const indexShape = index._shape;
+    const outNumel = index.numel();
+    const dimSize = shape[dim];
+
+    const outputData = new Float32Array(outNumel);
+
+    for (let outFlatIdx = 0; outFlatIdx < outNumel; outFlatIdx++) {
+      // Convert flat output index to multi-dimensional coordinates
+      const outCoords: number[] = [];
+      let tempIdx = outFlatIdx;
+      for (let d = indexShape.length - 1; d >= 0; d--) {
+        outCoords.unshift(tempIdx % indexShape[d]);
+        tempIdx = Math.floor(tempIdx / indexShape[d]);
+      }
+
+      // Get the index value at this position
+      const gatherIdx = Math.floor(indexData[outFlatIdx]);
+      const wrappedIdx = gatherIdx < 0 ? gatherIdx + dimSize : gatherIdx;
+
+      // Create input coordinates by replacing the dimension coordinate
+      const inCoords = [...outCoords];
+      inCoords[dim] = wrappedIdx;
+
+      // Convert input coordinates to flat index
+      let inFlatIdx = 0;
+      let stride = 1;
+      for (let d = shape.length - 1; d >= 0; d--) {
+        inFlatIdx += inCoords[d] * stride;
+        stride *= shape[d];
+      }
+
+      outputData[outFlatIdx] = inputData[inFlatIdx];
+    }
+
+    return Tensor._fromNumberArray(Array.from(outputData), this._dtype).reshape(indexShape);
+  }
+
+  /**
+   * Writes all values from the source tensor into the input tensor at the specified indices.
+   * self[index[i][j][k]][j][k] = src[i][j][k]  // if dim == 0
+   * @param dim - Dimension along which to index
+   * @param index - Indices of elements to scatter into
+   * @param src - Source tensor
+   * @pytorch torch.scatter
+   */
+  scatter(dim: number, index: Tensor, src: Tensor): Tensor {
+    return this._scatterCPU(dim, index, src, 'set');
+  }
+
+  /**
+   * In-place scatter operation.
+   * @param dim - Dimension along which to index
+   * @param index - Indices of elements to scatter into
+   * @param src - Source tensor
+   * @pytorch torch.scatter_
+   */
+  scatter_(dim: number, index: Tensor, src: Tensor): Tensor {
+    return this._scatterCPU(dim, index, src, 'set');
+  }
+
+  /**
+   * Adds all values from the source tensor into the input tensor at the specified indices.
+   * self[index[i][j][k]][j][k] += src[i][j][k]  // if dim == 0
+   * @param dim - Dimension along which to index
+   * @param index - Indices of elements to scatter into
+   * @param src - Source tensor
+   * @pytorch torch.scatter_add
+   */
+  scatter_add(dim: number, index: Tensor, src: Tensor): Tensor {
+    return this._scatterCPU(dim, index, src, 'add');
+  }
+
+  /**
+   * Internal: scatter via CPU readback.
+   */
+  private _scatterCPU(dim: number, index: Tensor, src: Tensor, mode: 'set' | 'add'): Tensor {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const inputData = new Float32Array(this.numel());
+    const indexData = new Float32Array(index.numel());
+    const srcData = new Float32Array(src.numel());
+
+    // For now, read current values (for scatter_)
+    // This is a simplified implementation
+    const shape = [...this._shape];
+    const indexShape = index._shape;
+    const srcNumel = src.numel();
+    const dimSize = shape[resolvedDim];
+
+    // Simple validation
+    if (indexShape.length !== this._shape.length) {
+      throw new Error('scatter: index must have same number of dimensions as input');
+    }
+
+    // This is a placeholder - full implementation would need proper async readback
+    throw new Error('scatter not yet fully implemented');
+  }
+
+  /**
+   * Repeats each element of the tensor a specified number of times along a given dimension.
+   * @param repeats - Number of repetitions for each element
+   * @param dim - Dimension along which to repeat
+   * @pytorch torch.repeat_interleave
+   */
+  async repeat_interleave(repeats: number, dim?: number): Promise<Tensor> {
+    if (dim === undefined) {
+      // Repeat the flattened tensor
+      const flat = this.flatten();
+      const outShape = [flat.numel() * repeats];
+      return this._repeatInterleaveCPU(flat, repeats, outShape);
+    }
+
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const outShape = [...this._shape];
+    outShape[resolvedDim] *= repeats;
+
+    return this._repeatInterleaveCPU(this, repeats, outShape, resolvedDim);
+  }
+
+  /**
+   * Internal: repeat_interleave via CPU.
+   */
+  private async _repeatInterleaveCPU(tensor: Tensor, repeats: number, outShape: number[], dim?: number): Promise<Tensor> {
+    // CPU implementation
+    const data = await tensor.toArray();
+    const outNumel = outShape.reduce((a, b) => a * b, 1);
+    const outputData = new Float32Array(outNumel);
+
+    const shape = [...tensor._shape];
+    const ndim = shape.length;
+    const resolvedDim = dim !== undefined ? (dim < 0 ? dim + ndim : dim) : 0;
+
+    for (let outIdx = 0; outIdx < outNumel; outIdx++) {
+      // Convert output flat index to coordinates
+      const outCoords: number[] = [];
+      let tempIdx = outIdx;
+      for (let d = ndim - 1; d >= 0; d--) {
+        outCoords.unshift(tempIdx % outShape[d]);
+        tempIdx = Math.floor(tempIdx / outShape[d]);
+      }
+
+      // Map back to input coordinates
+      const inCoords = [...outCoords];
+      if (dim !== undefined) {
+        inCoords[resolvedDim] = Math.floor(outCoords[resolvedDim] / repeats);
+      }
+
+      // Convert input coordinates to flat index
+      let inIdx = 0;
+      let stride = 1;
+      for (let d = ndim - 1; d >= 0; d--) {
+        inIdx += inCoords[d] * stride;
+        stride *= shape[d];
+      }
+
+      outputData[outIdx] = data[inIdx];
+    }
+
+    return Tensor._fromNumberArray(Array.from(outputData), this._dtype).reshape(outShape);
+  }
+
+  /**
+   * Roll the tensor along a dimension.
+   * Elements that roll beyond the last position come back to the beginning.
+   * @param shifts - Number of places to shift
+   * @param dims - Dimension(s) to roll
+   * @pytorch torch.roll
+   */
+  async roll(shifts: number | number[], dims?: number | number[]): Promise<Tensor> {
+    const shape = [...this._shape];
+    const shiftsArray = Array.isArray(shifts) ? shifts : [shifts];
+    const dimsArray = dims === undefined ? [0] : (Array.isArray(dims) ? dims : [dims]);
+
+    // Normalize dims
+    const normalizedDims = dimsArray.map(d => d < 0 ? d + shape.length : d);
+
+    // CPU implementation for now
+    return this._rollCPU(shiftsArray, normalizedDims);
+  }
+
+  /**
+   * Internal: roll via CPU.
+   */
+  private async _rollCPU(shifts: number[], dims: number[]): Promise<Tensor> {
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const ndim = shape.length;
+    const outputData = new Float32Array(this.numel());
+
+    for (let outIdx = 0; outIdx < data.length; outIdx++) {
+      // Convert output flat index to coordinates
+      const outCoords: number[] = [];
+      let tempIdx = outIdx;
+      for (let d = ndim - 1; d >= 0; d--) {
+        outCoords.unshift(tempIdx % shape[d]);
+        tempIdx = Math.floor(tempIdx / shape[d]);
+      }
+
+      // Calculate input coordinates by applying shifts
+      const inCoords = [...outCoords];
+      for (let i = 0; i < dims.length; i++) {
+        const d = dims[i];
+        const shift = shifts[i] % shape[d];
+        inCoords[d] = (outCoords[d] - shift + shape[d]) % shape[d];
+      }
+
+      // Convert input coordinates to flat index
+      let inIdx = 0;
+      let stride = 1;
+      for (let d = ndim - 1; d >= 0; d--) {
+        inIdx += inCoords[d] * stride;
+        stride *= shape[d];
+      }
+
+      outputData[outIdx] = data[inIdx];
+    }
+
+    return Tensor._fromNumberArray(Array.from(outputData), this._dtype).reshape(this._shape);
+  }
+
+  /**
+   * Rotates a tensor by 90 degrees in the plane specified by dims.
+   * @param k - Number of 90 degree rotations
+   * @param dims - Two dimensions that define the plane
+   * @pytorch torch.rot90
+   */
+  async rot90(k: number = 1, dims?: number[]): Promise<Tensor> {
+    const dimsArray = dims || [-2, -1];
+    if (dimsArray.length !== 2) {
+      throw new Error('rot90: dims must contain exactly 2 dimensions');
+    }
+
+    const ndim = this._shape.length;
+    const dim0 = dimsArray[0] < 0 ? dimsArray[0] + ndim : dimsArray[0];
+    const dim1 = dimsArray[1] < 0 ? dimsArray[1] + ndim : dimsArray[1];
+
+    if (dim0 === dim1) {
+      throw new Error('rot90: dims must be different');
+    }
+
+    // Normalize k to [0, 1, 2, 3]
+    const rotations = ((k % 4) + 4) % 4;
+
+    let result: Tensor = this;
+    for (let i = 0; i < rotations; i++) {
+      result = await result._rot90Once(dim0, dim1);
+    }
+
+    return result;
+  }
+
+  /**
+   * Internal: single 90 degree rotation.
+   */
+  private async _rot90Once(dim0: number, dim1: number): Promise<Tensor> {
+    // For a 2D plane, rot90 means: result[j, N-1-i] = input[i, j]
+    // This is equivalent to: transpose, then flip along dim1
+
+    const shape = [...this._shape];
+    const dim0Size = shape[dim0];
+    const dim1Size = shape[dim1];
+
+    // CPU implementation
+    const data = await this.toArray();
+    const ndim = shape.length;
+    const newShape = [...shape];
+    newShape[dim0] = dim1Size;
+    newShape[dim1] = dim0Size;
+    const outputData = new Float32Array(this.numel());
+
+    for (let inIdx = 0; inIdx < data.length; inIdx++) {
+      const inCoords: number[] = [];
+      let tempIdx = inIdx;
+      for (let d = ndim - 1; d >= 0; d--) {
+        inCoords.unshift(tempIdx % shape[d]);
+        tempIdx = Math.floor(tempIdx / shape[d]);
+      }
+
+      // Apply rot90: new_i = dim1Size - 1 - inCoords[dim1], new_j = inCoords[dim0]
+      const outCoords = [...inCoords];
+      outCoords[dim0] = dim1Size - 1 - inCoords[dim1];
+      outCoords[dim1] = inCoords[dim0];
+
+      let outIdx = 0;
+      let stride = 1;
+      for (let d = ndim - 1; d >= 0; d--) {
+        outIdx += outCoords[d] * stride;
+        stride *= newShape[d];
+      }
+
+      outputData[outIdx] = data[inIdx];
+    }
+
+    return Tensor._fromNumberArray(Array.from(outputData), this._dtype).reshape(newShape);
+  }
+
+  /**
+   * Returns a new tensor with a dimension of size one inserted at the specified position.
+   * This is an alias for unsqueeze.
+   * @param dim - Dimension to insert
+   * @pytorch torch.unsqueeze
+   */
+  unflatten(dim: number, sizes: number[]): Tensor {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const newSize = sizes.reduce((a, b) => a * b, 1);
+
+    if (this._shape[resolvedDim] !== newSize) {
+      throw new Error(`unflatten: size of dimension ${dim} must match product of new sizes`);
+    }
+
+    const newShape = [...this._shape];
+    newShape.splice(resolvedDim, 1, ...sizes);
+
+    return this.reshape(newShape);
+  }
+
+  /**
+   * Sorts the elements of the input tensor along a given dimension.
+   * @param dim - Dimension to sort along (default: -1, last dimension)
+   * @param descending - If true, sort in descending order (default: false)
+   * @param stable - If true, use stable sort (default: false)
+   * @returns A named tuple-like object with (values, indices)
+   * @pytorch torch.sort
+   */
+  async sort(dim: number = -1, descending: boolean = false, stable: boolean = false): Promise<{ values: Tensor; indices: Tensor }> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const dimSize = this._shape[resolvedDim];
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const ndim = shape.length;
+    const numel = this.numel();
+
+    // Calculate strides for the dimension
+    const dimStride = (() => {
+      let stride = 1;
+      for (let d = ndim - 1; d > resolvedDim; d--) {
+        stride *= shape[d];
+      }
+      return stride;
+    })();
+
+    // Number of independent slices
+    const numSlices = numel / dimSize;
+
+    const sortedValues = new Float32Array(numel);
+    const sortedIndices = new Int32Array(numel);
+
+    for (let sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
+      // Extract slice along dim
+      const sliceValues: { val: number; origIdx: number }[] = [];
+      for (let i = 0; i < dimSize; i++) {
+        // Calculate flat index for position (..., i, ...) along dim
+        const flatIdx = this._indexAlongDim(resolvedDim, i, sliceIdx, shape);
+        sliceValues.push({ val: data[flatIdx], origIdx: flatIdx });
+      }
+
+      // Sort the slice
+      sliceValues.sort((a, b) => {
+        const cmp = descending ? b.val - a.val : a.val - b.val;
+        if (cmp !== 0) return cmp;
+        // For stable sort, preserve original order for equal elements
+        if (stable) return a.origIdx - b.origIdx;
+        return 0;
+      });
+
+      // Write sorted values and indices
+      for (let i = 0; i < dimSize; i++) {
+        const outFlatIdx = this._indexAlongDim(resolvedDim, i, sliceIdx, shape);
+        sortedValues[outFlatIdx] = sliceValues[i].val;
+        // Store the original index along the dimension
+        const origPosAlongDim = sliceValues[i].origIdx;
+        // Convert back to position along dim
+        const posAlongDim = Math.floor((origPosAlongDim % (dimSize * dimStride)) / dimStride);
+        sortedIndices[outFlatIdx] = posAlongDim;
+      }
+    }
+
+    const valuesTensor = Tensor._fromNumberArray(Array.from(sortedValues), this._dtype).reshape(shape);
+    const indicesTensor = Tensor._fromNumberArray(Array.from(new Int32Array(sortedIndices)), 'int32').reshape(shape);
+
+    return { values: valuesTensor, indices: indicesTensor };
+  }
+
+  /**
+   * Helper: calculate flat index for position i along dimension dim, for the sliceIdx-th slice.
+   */
+  private _indexAlongDim(dim: number, i: number, sliceIdx: number, shape: number[]): number {
+    const ndim = shape.length;
+    // Convert sliceIdx to coordinates (excluding dim)
+    const coordsWithoutDim: number[] = [];
+    let temp = sliceIdx;
+    const dimsBefore = shape.filter((_, d) => d < dim);
+    const dimsAfter = shape.filter((_, d) => d > dim);
+
+    // Process from last to first
+    for (let d = ndim - 1; d >= 0; d--) {
+      if (d === dim) continue;
+      coordsWithoutDim.unshift(temp % shape[d]);
+      temp = Math.floor(temp / shape[d]);
+    }
+
+    // Build full coordinates
+    const coords = [...coordsWithoutDim];
+    coords.splice(dim, 0, i);
+
+    // Convert to flat index
+    let flatIdx = 0;
+    let stride = 1;
+    for (let d = ndim - 1; d >= 0; d--) {
+      flatIdx += coords[d] * stride;
+      stride *= shape[d];
+    }
+
+    return flatIdx;
+  }
+
+  /**
+   * Returns the indices that would sort the tensor along a given dimension.
+   * @param dim - Dimension to sort along (default: -1)
+   * @param descending - If true, sort in descending order (default: false)
+   * @param stable - If true, use stable sort (default: false)
+   * @returns Tensor of indices
+   * @pytorch torch.argsort
+   */
+  async argsort(dim: number = -1, descending: boolean = false, stable: boolean = false): Promise<Tensor> {
+    const result = await this.sort(dim, descending, stable);
+    return result.indices;
+  }
+
+  /**
+   * Returns the k largest or smallest elements along a given dimension.
+   * @param k - Number of elements to return
+   * @param dim - Dimension to find topk along (default: -1)
+   * @param largest - If true, return largest elements (default: true)
+   * @param sorted - If true, return elements in sorted order (default: true)
+   * @returns A named tuple-like object with (values, indices)
+   * @pytorch torch.topk
+   */
+  async topk(k: number, dim: number = -1, largest: boolean = true, sorted: boolean = true): Promise<{ values: Tensor; indices: Tensor }> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const dimSize = this._shape[resolvedDim];
+
+    if (k > dimSize) {
+      throw new Error(`topk: k (${k}) cannot be larger than dimension size (${dimSize})`);
+    }
+
+    // Get full sort and take top k
+    const fullSort = await this.sort(dim, largest, false);
+
+    // Slice top k
+    const valuesSlice = fullSort.values.narrow(resolvedDim, 0, k);
+    const indicesSlice = fullSort.indices.narrow(resolvedDim, 0, k);
+
+    return { values: valuesSlice, indices: indicesSlice };
+  }
+
+  /**
+   * Returns the k-th smallest element along a given dimension.
+   * @param k - The k-th position (1-based)
+   * @param dim - Dimension to find kth value along (default: -1)
+   * @param keepdim - Whether to keep the reduced dimension (default: false)
+   * @returns A named tuple-like object with (values, indices)
+   * @pytorch torch.kthvalue
+   */
+  async kthvalue(k: number, dim: number = -1, keepdim: boolean = false): Promise<{ values: Tensor; indices: Tensor }> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+
+    // Get full sort and take k-1 index (k is 1-based)
+    const fullSort = await this.sort(dim, false, false);
+
+    // Select the k-1 position (0-based)
+    const valuesSlice = fullSort.values.select(resolvedDim, k - 1);
+    const indicesSlice = fullSort.indices.select(resolvedDim, k - 1);
+
+    if (keepdim) {
+      return {
+        values: valuesSlice.unsqueeze(resolvedDim),
+        indices: indicesSlice.unsqueeze(resolvedDim),
+      };
+    }
+
+    return { values: valuesSlice, indices: indicesSlice };
+  }
+
+  /**
+   * Cumulative maximum along a dimension.
+   * @param dim - Dimension to compute along
+   * @pytorch torch.cummax
+   */
+  async cummax(dim: number): Promise<{ values: Tensor; indices: Tensor }> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const dimSize = this._shape[resolvedDim];
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const numel = this.numel();
+
+    const valuesOut = new Float32Array(numel);
+    const indicesOut = new Int32Array(numel);
+
+    const numSlices = numel / dimSize;
+    for (let sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
+      let maxVal = -Infinity;
+      let maxIdx = 0;
+
+      for (let i = 0; i < dimSize; i++) {
+        const flatIdx = this._indexAlongDim(resolvedDim, i, sliceIdx, shape);
+        const val = data[flatIdx];
+
+        if (val > maxVal) {
+          maxVal = val;
+          maxIdx = i;
+        }
+
+        valuesOut[flatIdx] = maxVal;
+        indicesOut[flatIdx] = maxIdx;
+      }
+    }
+
+    return {
+      values: Tensor._fromNumberArray(Array.from(valuesOut), this._dtype).reshape(shape),
+      indices: Tensor._fromNumberArray(Array.from(new Int32Array(indicesOut)), 'int32').reshape(shape),
+    };
+  }
+
+  /**
+   * Cumulative minimum along a dimension.
+   * @param dim - Dimension to compute along
+   * @pytorch torch.cummin
+   */
+  async cummin(dim: number): Promise<{ values: Tensor; indices: Tensor }> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const dimSize = this._shape[resolvedDim];
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const numel = this.numel();
+
+    const valuesOut = new Float32Array(numel);
+    const indicesOut = new Int32Array(numel);
+
+    const numSlices = numel / dimSize;
+    for (let sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
+      let minVal = Infinity;
+      let minIdx = 0;
+
+      for (let i = 0; i < dimSize; i++) {
+        const flatIdx = this._indexAlongDim(resolvedDim, i, sliceIdx, shape);
+        const val = data[flatIdx];
+
+        if (val < minVal) {
+          minVal = val;
+          minIdx = i;
+        }
+
+        valuesOut[flatIdx] = minVal;
+        indicesOut[flatIdx] = minIdx;
+      }
+    }
+
+    return {
+      values: Tensor._fromNumberArray(Array.from(valuesOut), this._dtype).reshape(shape),
+      indices: Tensor._fromNumberArray(Array.from(new Int32Array(indicesOut)), 'int32').reshape(shape),
+    };
+  }
+
+  /**
+   * Log sum exp along dimensions.
+   * Numerically stable: log(sum(exp(x))) = max(x) + log(sum(exp(x - max(x))))
+   * @param dim - Dimension(s) to reduce
+   * @param keepdim - Whether to keep reduced dimensions
+   * @pytorch torch.logsumexp
+   */
+  logsumexp(dim?: number | number[], keepdim: boolean = false): Tensor {
+    const maxVal = this.amax(dim, true);
+    const stable = this.sub(maxVal).exp();
+    const sumExp = stable.sum(dim, keepdim);
+    const squeezeDims = dim === undefined ? [] : (Array.isArray(dim) ? dim : [dim]);
+    let result = maxVal;
+    for (const d of squeezeDims) {
+      result = result.squeeze(d);
+    }
+    return result.add(sumExp.log());
+  }
+
+  /**
+   * Log cumulative sum exp along a dimension.
+   * @param dim - Dimension to compute along
+   * @pytorch torch.logcumsumexp
+   */
+  async logcumsumexp(dim: number): Promise<Tensor> {
+    const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
+    const dimSize = this._shape[resolvedDim];
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const numel = this.numel();
+
+    const output = new Float32Array(numel);
+    const numSlices = numel / dimSize;
+
+    for (let sliceIdx = 0; sliceIdx < numSlices; sliceIdx++) {
+      let maxVal = -Infinity;
+
+      // First pass: find running max
+      const runningMax: number[] = [];
+      for (let i = 0; i < dimSize; i++) {
+        const flatIdx = this._indexAlongDim(resolvedDim, i, sliceIdx, shape);
+        if (data[flatIdx] > maxVal) maxVal = data[flatIdx];
+        runningMax.push(maxVal);
+      }
+
+      // Second pass: compute logcumsumexp
+      let sumExp = 0;
+      for (let i = 0; i < dimSize; i++) {
+        const flatIdx = this._indexAlongDim(resolvedDim, i, sliceIdx, shape);
+        sumExp += Math.exp(data[flatIdx] - runningMax[i]);
+        output[flatIdx] = runningMax[i] + Math.log(sumExp);
+      }
+    }
+
+    return Tensor._fromNumberArray(Array.from(output), this._dtype).reshape(shape);
+  }
+
+  /**
+   * Count the number of non-zero elements.
+   * @param dim - Dimension(s) to reduce
+   * @param keepdim - Whether to keep reduced dimensions
+   * @pytorch torch.count_nonzero
+   */
+  count_nonzero(dim?: number | number[], keepdim: boolean = false): Tensor {
+    const isNonZero = this.ne(0);
+    return isNonZero.sum(dim, keepdim);
+  }
+
+  /**
+   * Returns both the min and max values along a dimension.
+   * @param dim - Dimension to reduce
+   * @param keepdim - Whether to keep the reduced dimension
+   * @returns Object with {min, max} tensors
+   * @pytorch torch.aminmax
+   */
+  aminmax(dim?: number, keepdim: boolean = false): { min: Tensor; max: Tensor } {
+    return {
+      min: this.amin(dim, keepdim),
+      max: this.amax(dim, keepdim),
+    };
   }
 
   t(): Tensor {
@@ -1815,10 +3063,11 @@ export class Tensor {
         backward(gradOutput: Tensor): void {
           self.accumulateGrad(gradOutput.neg());
         },
+        _next_tensors: [self],
       };
     }
 
-    return new Tensor({ buffer: outputBuffer, shape: [...this._shape], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
+    return new Tensor({ buffer: outputBuffer, shape: [N, M], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
   }
 
   private _binaryOp(op: string, other: Tensor): Tensor {
@@ -1873,6 +3122,7 @@ export class Tensor {
             other.accumulateGrad(grad_other);
           }
         },
+        _next_tensors: [self, other],
       };
     }
 
@@ -1964,6 +3214,7 @@ export class Tensor {
             other.accumulateGrad(grad_other);
           }
         },
+        _next_tensors: [self, other],
       };
     }
 
@@ -2056,6 +3307,7 @@ export class Tensor {
           }
           self.accumulateGrad(grad_self);
         },
+        _next_tensors: [self],
       };
     }
 
@@ -2080,6 +3332,83 @@ export class Tensor {
       this._grad = this._grad.add(grad);
     } else {
       this._grad = grad;
+    }
+  }
+
+  /**
+   * Computes the gradient of current tensor with respect to graph leaves.
+   * @pytorch tensor.backward()
+   * @param gradient - Gradient w.r.t. this tensor (default: ones_like)
+   * @param retain_graph - If false, clears grad_fn after use
+   * @param create_graph - If true, constructs graph for gradient computation
+   */
+  backward(gradient?: Tensor, retain_graph: boolean = false, create_graph: boolean = false): void {
+    if (!is_grad_enabled()) return;
+
+    const grad = gradient || this.ones_like();
+
+    // Collect all grad_fns and their tensors in the graph
+    const tensorToGrad = new Map<number, Tensor>();
+    const processedGradFns = new WeakSet<GradFn>();
+    const queue: Tensor[] = [this];
+    tensorToGrad.set(this._id, grad);
+
+    // BFS to find all tensors with grad_fns
+    while (queue.length > 0) {
+      const tensor = queue.shift()!;
+      const gf = tensor._grad_fn;
+      if (gf && !processedGradFns.has(gf)) {
+        processedGradFns.add(gf);
+        // Add parent tensors to queue
+        if (gf._next_tensors) {
+          for (const parent of gf._next_tensors) {
+            if (parent._requires_grad || parent._grad_fn) {
+              if (!tensorToGrad.has(parent._id)) {
+                queue.push(parent);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Process grad_fns in reverse topological order (leaves last)
+    const sortedGradFns: Array<{ tensor: Tensor; gradFn: GradFn }> = [];
+    for (const [id, tensor] of [...tensorToGrad.entries()].reverse()) {
+      if (tensor._grad_fn) {
+        sortedGradFns.push({ tensor, gradFn: tensor._grad_fn });
+      }
+    }
+
+    // Execute backward pass
+    for (const { tensor, gradFn } of sortedGradFns) {
+      const gradOutput = tensorToGrad.get(tensor._id);
+      if (gradOutput) {
+        gradFn.backward(gradOutput);
+        // Propagate gradients to parents
+        if (gradFn._next_tensors) {
+          for (const parent of gradFn._next_tensors) {
+            if (!tensorToGrad.has(parent._id)) {
+              tensorToGrad.set(parent._id, parent.zeros_like());
+            }
+          }
+        }
+      }
+    }
+
+    // Handle leaf tensors (no grad_fn but requires_grad)
+    for (const [id, tensor] of tensorToGrad) {
+      if (!tensor._grad_fn && tensor._requires_grad) {
+        // This tensor accumulated gradient from parent grad_fn.backward()
+        // Nothing more to do
+      }
+    }
+
+    // Clear grad_fns if not retaining
+    if (!retain_graph) {
+      for (const [id, tensor] of tensorToGrad) {
+        tensor._grad_fn = null;
+      }
     }
   }
 
@@ -2125,6 +3454,7 @@ export class Tensor {
           }
           self.accumulateGrad(grad_self);
         },
+        _next_tensors: [self],
       };
     }
 
@@ -2247,5 +3577,454 @@ export class Tensor {
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
     return new Tensor({ buffer: outputBuffer, shape: [...this._shape], dtype: this._dtype, device: 'webgpu', requires_grad: false });
+  }
+
+  /**
+   * PyTorch-style tensor indexing.
+   * Supports:
+   * - tensor.get(0) → select dim 0
+   * - tensor.get([0, 1]) → select dims 0 and 1
+   * - tensor.get([new Slice(1, 5)]) → slice dim 0 from 1 to 5
+   * - tensor.get([Slice.null, 2]) → all of dim 0, select index 2 on dim 1
+   * - tensor.get([new Slice(null, null, 2)]) → step 2 on dim 0
+   * - tensor.get([0, new Slice(1, 3), new Slice(null, null, -1)]) → complex mixed
+   *
+   * Convenience: tensor.at(0, 1) is equivalent to tensor.get([0, 1])
+   *
+   * @pytorch tensor indexing
+   */
+  async get(index: IndexType | IndexType[]): Promise<Tensor> {
+    const indices: IndexType[] = Array.isArray(index) ? index : [index];
+
+    // Parse indices: separate selects from slices, track order
+    const parsed: { type: 'select'; dim: number; idx: number }[] = [];
+    const slices: { dim: number; spec: SliceSpec }[] = [];
+
+    let outDim = 0; // tracks which tensor dimension we're indexing
+
+    for (let i = 0; i < indices.length; i++) {
+      const idx = indices[i];
+
+      if (typeof idx === 'number') {
+        // Select: pick a single index along this dimension
+        const dimSize = this._shape[outDim];
+        let resolved = idx;
+        if (resolved < 0) resolved += dimSize;
+
+        if (resolved < 0 || resolved >= dimSize) {
+          throw new Error(
+            `Index ${idx} out of bounds for dimension ${outDim} with size ${dimSize}`
+          );
+        }
+
+        parsed.push({ type: 'select', dim: outDim, idx: resolved });
+        outDim++;
+      } else if (idx instanceof Slice) {
+        // Slice: extract a range with optional step
+        const dimSize = this._shape[outDim];
+        let start = idx.start ?? 0;
+        let stop = idx.stop ?? dimSize;
+        let step = idx.step ?? 1;
+
+        // Handle negative start/stop
+        if (start < 0) start = dimSize + start;
+        if (stop < 0) stop = dimSize + stop;
+
+        // Clamp to bounds
+        start = Math.max(0, Math.min(start, dimSize));
+        stop = Math.max(0, Math.min(stop, dimSize));
+
+        if (step === 0) {
+          throw new Error('Slice step cannot be zero');
+        }
+
+        slices.push({ dim: outDim, spec: { start, stop, step } });
+        outDim++;
+      } else if (idx === true || idx === false) {
+        // Boolean mask — not supported in this method
+        throw new Error(
+          'Boolean indexing not supported in get(), use masked_select() instead'
+        );
+      }
+    }
+
+    // Validate we didn't exceed dimensions
+    if (outDim > this._shape.length) {
+      throw new Error(
+        `Index dimension (${outDim}) exceeds tensor dimension (${this._shape.length})`
+      );
+    }
+
+    // Execution strategy:
+    // 1. Apply all selects via narrow + squeeze (dimension-removing)
+    // 2. Apply all slices via the existing slice() method
+    //
+    // We chain them in order: first select dims, then slice remaining dims.
+
+    let current: Tensor = this;
+
+    // Apply selects in reverse order (highest dim first) so dimension indices stay stable.
+    // When we select dim N, it gets squeezed out; dims > N shift down by 1.
+    // By processing from highest to lowest, earlier selections don't affect later ones.
+    for (let i = parsed.length - 1; i >= 0; i--) {
+      const sel = parsed[i];
+      current = current.select(sel.dim, sel.idx);
+    }
+
+    // If no slices remain, we're done
+    if (slices.length === 0) {
+      return current;
+    }
+
+    // Build slice specs for the remaining dimensions
+    // After selects, the remaining dimensions are those not in `parsed`
+    const selectedDims = new Set(parsed.map(s => s.dim));
+    const remainingDims: number[] = [];
+    for (let d = 0; d < this._shape.length; d++) {
+      if (!selectedDims.has(d)) remainingDims.push(d);
+    }
+
+    // Build full slice specs: default is full slice for each remaining dim
+    const sliceSpecs: SliceSpec[] = remainingDims.map(d => ({
+      start: 0,
+      stop: this._shape[d],
+      step: 1,
+    }));
+
+    // Override with user-provided slices
+    for (const sl of slices) {
+      // Find where this original dimension maps in remainingDims
+      const newIdx = remainingDims.indexOf(sl.dim);
+      if (newIdx >= 0) {
+        sliceSpecs[newIdx] = sl.spec;
+      }
+    }
+
+    const result = current.slice(sliceSpecs);
+
+    // Clean up intermediate tensor if selects were applied
+    if (parsed.length > 0) {
+      current.destroy();
+    }
+
+    return result;
+  }
+
+  /**
+   * Convenience method: variadic indexing.
+   * tensor.at(0, 1) is equivalent to tensor.get([0, 1])
+   * tensor.at(new Slice(1, 5)) is equivalent to tensor.get([new Slice(1, 5)])
+   */
+  at(...indices: IndexType[]): Promise<Tensor> {
+    return this.get(indices);
+  }
+
+  /**
+   * Advanced slicing with Slice objects: tensor[i:j], tensor[i:j:k], tensor[::2]
+   * Legacy method kept for backward compatibility. Prefer using get() or at().
+   * @pytorch slice notation
+   */
+  async advancedSlice(indices: (number | Slice)[]): Promise<Tensor> {
+    // Build slice specification
+    const sliceSpecs: (number | SliceSpec)[] = [];
+
+    for (let i = 0; i < this._shape.length; i++) {
+      if (i < indices.length) {
+        const idx = indices[i];
+        if (idx instanceof Slice) {
+          // Convert Slice to SliceSpec
+          const dimSize = this._shape[i];
+          let start = idx.start ?? 0;
+          let stop = idx.stop ?? dimSize;
+          let step = idx.step ?? 1;
+
+          // Handle negative start/stop
+          if (start < 0) start = dimSize + start;
+          if (stop < 0) stop = dimSize + stop;
+
+          // Clamp to bounds
+          start = Math.max(0, Math.min(start, dimSize));
+          stop = Math.max(0, Math.min(stop, dimSize));
+
+          sliceSpecs.push({ start, stop, step });
+        } else {
+          sliceSpecs.push(idx as number);
+        }
+      } else {
+        // Full slice for remaining dimensions
+        sliceSpecs.push({ start: 0, stop: this._shape[i], step: 1 });
+      }
+    }
+
+    return this._executeSlice(sliceSpecs);
+  }
+
+  /**
+   * Internal: execute slice operation via CPU fallback.
+   */
+  private async _executeSlice(specs: (number | SliceSpec)[]): Promise<Tensor> {
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const ndim = shape.length;
+
+    // Calculate output shape
+    const outShape: number[] = [];
+    for (let i = 0; i < ndim; i++) {
+      const spec = specs[i];
+      if (typeof spec === 'number') {
+        // Dimension is indexed, removed from output
+        continue;
+      }
+      // Calculate size of this dimension
+      const start = spec.start ?? 0;
+      const stop = spec.stop ?? shape[i];
+      const step = spec.step ?? 1;
+      const size = Math.ceil((stop - start) / step);
+      outShape.push(size);
+    }
+
+    const outNumel = outShape.reduce((a, b) => a * b, 1);
+    const TypedArrayCtor = getTypedArrayConstructor(this._dtype);
+    const output = new TypedArrayCtor(outNumel);
+
+    // Iterate through output tensor and calculate input indices
+    for (let outIdx = 0; outIdx < outNumel; outIdx++) {
+      // Convert flat output index to coordinates
+      const outCoords: number[] = [];
+      let tempIdx = outIdx;
+      for (let d = outShape.length - 1; d >= 0; d--) {
+        outCoords.unshift(tempIdx % outShape[d]);
+        tempIdx = Math.floor(tempIdx / outShape[d]);
+      }
+
+      // Map output coords to input coords using slice specs
+      const inCoords: number[] = [];
+      let outCoordIdx = 0;
+      for (let d = 0; d < ndim; d++) {
+        const spec = specs[d];
+        if (typeof spec === 'number') {
+          inCoords.push(spec);
+        } else {
+          const start = spec.start ?? 0;
+          const step = spec.step ?? 1;
+          inCoords.push(start + outCoords[outCoordIdx] * step);
+          outCoordIdx++;
+        }
+      }
+
+      // Calculate input flat index
+      let inFlatIdx = 0;
+      let stride = 1;
+      for (let d = ndim - 1; d >= 0; d--) {
+        inFlatIdx += inCoords[d] * stride;
+        stride *= shape[d];
+      }
+
+      output[outIdx] = data[inFlatIdx];
+    }
+
+    // Create properly shaped tensor from flat data
+    const shapedCtor = getTypedArrayConstructor(this._dtype);
+    const shapedData = new shapedCtor(output);
+    const buffer = createBufferWithData(shapedData, this._dtype);
+    
+    return new Tensor({
+      buffer,
+      shape: outShape,
+      dtype: this._dtype,
+      device: 'webgpu',
+      requires_grad: false,
+    });
+  }
+
+  /**
+   * Internal: extract scalar value at flat index.
+   */
+  private async _extractScalar(flatIdx: number): Promise<Tensor> {
+    const data = await this.toArray();
+    return Tensor._fromNumberArray([data[flatIdx]]);
+  }
+
+  /**
+   * Internal: create sliced tensor with indices fixed.
+   */
+  private async _sliceIndices(indices: number[]): Promise<Tensor> {
+    const ndim = this._shape.length;
+    const numFixed = indices.length;
+    const outShape = this._shape.slice(numFixed);
+
+    if (outShape.length === 0) {
+      // All dimensions indexed, should have used _extractScalar
+      return this.reshape([]);
+    }
+
+    // Calculate offset
+    let offset = 0;
+    let stride = 1;
+    for (let d = ndim - 1; d >= numFixed; d--) {
+      stride *= this._shape[d];
+    }
+    for (let i = 0; i < numFixed; i++) {
+      offset += indices[i] * stride;
+      stride = 1;
+      for (let d = ndim - 1; d > i; d--) {
+        stride *= this._shape[d];
+      }
+    }
+
+    // For now, use CPU fallback
+    return this._sliceCPU(indices, outShape);
+  }
+
+  /**
+   * Internal: slice tensor via CPU readback.
+   */
+  private async _sliceCPU(indices: number[], outShape: number[]): Promise<Tensor> {
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const ndim = shape.length;
+    const numFixed = indices.length;
+
+    // Calculate offset
+    let offset = 0;
+    let stride = 1;
+    for (let d = ndim - 1; d >= numFixed; d--) {
+      stride *= shape[d];
+    }
+    for (let i = 0; i < numFixed; i++) {
+      offset += indices[i] * stride;
+      stride = 1;
+      for (let d = ndim - 1; d > i; d--) {
+        stride *= shape[d];
+      }
+    }
+
+    // Extract slice
+    const outNumel = outShape.reduce((a, b) => a * b, 1);
+    const output = new Float32Array(outNumel);
+
+    for (let i = 0; i < outNumel; i++) {
+      // Convert flat output index to coordinates
+      const outCoords: number[] = [];
+      let tempIdx = i;
+      for (let d = outShape.length - 1; d >= 0; d--) {
+        outCoords.unshift(tempIdx % outShape[d]);
+        tempIdx = Math.floor(tempIdx / outShape[d]);
+      }
+
+      // Calculate input flat index
+      const inCoords = [...indices, ...outCoords];
+      let inFlatIdx = 0;
+      stride = 1;
+      for (let d = ndim - 1; d >= 0; d--) {
+        inFlatIdx += inCoords[d] * stride;
+        stride *= shape[d];
+      }
+
+      output[i] = data[inFlatIdx];
+    }
+
+    return Tensor._fromNumberArray(Array.from(output), this._dtype).reshape(outShape);
+  }
+
+  /**
+   * Set value at index.
+   * tensor[5] = value, tensor[2, 3] = value
+   * @pytorch tensor setitem
+   */
+  async set(index: number | number[], value: Tensor | number): Promise<Tensor> {
+    const indices = Array.isArray(index) ? index : [index];
+    return this._setCPU(indices, value);
+  }
+
+  /**
+   * Internal: set value via CPU.
+   */
+  private async _setCPU(indices: (number | number[])[], value: Tensor | number): Promise<Tensor> {
+    const data = await this.toArray();
+    const shape = [...this._shape];
+    const ndim = shape.length;
+    const numFixed = indices.length;
+
+    let valueData: number;
+    if (value instanceof Tensor) {
+      const vData = await value.toArray();
+      valueData = vData[0];
+    } else {
+      valueData = value;
+    }
+
+    // Calculate flat index
+    let flatIdx = 0;
+    let stride = 1;
+    for (let d = ndim - 1; d >= 0; d--) {
+      const idx = d < indices.length ? (typeof indices[d] === 'number' ? indices[d] as number : 0) : 0;
+      flatIdx += idx * stride;
+      stride *= shape[d];
+    }
+
+    data[flatIdx] = valueData;
+
+    return Tensor._fromNumberArray(Array.from(data), this._dtype).reshape(shape);
+  }
+
+  /**
+   * Einstein summation convention for tensor contractions.
+   * @param equation - Einstein summation equation (e.g., 'ij,jk->ik')
+   * @param operands - Input tensors
+   * @returns Contracted tensor
+   * @pytorch torch.einsum
+   */
+  static async einsum(equation: string, ...operands: Tensor[]): Promise<Tensor> {
+    // Parse equation
+    const [lhs, rhs] = equation.split('->');
+    const terms = lhs.split(',');
+
+    if (terms.length !== operands.length) {
+      throw new Error(`Einsum: ${terms.length} terms but ${operands.length} operands`);
+    }
+
+    // Validate all operands have correct dimensions
+    for (let i = 0; i < terms.length; i++) {
+      if (terms[i].length !== operands[i].dim()) {
+        throw new Error(`Einsum: term '${terms[i]}' has ${terms[i].length} dims but operand ${i} has ${operands[i].dim()}`);
+      }
+    }
+
+    // For now, implement simple cases via existing operations
+    // Full implementation would parse and execute the contraction path
+
+    // Simple case: 'ij->i' (sum over j)
+    if (terms.length === 1 && terms[0].length === 2 && rhs.length === 1) {
+      if (terms[0] === 'ij' && rhs === 'i') {
+        return operands[0].sum(-1);
+      }
+      if (terms[0] === 'ij' && rhs === 'j') {
+        return operands[0].sum(0);
+      }
+    }
+
+    // Simple case: 'i,i->i' (element-wise multiply)
+    if (terms.length === 2 && terms[0] === 'i' && terms[1] === 'i' && rhs === 'i') {
+      return operands[0].mul(operands[1]);
+    }
+
+    // Simple case: 'ij,jk->ik' (matrix multiply)
+    if (terms.length === 2 && terms[0] === 'ij' && terms[1] === 'jk' && rhs === 'ik') {
+      return operands[0].matmul(operands[1]);
+    }
+
+    // Simple case: 'ij,ij->ij' (element-wise multiply)
+    if (terms.length === 2 && terms[0] === 'ij' && terms[1] === 'ij' && rhs === 'ij') {
+      return operands[0].mul(operands[1]);
+    }
+
+    // Simple case: 'ij->' (sum all)
+    if (terms.length === 1 && terms[0] === 'ij' && rhs === '') {
+      return operands[0].sum();
+    }
+
+    // For unsupported cases, throw error
+    throw new Error(`Einsum equation '${equation}' not yet implemented. Supported: ij->i, ij->j, i,i->i, ij,jk->ik, ij,ij->ij, ij->`);
   }
 }

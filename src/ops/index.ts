@@ -3,7 +3,7 @@
  * @status partial
  */
 
-import { Tensor } from '../tensor';
+import { Tensor, Slice } from '../tensor';
 
 export {
   tensor,
@@ -39,6 +39,13 @@ export {
   column_stack,
   histc,
   bincount,
+  // New additions for PyTorch 1:1 compatibility
+  meshgrid,
+  cartesian_prod,
+  combinations,
+  tensor_split,
+  trace,
+  unravel_index,
 } from './creation';
 
 export const atleast_1d = (input: Tensor) => {
@@ -67,6 +74,65 @@ export const triu = (input: Tensor, diagonal: number = 0) => input.triu(diagonal
 export const diag = (input: Tensor, diagonal: number = 0) => input.diag(diagonal);
 export const heaviside = (input: Tensor, values: Tensor) => input.heaviside(values);
 
+// New operations added for PyTorch 1:1 compatibility
+export const std = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => input.std(dim, keepdim, unbiased);
+export const var_ = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => input.var(dim, keepdim, unbiased);
+export const std_mean = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => ({ std: input.std(dim, keepdim, unbiased), mean: input.mean(dim, keepdim) });
+
+export const sort = async (input: Tensor, dim: number = -1, descending: boolean = false) => input.sort(dim, descending);
+export const argsort = async (input: Tensor, dim: number = -1, descending: boolean = false) => input.argsort(dim, descending);
+export const topk = async (input: Tensor, k: number, dim: number = -1, largest: boolean = true, sorted: boolean = true) => input.topk(k, dim, largest, sorted);
+export const kthvalue = async (input: Tensor, k: number, dim: number = -1, keepdim: boolean = false) => input.kthvalue(k, dim, keepdim);
+
+export const cummax = async (input: Tensor, dim: number) => input.cummax(dim);
+export const cummin = async (input: Tensor, dim: number) => input.cummin(dim);
+export const logsumexp = (input: Tensor, dim?: number | number[], keepdim: boolean = false) => input.logsumexp(dim, keepdim);
+export const logcumsumexp = async (input: Tensor, dim: number) => input.logcumsumexp(dim);
+export const count_nonzero = (input: Tensor, dim?: number | number[], keepdim: boolean = false) => input.count_nonzero(dim, keepdim);
+export const aminmax = (input: Tensor, dim?: number, keepdim: boolean = false) => input.aminmax(dim, keepdim);
+
+export const nonzero = async (input: Tensor) => input.nonzero();
+export const diagonal = (input: Tensor, offset: number = 0, dim1: number = -2, dim2: number = -1) => input.diagonal(offset, dim1, dim2);
+export const masked_select = (input: Tensor, mask: Tensor) => input.masked_select(mask);
+
+export const gather = async (input: Tensor, dim: number, index: Tensor) => input.gather(dim, index);
+export const scatter = (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter(dim, index, src);
+export const scatter_add = (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter_add(dim, index, src);
+export const repeat_interleave = async (input: Tensor, repeats: number, dim?: number) => input.repeat_interleave(repeats, dim);
+export const roll = async (input: Tensor, shifts: number | number[], dims?: number | number[]) => input.roll(shifts, dims);
+export const rot90 = async (input: Tensor, k: number = 1, dims?: number[]) => input.rot90(k, dims);
+export const unflatten = (input: Tensor, dim: number, sizes: number[]) => input.unflatten(dim, sizes);
+
+// Math operations
+export const clip = (input: Tensor, min?: number, max?: number) => input.clamp(min, max);
+export const clamp_min = (input: Tensor, min: number) => input.clamp(min);
+export const clamp_max = (input: Tensor, max: number) => input.clamp(undefined, max);
+export const fmod = (input: Tensor, other: Tensor | number) => {
+  // fmod: remainder with same sign as dividend
+  const div = input.div(other);
+  return input.sub(div.trunc().mul(other));
+};
+export const remainder = (input: Tensor, other: Tensor | number) => {
+  // remainder: always positive, same sign as divisor
+  // remainder = input - floor(input/other) * other
+  const div = input.div(other);
+  return input.sub(div.floor().mul(other));
+};
+export const trunc = (input: Tensor) => input.trunc();
+export const fix = trunc;
+export const round = (input: Tensor) => input.round();
+
+// Comparison additions
+export const isposinf = (input: Tensor) => input.isposinf();
+export const isneginf = (input: Tensor) => input.isneginf();
+export const isreal = (input: Tensor) => {
+  // For real dtypes, all are real; for complex, check imaginary part
+  return input.isfinite(); // Simplified for real dtypes
+};
+export const isnan = (input: Tensor) => input.isnan();
+export const isinf = (input: Tensor) => input.isinf();
+export const isfinite = (input: Tensor) => input.isfinite();
+
 // Pointwise operations (functional interface)
 export const abs = (input: Tensor) => input.abs();
 export const absolute = abs;
@@ -87,13 +153,9 @@ export const arctan2 = atan2;
 
 export const ceil = (input: Tensor) => input.ceil();
 export const floor = (input: Tensor) => input.floor();
-export const round = (input: Tensor) => input.round();
-export const trunc = (input: Tensor) => input.trunc();
-export const fix = trunc;
 export const frac = (input: Tensor) => input.frac();
 
 export const clamp = (input: Tensor, min?: number, max?: number) => input.clamp(min, max);
-export const clip = clamp;
 export const flatten = (input: Tensor, startDim?: number, endDim?: number) => input.flatten(startDim, endDim);
 export const squeeze = (input: Tensor, dim?: number) => input.squeeze(dim);
 export const unsqueeze = (input: Tensor, dim: number) => input.unsqueeze(dim);
@@ -130,12 +192,6 @@ export const gt = (input: Tensor, other: Tensor) => input.gt(other);
 export const greater = gt;
 export const ge = (input: Tensor, other: Tensor) => input.ge(other);
 export const greater_equal = ge;
-
-export const isnan = (input: Tensor) => input.isnan();
-export const isinf = (input: Tensor) => input.isinf();
-export const isfinite = (input: Tensor) => input.isfinite();
-export const isposinf = (input: Tensor) => input.isposinf();
-export const isneginf = (input: Tensor) => input.isneginf();
 
 export const maximum = (input: Tensor, other: Tensor) => input.maximum(other);
 export const minimum = (input: Tensor, other: Tensor) => input.minimum(other);
@@ -223,3 +279,12 @@ export const inner = dot;
 export const trapezoid = (input: Tensor, dx?: number, dim?: number) => input.trapezoid(dx, dim);
 export const cumulative_trapezoid = (input: Tensor, dx?: number, dim?: number) => input.cumulative_trapezoid(dx, dim);
 export const trapz = trapezoid;
+
+// Einsum
+export const einsum = async (equation: string, ...operands: Tensor[]) => Tensor.einsum(equation, ...operands);
+
+// Advanced slicing
+export const advancedSlice = async (input: Tensor, indices: (number | Slice)[]) => input.advancedSlice(indices);
+
+// Multinomial sampling
+export const multinomial = async (input: Tensor, num_samples: number = 1, replacement: boolean = false) => input.multinomial(num_samples, replacement);

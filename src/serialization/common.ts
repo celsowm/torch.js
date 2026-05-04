@@ -4,6 +4,10 @@ import { tensor } from '../ops/creation';
 import { readBuffer } from '../backend';
 import { DType, getDTypeBytes, getTypedArrayConstructor } from '../dtype';
 import * as zip from '../vendor/zip.js/index.js';
+import { loadPyTorchZip } from './pytorch_loader';
+
+// Re-export for external use
+export { loadPyTorchZip };
 
 const MODEL_FILENAME = 'model.json'; // Our custom JSON-based format
 

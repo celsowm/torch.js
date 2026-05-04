@@ -477,3 +477,5 @@ export const cross = (input: Tensor, other: Tensor, dim: number = -1): Tensor =>
     const cz = ux.mul(vy).sub(uy.mul(vx)).unsqueeze(d);
     return ops.cat([cx, cy, cz], d);
 };
+
+export { svd, eigh, qr, solve, pinv } from './advanced';

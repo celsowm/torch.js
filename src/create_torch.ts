@@ -2,10 +2,15 @@ import * as ops from './ops';
 import * as nn from './nn';
 import * as optim from './optim';
 import * as linalg from './linalg';
+import * as fft from './fft';
 import * as webgpu from './webgpu';
+import * as autograd from './autograd';
+import * as distributions from './distributions';
+import * as sparse from './sparse';
 import { initWebGPU, syncDevice as _syncDevice } from './backend';
 import { no_grad, enable_grad, inference_mode, is_grad_enabled } from './grad_mode';
 import type { SaveFunc, LoadFunc } from './serialization/types';
+import { loadPyTorchZip } from './serialization/pytorch_loader';
 
 /**
  * Creates the torch object with specific serialization implementations.
@@ -19,14 +24,14 @@ export function createTorch(save: SaveFunc, load: LoadFunc) {
     save,
     load,
 
+    // Explicit PyTorch .pt loading
+    loadPyTorch: loadPyTorchZip,
+
     // Operations (spread all ops)
     ...ops,
 
     // Linear Algebra module
     linalg,
-
-    // Synchronization
-    syncDevice: _syncDevice,
 
     // Neural network module
     nn,
@@ -34,13 +39,25 @@ export function createTorch(save: SaveFunc, load: LoadFunc) {
     // Optimizer module
     optim,
 
+    // Autograd module
+    autograd,
+
+    // Distributions
+    distributions,
+
+    // Sparse tensors
+    sparse,
+
     // WebGPU/Memory management
     webgpu,
 
-    // Autograd context managers
+    // Autograd context managers (also accessible as torch.no_grad etc.)
     no_grad,
     enable_grad,
     inference_mode,
     is_grad_enabled,
+
+    // FFT module
+    fft,
   };
 }

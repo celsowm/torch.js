@@ -1,65 +1,90 @@
-import { Tensor } from '../tensor';
-import { stack } from '../ops/creation';
+/**
+ * Dataset and DataLoader utilities.
+ * @pytorch torch.utils.data
+ */
 
-export abstract class Dataset<T = [Tensor, Tensor]> {
-  abstract len(): number;
-  abstract get(index: number): T;
+import { Tensor } from '../tensor';
+import { tensor } from '../ops/creation';
+
+/**
+ * Abstract base class for all datasets.
+ * @pytorch torch.utils.data.Dataset
+ */
+export abstract class Dataset<T = any> {
+  /**
+   * Returns the size of the dataset.
+   */
+  abstract length: number;
+
+  /**
+   * Returns a sample from the dataset at the given index.
+   */
+  abstract __getitem__(index: number): T;
 }
 
-export class TensorDataset extends Dataset<[Tensor, Tensor]> {
-  private tensors: Tensor[];
+/**
+ * TensorDataset wraps tensors as a dataset.
+ * @pytorch torch.utils.data.TensorDataset
+ */
+export class TensorDataset extends Dataset<{ [key: string]: Tensor }> {
+  readonly tensors: Tensor[];
+  private keys: string[];
 
   constructor(...tensors: Tensor[]) {
     super();
-    if (tensors.length === 0) throw new Error('TensorDataset: at least one tensor required');
-    const n = tensors[0].shape[0];
-    for (let i = 1; i < tensors.length; i++) {
-      if (tensors[i].shape[0] !== n) {
-        throw new Error('TensorDataset: all tensors must have the same size in dim 0');
-      }
-    }
     this.tensors = tensors;
+    this.keys = tensors.map((_, i) => `tensor_${i}`);
   }
 
-  len(): number {
+  get length(): number {
     return this.tensors[0].shape[0];
   }
 
-  get(index: number): [Tensor, Tensor] {
-    const selected = this.tensors.map(t => t.narrow(0, index, 1).squeeze(0));
-    return [selected[0], selected.length > 1 ? selected[1] : selected[0]];
+  __getitem__(index: number): { [key: string]: Tensor } {
+    const result: { [key: string]: Tensor } = {};
+    for (let i = 0; i < this.tensors.length; i++) {
+      result[this.keys[i]] = this.tensors[i].select(0, index);
+    }
+    return result;
+  }
+
+  /**
+   * Set names for the tensors.
+   */
+  named(...names: string[]): this {
+    this.keys = names;
+    return this;
   }
 }
 
-export class DataLoader<T extends [Tensor, Tensor] = [Tensor, Tensor]> {
+/**
+ * DataLoader options.
+ */
+export interface DataLoaderOptions {
+  batchSize?: number;
+  shuffle?: boolean;
+  dropLast?: boolean;
+}
+
+/**
+ * DataLoader wraps a dataset and provides an iterable over it.
+ * @pytorch torch.utils.data.DataLoader
+ */
+export class DataLoader<T = any> {
   private dataset: Dataset<T>;
   private batchSize: number;
   private shuffle: boolean;
   private dropLast: boolean;
 
-  constructor(
-    dataset: Dataset<T>,
-    batchSize: number = 1,
-    shuffle: boolean = false,
-    dropLast: boolean = false,
-  ) {
+  constructor(dataset: Dataset<T>, options: DataLoaderOptions = {}) {
     this.dataset = dataset;
-    this.batchSize = batchSize;
-    this.shuffle = shuffle;
-    this.dropLast = dropLast;
+    this.batchSize = options.batchSize ?? 1;
+    this.shuffle = options.shuffle ?? false;
+    this.dropLast = options.dropLast ?? false;
   }
 
-  getDataset(): Dataset<T> {
-    return this.dataset;
-  }
-
-  getBatchSize(): number {
-    return this.batchSize;
-  }
-
-  async *[Symbol.asyncIterator](): AsyncGenerator<T> {
-    const n = this.dataset.len();
-    let indices = Array.from({ length: n }, (_, i) => i);
+  *[Symbol.iterator](): Iterator<T> {
+    const indices = Array.from({ length: this.dataset.length }, (_, i) => i);
     if (this.shuffle) {
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -67,22 +92,89 @@ export class DataLoader<T extends [Tensor, Tensor] = [Tensor, Tensor]> {
       }
     }
 
-    const limit = this.dropLast ? n - (n % this.batchSize) : n;
-    for (let start = 0; start < limit; start += this.batchSize) {
-      const batchIndices = indices.slice(start, start + this.batchSize);
-      const batch: T[] = batchIndices.map(i => this.dataset.get(i));
-      const numComponents = batch[0].length;
-      const batched = Array.from({ length: numComponents }, (_, comp) => {
-        const tensors = batch.map(item => (item as any)[comp] as Tensor);
-        return stack(tensors, 0);
-      }) as unknown as T;
-      yield batched;
+    const numBatches = this.dropLast
+      ? Math.floor(indices.length / this.batchSize)
+      : Math.ceil(indices.length / this.batchSize);
+
+    for (let b = 0; b < numBatches; b++) {
+      const start = b * this.batchSize;
+      const end = Math.min(start + this.batchSize, indices.length);
+      const batchIndices = indices.slice(start, end);
+
+      if (this.dropLast && batchIndices.length < this.batchSize) {
+        continue;
+      }
+
+      // For TensorDataset, batch the tensors
+      if (this.dataset instanceof TensorDataset) {
+        const batchedTensors = (this.dataset as TensorDataset).tensors.map(t => {
+          const slices = batchIndices.map(i => t.select(0, i));
+          return Tensor.cat(slices, 0);
+        });
+        const result: any = {};
+        const keys = (this.dataset as TensorDataset)['keys'] || batchedTensors.map((_, i) => `tensor_${i}`);
+        for (let i = 0; i < batchedTensors.length; i++) {
+          result[keys[i]] = batchedTensors[i];
+        }
+        yield result as T;
+      } else {
+        const batch = batchIndices.map(i => this.dataset.__getitem__(i));
+        yield batch as unknown as T;
+      }
     }
   }
 }
 
-export const data = {
+/**
+ * Randomly split a dataset into non-overlapping new datasets.
+ * @pytorch torch.utils.data.random_split
+ */
+export function randomSplit<T>(dataset: Dataset<T>, lengths: number[]): Dataset<T>[] {
+  const total = lengths.reduce((a, b) => a + b, 0);
+  if (total !== dataset.length) {
+    throw new Error(`Sum of split lengths (${total}) does not equal dataset length (${dataset.length})`);
+  }
+
+  const indices = Array.from({ length: dataset.length }, (_, i) => i);
+  // Shuffle
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+
+  const subsets: Dataset<T>[] = [];
+  let offset = 0;
+  for (const len of lengths) {
+    const subsetIndices = indices.slice(offset, offset + len);
+    offset += len;
+
+    subsets.push(new _SubsetDataset(dataset, subsetIndices));
+  }
+  return subsets;
+}
+
+class _SubsetDataset<T> extends Dataset<T> {
+  private parent: Dataset<T>;
+  private indices: number[];
+
+  constructor(parent: Dataset<T>, indices: number[]) {
+    super();
+    this.parent = parent;
+    this.indices = indices;
+  }
+
+  get length(): number {
+    return this.indices.length;
+  }
+
+  __getitem__(index: number): T {
+    return this.parent.__getitem__(this.indices[index]);
+  }
+}
+
+export default {
   Dataset,
   TensorDataset,
   DataLoader,
+  randomSplit,
 };

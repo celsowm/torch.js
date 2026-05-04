@@ -8,9 +8,12 @@ import type { Tensor } from './Tensor';
 /**
  * Gradient function for autograd.
  * backward can be async for operations that need GPU readback.
+ * _next_tensors exposes captured parent tensors for graph traversal.
  */
 export type GradFn = {
   backward(gradOutput: Tensor): void | Promise<void>;
+  /** Parent tensors captured by this grad_fn (for graph traversal) */
+  _next_tensors?: Tensor[];
 };
 
 /**

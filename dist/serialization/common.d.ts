@@ -1,3 +1,5 @@
+export { l as loadPyTorchZip } from '../pytorch_loader-DQJp8N7I.js';
+
 /**
  * Serialize a state dictionary (or any object containing tensors) to a ZIP Blob.
  * This currently uses a custom JSON-based format within the zip.

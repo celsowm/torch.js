@@ -6,6 +6,8 @@
 import * as nn from './nn';
 import * as optim from './optim';
 import * as linalg from './linalg';
+import * as fft from './fft';
+import * as special from './special';
 import * as webgpu from './webgpu';
 import * as profiler from './profiler';
 import * as benchmark from './utils/benchmark';
@@ -19,7 +21,7 @@ export type { DType, TypedArray } from './dtype';
 export * from './ops';
 
 // Re-export modules
-export { nn, optim, linalg, webgpu, profiler };
+export { nn, optim, linalg, fft, special, webgpu, profiler };
 import * as data from './utils/data';
 export const utils = { benchmark, data };
 
