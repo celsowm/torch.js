@@ -88,6 +88,11 @@ export class Slice {
   static slice(start: number | null, stop: number | null, step: number | null = 1): Slice {
     return new Slice(start, stop, step);
   }
+
+  /**
+   * Represents a full slice (:) that selects all elements along a dimension.
+   */
+  static null: Slice = new Slice(null, null, null);
 }
 
 // Type for advanced indexing
@@ -497,32 +502,27 @@ export class Tensor {
     }
 
     const device = getDevice();
-    const batchSize = shape.slice(0, -1).reduce((a, b) => a * b, 1);
+    const batchSize = shape.slice(0, -1).reduce((a, b) => a * b, 1) || 1;
     const normalizedSize = shape[shape.length - 1];
     const totalSize = this.numel();
 
     const outputBuffer = createStorageBuffer(totalSize * getDTypeBytes(this._dtype));
 
-    const paramsData = new ArrayBuffer(16);
-    new Uint32Array(paramsData, 0, 2).set([batchSize, normalizedSize]);
-    new Float32Array(paramsData, 8, 1)[0] = 1e-12; // eps
-    new Uint32Array(paramsData, 12, 1)[0] = 0;
-
-    const paramsBuffer = device.createBuffer({
-      size: 16,
+    // dims buffer: batchSize, normalizedSize
+    const dimsData = new Uint32Array([batchSize, normalizedSize]);
+    const dimsBuffer = device.createBuffer({
+      size: 8,
       usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
     });
-    device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+    device.queue.writeBuffer(dimsBuffer, 0, dimsData);
 
-    const pipeline = getOrCreatePipeline(LOG_SOFTMAX_SHADER, 'main');
+    const pipeline = getOrCreatePipeline(LOG_SOFTMAX_SHADER, 'log_softmax');
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: this._buffer } },
-        { binding: 1, resource: { buffer: this._buffer } }, // dummy weight (unused)
-        { binding: 2, resource: { buffer: this._buffer } }, // dummy bias (unused)
-        { binding: 3, resource: { buffer: outputBuffer } },
-        { binding: 4, resource: { buffer: paramsBuffer } },
+        { binding: 1, resource: { buffer: outputBuffer } },
+        { binding: 2, resource: { buffer: dimsBuffer } },
       ],
     });
 
@@ -530,14 +530,14 @@ export class Tensor {
     const passEncoder = commandEncoder.beginComputePass();
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(batchSize));
+    passEncoder.dispatchWorkgroups(batchSize, 1, 1);
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
 
     return new Tensor({
       buffer: outputBuffer,
       shape: [...shape],
-      dtype: 'float32',
+      dtype: this._dtype,
       device: 'webgpu',
       requires_grad: this._requires_grad,
     });
@@ -1293,16 +1293,20 @@ export class Tensor {
    * Alias for elements that are not equal to zero.
    * @pytorch torch.nonzero (as_tuple=True variant returns indices)
    */
-  async nonzeroIndices(): Promise<number[]> {
-    const data = await this.toArray();
-    const indices: number[] = [];
-    for (let i = 0; i < data.length; i++) {
-      if (data[i] !== 0) {
-        indices.push(i);
-      }
-    }
-    return indices;
-  }
+/**
+     * Returns the indices of non-zero elements.
+     * @pytorch torch.nonzero (as indices tensor)
+     */
+   async nonzeroIndices(): Promise<Tensor> {
+     const data = await this.toArray();
+     const indices: number[] = [];
+     for (let i = 0; i < data.length; i++) {
+       if (data[i] !== 0) {
+         indices.push(i);
+       }
+     }
+     return Tensor._fromNumberArray(indices, this._dtype).reshape([indices.length, 1]);
+   }
 
   select(dim: number, index: number): Tensor {
     return this.narrow(dim, index, 1).squeeze(dim);
@@ -2481,7 +2485,7 @@ export class Tensor {
    * @param src - Source tensor
    * @pytorch torch.scatter
    */
-  scatter(dim: number, index: Tensor, src: Tensor): Tensor {
+  async scatter(dim: number, index: Tensor, src: Tensor): Promise<Tensor> {
     return this._scatterCPU(dim, index, src, 'set');
   }
 
@@ -2492,7 +2496,7 @@ export class Tensor {
    * @param src - Source tensor
    * @pytorch torch.scatter_
    */
-  scatter_(dim: number, index: Tensor, src: Tensor): Tensor {
+  async scatter_(dim: number, index: Tensor, src: Tensor): Promise<Tensor> {
     return this._scatterCPU(dim, index, src, 'set');
   }
 
@@ -2504,33 +2508,76 @@ export class Tensor {
    * @param src - Source tensor
    * @pytorch torch.scatter_add
    */
-  scatter_add(dim: number, index: Tensor, src: Tensor): Tensor {
+  async scatter_add(dim: number, index: Tensor, src: Tensor): Promise<Tensor> {
     return this._scatterCPU(dim, index, src, 'add');
   }
 
   /**
    * Internal: scatter via CPU readback.
    */
-  private _scatterCPU(dim: number, index: Tensor, src: Tensor, mode: 'set' | 'add'): Tensor {
+  private async _scatterCPU(dim: number, index: Tensor, src: Tensor, mode: 'set' | 'add'): Promise<Tensor> {
     const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
-    const inputData = new Float32Array(this.numel());
-    const indexData = new Float32Array(index.numel());
-    const srcData = new Float32Array(src.numel());
 
-    // For now, read current values (for scatter_)
-    // This is a simplified implementation
+    // Read current data asynchronously
+    const inputData = await this.toArray();
+    const indexData = await index.toArray();
+    const srcData = await src.toArray();
+
     const shape = [...this._shape];
     const indexShape = index._shape;
     const srcNumel = src.numel();
-    const dimSize = shape[resolvedDim];
 
-    // Simple validation
+    // Validation
     if (indexShape.length !== this._shape.length) {
       throw new Error('scatter: index must have same number of dimensions as input');
     }
+    if (srcNumel !== srcData.length) {
+      throw new Error('scatter: src total number of elements must match index');
+    }
 
-    // This is a placeholder - full implementation would need proper async readback
-    throw new Error('scatter not yet fully implemented');
+    // Convert multi-dimensional index to flat indices for scattering
+    const flatResult = [...inputData];
+
+    // Helper: convert multi-dimensional coordinates to flat index
+    const toFlatIndex = (coords: number[]): number => {
+      let idx = 0;
+      let stride = 1;
+      for (let d = shape.length - 1; d >= 0; d--) {
+        idx += coords[d] * stride;
+        stride *= shape[d];
+      }
+      return idx;
+    };
+
+    // Process each element in index/src
+    const processIndex = (flatIdx: number, srcVal: number): void => {
+      // Convert flat index back to multi-dimensional coordinates
+      const coords: number[] = [];
+      let tempIdx = flatIdx;
+      for (let d = shape.length - 1; d >= 0; d--) {
+        coords.unshift(tempIdx % shape[d]);
+        tempIdx = Math.floor(tempIdx / shape[d]);
+      }
+
+      // The index tensor contains indices along `dim`
+      // So we need to look at indexData[flatIdx] to get the target index along that dimension
+      const targetIdx = Math.floor(indexData[flatIdx]);
+      if (targetIdx >= 0 && targetIdx < shape[resolvedDim]) {
+        coords[resolvedDim] = targetIdx;
+        const targetFlatIdx = toFlatIndex(coords);
+        if (mode === 'set') {
+          flatResult[targetFlatIdx] = srcVal;
+        } else {
+          flatResult[targetFlatIdx] += srcVal;
+        }
+      }
+    };
+
+    for (let i = 0; i < indexData.length; i++) {
+      processIndex(i, srcData[i]);
+    }
+
+    return Tensor._fromNumberArray(flatResult, this._dtype).reshape(shape);
   }
 
   /**
@@ -3397,67 +3444,50 @@ export class Tensor {
 
     const grad = gradient || this.ones_like();
 
-    // Collect all grad_fns and their tensors in the graph
-    const tensorToGrad = new Map<number, Tensor>();
-    const processedGradFns = new WeakSet<GradFn>();
-    const queue: Tensor[] = [this];
-    tensorToGrad.set(this._id, grad);
+    // Build the computation graph from outputs to inputs
+    const visited = new WeakSet<Tensor>();
+    const topoOrder: { tensor: Tensor; gradFn: GradFn }[] = [];
 
-    // BFS to find all tensors with grad_fns
-    while (queue.length > 0) {
-      const tensor = queue.shift()!;
-      const gf = tensor._grad_fn;
-      if (gf && !processedGradFns.has(gf)) {
-        processedGradFns.add(gf);
-        // Add parent tensors to queue
-        if (gf._next_tensors) {
-          for (const parent of gf._next_tensors) {
-            if (parent._requires_grad || parent._grad_fn) {
-              if (!tensorToGrad.has(parent._id)) {
-                queue.push(parent);
-              }
-            }
-          }
+    // DFS to collect tensors in topological order (outputs first)
+    const visit = (t: Tensor): void => {
+      if (visited.has(t)) return;
+      visited.add(t);
+
+      const gf = t._grad_fn;
+      if (gf && gf._next_tensors) {
+        for (const parent of gf._next_tensors) {
+          visit(parent);
         }
+        topoOrder.push({ tensor: t, gradFn: gf });
+      }
+    };
+
+    visit(this);
+
+    // Initialize gradient map with the output gradient
+    const gradMap = new Map<number, Tensor>();
+    gradMap.set(this._id, grad);
+
+    // Initialize gradients for leaf tensors that need them
+    for (const t of visited) {
+      if (t._requires_grad && !gradMap.has(t._id)) {
+        gradMap.set(t._id, t.zeros_like());
       }
     }
 
-    // Process grad_fns in reverse topological order (leaves last)
-    const sortedGradFns: Array<{ tensor: Tensor; gradFn: GradFn }> = [];
-    for (const [id, tensor] of [...tensorToGrad.entries()].reverse()) {
-      if (tensor._grad_fn) {
-        sortedGradFns.push({ tensor, gradFn: tensor._grad_fn });
-      }
-    }
-
-    // Execute backward pass
-    for (const { tensor, gradFn } of sortedGradFns) {
-      const gradOutput = tensorToGrad.get(tensor._id);
-      if (gradOutput) {
+    // Execute backward pass in reverse topological order
+    for (let i = topoOrder.length - 1; i >= 0; i--) {
+      const { tensor, gradFn } = topoOrder[i];
+      const gradOutput = gradMap.get(tensor._id);
+      if (gradOutput && gradFn) {
         gradFn.backward(gradOutput);
-        // Propagate gradients to parents
-        if (gradFn._next_tensors) {
-          for (const parent of gradFn._next_tensors) {
-            if (!tensorToGrad.has(parent._id)) {
-              tensorToGrad.set(parent._id, parent.zeros_like());
-            }
-          }
-        }
-      }
-    }
-
-    // Handle leaf tensors (no grad_fn but requires_grad)
-    for (const [id, tensor] of tensorToGrad) {
-      if (!tensor._grad_fn && tensor._requires_grad) {
-        // This tensor accumulated gradient from parent grad_fn.backward()
-        // Nothing more to do
       }
     }
 
     // Clear grad_fns if not retaining
     if (!retain_graph) {
-      for (const [id, tensor] of tensorToGrad) {
-        tensor._grad_fn = null;
+      for (const t of visited) {
+        t._grad_fn = null;
       }
     }
   }

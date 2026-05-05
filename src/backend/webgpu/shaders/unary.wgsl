@@ -183,7 +183,9 @@ fn floor_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
 fn round_op(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let idx = global_id.x;
     if (idx >= arrayLength(&result)) { return; }
-    result[idx] = round(input[idx]);
+    let x = input[idx];
+    // Round half away from zero (Python/PyTorch behavior)
+    result[idx] = floor(x + 0.5) * sign(x);
 }
 
 @compute @workgroup_size(256)

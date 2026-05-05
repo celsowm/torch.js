@@ -197,7 +197,48 @@ export class ReplicationPad2d extends Module {
   }
 
   forward(input: Tensor): Tensor {
-    throw new Error('ReplicationPad2d: Not yet implemented');
+    const shape = input.shape;
+    const ndim = shape.length;
+    
+    if (ndim < 2) {
+      throw new Error('ReplicationPad2d: input must be at least 2D');
+    }
+    
+    const H = shape[ndim - 2];
+    const W = shape[ndim - 1];
+    const [padLeft, padRight, padTop, padBottom] = this.padding;
+    
+    const outH = H + padTop + padBottom;
+    const outW = W + padLeft + padRight;
+    
+    // Create output tensor
+    const newShape = [...shape.slice(0, -2), outH, outW];
+    const output = full(newShape, 0, { dtype: input.dtype });
+    
+    // For now, use CPU fallback for replication padding
+    // TODO: implement GPU shader for replication padding
+    throw new Error('ReplicationPad2d: Not yet implemented (requires GPU shader)');
+  }
+}
+
+/**
+ * ReplicationPad3d - pad 3D tensor by replicating edge values.
+ * @pytorch torch.nn.ReplicationPad3d
+ */
+export class ReplicationPad3d extends Module {
+  private padding: [number, number, number, number, number, number];
+
+  constructor(padding: number | [number, number, number, number, number, number]) {
+    super();
+    if (typeof padding === 'number') {
+      this.padding = [padding, padding, padding, padding, padding, padding];
+    } else {
+      this.padding = padding;
+    }
+  }
+
+  forward(input: Tensor): Tensor {
+    throw new Error('ReplicationPad3d: Not yet implemented');
   }
 }
 

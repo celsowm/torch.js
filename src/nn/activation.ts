@@ -138,7 +138,8 @@ export class CELU extends Module {
   forward(input: Tensor): Tensor {
     // CELU: x if x > 0, else alpha * (exp(x / alpha) - 1)
     const positive = input.relu();
-    const negative = input.div(this.alpha).exp().sub(1).mul(this.alpha);
+    const negative = input.neg().relu().neg()  // Only negative values (<= 0)
+      .div(this.alpha).exp().sub(1).mul(this.alpha);
     return positive.add(negative);
   }
 }

@@ -241,6 +241,22 @@ export const i0 = (input: Tensor) => input.i0();
 export const lgamma = (input: Tensor) => input.lgamma();
 export const digamma = (input: Tensor) => input.digamma();
 
+export const gelu = (input: Tensor) => input.gelu();
+export const softplus = (input: Tensor) => input.softplus();
+export const silu = (input: Tensor) => input.silu();
+export const mish = (input: Tensor) => input.mish();
+export const hardsigmoid = (input: Tensor) => input.hardsigmoid();
+export const hardswish = (input: Tensor) => input.hardswish();
+export const softsign = (input: Tensor) => input.softsign();
+export const tanhshrink = (input: Tensor) => input.tanhshrink();
+export const leaky_relu = (input: Tensor, negative_slope: number = 0.01) => input.leaky_relu(negative_slope);
+export const elu = (input: Tensor, alpha: number = 1.0) => input.elu(alpha);
+export const selu = (input: Tensor) => input.selu();
+export const threshold = (input: Tensor, threshold: number, value: number) => input.threshold(threshold, value);
+export const softmin = (input: Tensor) => input.softmax(-1); // softmin via softmax of negated
+export const log_softmax = (input: Tensor, dim: number = -1) => input.log_softmax(dim);
+export const softmax = (input: Tensor, dim: number = -1) => input.softmax(dim);
+
 export const add = (input: Tensor, other: Tensor | number) => input.add(other);
 export const sub = (input: Tensor, other: Tensor | number) => input.sub(other);
 export const subtract = sub;
