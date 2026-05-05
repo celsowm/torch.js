@@ -96,7 +96,7 @@ describe('BufferReader', () => {
         });
 
         it('read uint64 excludes MAX_SAFE_INTEGER', () => {
-            const consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation();
+             const consoleWarnMock = (globalThis as any).jest.spyOn(console, 'warn').mockImplementation();
             const buffer = new Uint8Array([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x20, 0x00]);
             const reader = new BufferReader(buffer);
             expect(reader.uint64()).toEqual(expect.any(Number));

@@ -61,6 +61,7 @@ import {
 import { numel, formatShape, inferShape, validateShape } from '../utils/shape';
 import { needsBroadcast, broadcastShapes } from '../utils/broadcast';
 import { ones, ones_like, stack, tensor } from '../ops/creation';
+import * as ops from '../ops';
 import { record_function } from '../profiler';
 import { is_grad_enabled } from '../grad_mode';
 import type { GradFn, TensorData, SliceSpec } from './types';
@@ -666,34 +667,83 @@ export class Tensor {
   bitwise_or(other: Tensor): Tensor { return record_function('torch.bitwise_or', () => this._binaryOp('bitwise_or', other)); }
   bitwise_xor(other: Tensor): Tensor { return record_function('torch.bitwise_xor', () => this._binaryOp('bitwise_xor', other)); }
 
-  clamp(min: number = -Infinity, max: number = Infinity): Tensor {
-    return record_function('torch.clamp', () => {
-      const device = getDevice();
-      const outputBuffer = createStorageBuffer(this.numel() * getDTypeBytes(this._dtype));
-      const paramsData = new ArrayBuffer(16);
-      new Float32Array(paramsData, 0, 2).set([min, max]);
-      new Uint32Array(paramsData, 8, 1)[0] = this.numel();
-      const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
-      device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-      const pipeline = getOrCreatePipeline(CLAMP_SHADER, 'main');
-      const bindGroup = device.createBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        entries: [
-          { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-          { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-          { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-        ],
-      });
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginComputePass();
-      passEncoder.setPipeline(pipeline);
-      passEncoder.setBindGroup(0, bindGroup);
-      passEncoder.dispatchWorkgroups(...calculateWorkgroups(this.numel()));
-      passEncoder.end();
-      device.queue.submit([commandEncoder.finish()]);
-      return new Tensor({ buffer: outputBuffer, shape: [...this._shape], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
-    });
-  }
+   clamp(min: number = -Infinity, max: number = Infinity): Tensor {
+     return record_function('torch.clamp', () => {
+       const device = getDevice();
+       const outputBuffer = createStorageBuffer(this.numel() * getDTypeBytes(this._dtype));
+       const paramsData = new ArrayBuffer(16);
+       new Float32Array(paramsData, 0, 2).set([min, max]);
+       new Uint32Array(paramsData, 8, 1)[0] = this.numel();
+       const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+       device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+       const pipeline = getOrCreatePipeline(CLAMP_SHADER, 'main');
+       const bindGroup = device.createBindGroup({
+         layout: pipeline.getBindGroupLayout(0),
+         entries: [
+           { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
+           { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+           { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+         ],
+       });
+       const commandEncoder = device.createCommandEncoder();
+       const passEncoder = commandEncoder.beginComputePass();
+       passEncoder.setPipeline(pipeline);
+       passEncoder.setBindGroup(0, bindGroup);
+       passEncoder.dispatchWorkgroups(...calculateWorkgroups(this.numel()));
+       passEncoder.end();
+       device.queue.submit([commandEncoder.finish()]);
+       return new Tensor({ buffer: outputBuffer, shape: [...this._shape], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+     });
+   }
+
+   clamp_min(min: number): Tensor {
+     return this.clamp(min, Infinity);
+   }
+
+   clamp_max(max: number): Tensor {
+     return this.clamp(-Infinity, max);
+   }
+
+   fix(): Tensor {
+     return this.trunc();
+   }
+
+   fmod(other: Tensor | number): Tensor {
+     return record_function('torch.fmod', () => {
+       const div = typeof other === 'number' ? this.div(other) : this.div(other);
+       return this.sub(div.trunc().mul(other));
+     });
+   }
+
+   remainder(other: Tensor | number): Tensor {
+     return record_function('torch.remainder', () => {
+       const div = typeof other === 'number' ? this.div(other) : this.div(other);
+       return this.sub(div.floor().mul(other));
+     });
+   }
+
+   erfinv(): Tensor {
+     // Approximation: erfinv(x) ≈ sign(x) * sqrt(sqrt((2/(π*a) + ln(1-x^2)/2)^2 - ln(1-x^2)/a) - (2/(π*a) + ln(1-x^2)/2))
+     // where a = 0.147
+     return record_function('torch.erfinv', () => {
+       const a = 0.147;
+       const one = ops.ones_like(this);
+       const x2 = this.mul(this);
+       const ln1mx2 = one.sub(x2).log();
+       const term1 = ops.tensor([2 / (Math.PI * a)], { dtype: this.dtype }).add(ln1mx2.mul(0.5));
+       const inside = term1.mul(term1).sub(ln1mx2.mul(1 / a));
+       const result = inside.clamp(0, Infinity).sqrt().sub(term1).sqrt();
+       return this.sign().mul(result);
+     });
+   }
+
+   erfcinv(): Tensor {
+     // erfcinv(x) = erfinv(1 - x)
+     return record_function('torch.erfcinv', () => {
+       const one = ops.ones_like(this);
+       return this.neg().add(1).erfinv();
+     });
+   }
 
   masked_fill(mask: Tensor, value: number): Tensor {
     return record_function('torch.masked_fill', () => {

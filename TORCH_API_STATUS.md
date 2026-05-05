@@ -102,8 +102,8 @@
 | `tensor.sgn()` | ✅ | Sign (complex-aware) |
 | `tensor.erf()` | ✅ | Error function |
 | `tensor.erfc()` | ✅ | Complementary error function |
-| `tensor.erfinv()` | ❌ | Inverse error function |
-| `tensor.erfcinv()` | ❌ | Inverse complementary error function |
+| `tensor.erfinv()` | ✅ | Inverse error function |
+| `tensor.erfcinv()` | ✅ | Inverse complementary error function |
 | `tensor.ceil()` | ✅ | Ceil |
 | `tensor.floor()` | ✅ | Floor |
 | `tensor.round()` | ✅ | Round |
@@ -332,6 +332,28 @@
 | `nn.Tanh` | ✅ | Tanh activation |
 | `nn.Softmax` | ✅ | Softmax activation |
 | `nn.LogSoftmax` | ✅ | Log softmax |
+| `nn.LeakyReLU` | ✅ | Leaky ReLU |
+| `nn.ELU` | ✅ | ELU |
+| `nn.SELU` | ✅ | SELU |
+| `nn.Threshold` | ✅ | Threshold |
+| `nn.Softplus` | ✅ | Softplus |
+| `nn.Softsign` | ✅ | Softsign |
+| `nn.Tanhshrink` | ✅ | Tanhshrink |
+| `nn.Mish` | ✅ | Mish |
+| `nn.SiLU` | ✅ | SiLU/Swish |
+| `nn.Hardsigmoid` | ✅ | Hard sigmoid |
+| `nn.Hardswish` | ✅ | Hard swish |
+| `nn.GLU` | ✅ | Gated Linear Unit |
+| `nn.PReLU` | ✅ | Parametric ReLU |
+| `nn.CELU` | ✅ | CELU |
+| `nn.RReLU` | ✅ | Random leaky ReLU |
+| `nn.Hardtanh` | ✅ | Hard tanh |
+| `nn.Hardshrink` | ✅ | Hard shrinkage |
+| `nn.Softshrink` | ✅ | Soft shrinkage |
+| `nn.LogSigmoid` | ✅ | Log sigmoid |
+| `nn.Softmin` | ✅ | Softmin |
+| `nn.ReLU6` | ✅ | ReLU6 activation |
+| `nn.Softmax2d` | ✅ | Softmax over spatial locations |
 
 ## nn.functional
 

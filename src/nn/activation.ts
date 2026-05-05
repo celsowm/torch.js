@@ -267,3 +267,232 @@ export class Softmin extends Module {
     return F.softmax(input.neg(), this.dim);
   }
 }
+
+/**
+ * Leaky ReLU activation.
+ * y = x if x > 0, else negative_slope * x
+ * @pytorch torch.nn.LeakyReLU
+ */
+export class LeakyReLU extends Module {
+  readonly negative_slope: number;
+
+  constructor(negative_slope: number = 0.01) {
+    super();
+    this.negative_slope = negative_slope;
+  }
+
+  forward(input: Tensor): Tensor {
+    const positive = input.relu();
+    const negative = input.neg().relu().mul(this.negative_slope);
+    return positive.sub(negative);
+  }
+}
+
+/**
+ * ELU activation.
+ * y = x if x > 0, else alpha * (exp(x) - 1)
+ * @pytorch torch.nn.ELU
+ */
+export class ELU extends Module {
+  readonly alpha: number;
+
+  constructor(alpha: number = 1.0) {
+    super();
+    this.alpha = alpha;
+  }
+
+  forward(input: Tensor): Tensor {
+    const positive = input.relu();
+    const negative = input.exp().sub(1).mul(this.alpha);
+    return positive.add(negative);
+  }
+}
+
+/**
+ * SELU activation (Scaled Exponential Linear Unit).
+ * Self-normalizing activation with fixed alpha and scale constants.
+ * @pytorch torch.nn.SELU
+ */
+export class SELU extends Module {
+  readonly alpha: number = 1.6732632423543772848170429916717;
+  readonly scale: number = 1.0507009873554804934193349852946;
+
+  forward(input: Tensor): Tensor {
+    const positive = input.relu();
+    const negative = input.exp().sub(1).mul(this.alpha);
+    return positive.add(negative).mul(this.scale);
+  }
+}
+
+/**
+ * Threshold activation.
+ * y = x if x > threshold, else value
+ * @pytorch torch.nn.Threshold
+ */
+export class Threshold extends Module {
+  readonly threshold: number;
+  readonly value: number;
+
+  constructor(threshold: number, value: number) {
+    super();
+    this.threshold = threshold;
+    this.value = value;
+  }
+
+  forward(input: Tensor): Tensor {
+    const condition = input.gt(this.threshold);
+    const fill = zeros([...input.shape], { dtype: input.dtype }).add(this.value);
+    return condition.where(input, fill);
+  }
+}
+
+/**
+ * Softplus activation.
+ * y = log(1 + exp(x))
+ * @pytorch torch.nn.Softplus
+ */
+export class Softplus extends Module {
+  readonly beta: number;
+  readonly threshold: number;
+
+  constructor(beta: number = 1, threshold: number = 20) {
+    super();
+    this.beta = beta;
+    this.threshold = threshold;
+  }
+
+  forward(input: Tensor): Tensor {
+    // For numerical stability: if beta*x > threshold, return x
+    const bx = input.mul(this.beta);
+    const condition = bx.gt(this.threshold);
+    // log(1 + exp(beta*x)) / beta
+    const logResult = bx.exp().add(1).log().mul(1 / this.beta);
+    return condition.where(input, logResult);
+  }
+}
+
+/**
+ * Softsign activation.
+ * y = x / (1 + |x|)
+ * @pytorch torch.nn.Softsign
+ */
+export class Softsign extends Module {
+  forward(input: Tensor): Tensor {
+    return input.div(input.abs().add(1));
+  }
+}
+
+/**
+ * Tanhshrink activation.
+ * y = x - tanh(x)
+ * @pytorch torch.nn.Tanhshrink
+ */
+export class Tanhshrink extends Module {
+  forward(input: Tensor): Tensor {
+    return input.sub(input.tanh());
+  }
+}
+
+/**
+ * Mish activation.
+ * y = x * tanh(softplus(x))
+ * @pytorch torch.nn.Mish
+ */
+export class Mish extends Module {
+  forward(input: Tensor): Tensor {
+    // softplus: log(1 + exp(x))
+    const sp = input.exp().add(1).log();
+    return input.mul(sp.tanh());
+  }
+}
+
+/**
+ * SiLU (Swish) activation.
+ * y = x * sigmoid(x)
+ * @pytorch torch.nn.SiLU
+ */
+export class SiLU extends Module {
+  forward(input: Tensor): Tensor {
+    return input.mul(input.sigmoid());
+  }
+}
+
+/**
+ * Hardsigmoid activation.
+ * y = clamp(x/6 + 1/2, 0, 1)
+ * @pytorch torch.nn.Hardsigmoid
+ */
+export class Hardsigmoid extends Module {
+  forward(input: Tensor): Tensor {
+    return input.div(6).add(0.5).clamp(0, 1);
+  }
+}
+
+/**
+ * Hardswish activation.
+ * y = x * clamp(x/6 + 1/2, 0, 1)
+ * @pytorch torch.nn.Hardswish
+ */
+export class Hardswish extends Module {
+  forward(input: Tensor): Tensor {
+    return input.mul(input.div(6).add(0.5).clamp(0, 1));
+  }
+}
+
+/**
+ * GLU (Gated Linear Unit) activation.
+ * Splits input along the specified dimension, applies sigmoid to one half,
+ * and multiplies element-wise.
+ * @pytorch torch.nn.GLU
+ */
+export class GLU extends Module {
+  readonly dim: number;
+
+  constructor(dim: number = -1) {
+    super();
+    this.dim = dim;
+  }
+
+  forward(input: Tensor): Tensor {
+    const ndim = input.shape.length;
+    const d = this.dim < 0 ? ndim + this.dim : this.dim;
+    const half = (input.shape[d] as number) / 2;
+    const a = input.narrow(d, 0, half);
+    const b = input.narrow(d, half, half);
+    return a.mul(b.sigmoid());
+  }
+}
+
+/**
+ * ReLU6 activation.
+ * Applies ReLU with upper bound of 6.
+ * @pytorch torch.nn.ReLU6
+ */
+export class ReLU6 extends Module {
+  private inplace: boolean;
+
+  constructor(inplace: boolean = false) {
+    super();
+    this.inplace = inplace;
+  }
+
+  forward(input: Tensor): Tensor {
+    // ReLU6(x) = min(max(0, x), 6)
+    const relu = input.relu();
+    return relu.clamp(0, 6);
+  }
+}
+
+/**
+ * Softmax2d activation.
+ * Applies Softmax over features to each spatial location.
+ * @pytorch torch.nn.Softmax2d
+ */
+export class Softmax2d extends Module {
+  forward(input: Tensor): Tensor {
+    // Input shape: (N, C, H, W) or (C, H, W)
+    // Apply softmax over the channel dimension (dim=1 for 4D, dim=0 for 3D)
+    const dim = input.dim() === 4 ? 1 : 0;
+    return input.softmax(dim);
+  }
+}

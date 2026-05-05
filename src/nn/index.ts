@@ -51,7 +51,7 @@ export { Unflatten, Fold, Unfold, PixelShuffle } from './utils';
 export { ModuleList, ModuleDict } from './containers';
 
 // Activations
-export { ReLU, Sigmoid, Tanh, LogSoftmax, GELU, Softmax, PReLU, CELU, RReLU, Hardtanh, Hardshrink, Softshrink, LogSigmoid, Softmin } from './activation';
+export { ReLU, Sigmoid, Tanh, LogSoftmax, GELU, Softmax, PReLU, CELU, RReLU, Hardtanh, Hardshrink, Softshrink, LogSigmoid, Softmin, LeakyReLU, ELU, SELU, Threshold, Softplus, Softsign, Tanhshrink, Mish, SiLU, Hardsigmoid, Hardswish, GLU, ReLU6, Softmax2d } from './activation';
 
 // Attention
 export { MultiheadAttention } from './attention';
