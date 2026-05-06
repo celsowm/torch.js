@@ -2195,56 +2195,46 @@ export class Tensor {
     const outerSize = numel(this._shape.slice(0, dim));
     const innerSize = numel(this._shape.slice(dim + 1));
     const outShape = this._shape.filter((_, i) => i !== dim);
-    if (outShape.length === 0 || keepdim) {
-      const outShape2 = [...this._shape];
-      outShape2[dim] = 1;
-      if (!keepdim) {
-        const device = getDevice();
-        const outputBuffer = createStorageBuffer(outerSize * getDTypeBytes(this._dtype));
-        const paramsData = new Uint32Array([dimSize, outerSize, innerSize, 0]);
-        const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
-        device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-        const pipeline = getOrCreatePipeline(REDUCE_DIM_SHADER, op);
-        const bindGroup = device.createBindGroup({
-          layout: pipeline.getBindGroupLayout(0),
-          entries: [
-            { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-            { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-            { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-          ],
-        });
-        const commandEncoder = device.createCommandEncoder();
-        const passEncoder = commandEncoder.beginComputePass();
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setBindGroup(0, bindGroup);
-        passEncoder.dispatchWorkgroups(...calculateWorkgroups(outerSize));
-        passEncoder.end();
-        device.queue.submit([commandEncoder.finish()]);
-        const self1 = this;
-        return new Tensor({ buffer: outputBuffer, shape: outShape2.filter(s => s !== 1), dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
-          grad_fn: this._requires_grad ? {
-            backward(gradOutput: Tensor): void {
-              const gradInput = gradOutput.expand(self1._shape);
-              self1.accumulateGrad(gradInput);
-            },
-            _next_tensors: [self1],
-          } : undefined,
-        });
-      }
-      const self2 = this;
-      return new Tensor({ buffer: this._buffer, shape: outShape2, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
-        grad_fn: this._requires_grad ? {
-          backward(gradOutput: Tensor): void {
-            const gradInput = gradOutput.expand(self2._shape);
-            self2.accumulateGrad(gradInput);
-          },
-          _next_tensors: [self2],
-        } : undefined,
-      });
+
+    if (outShape.length === 0) {
+      // Full reduction - use _reduce
+      return this._reduce(op);
     }
-    const reshaped = this.reshape([outerSize, dimSize, innerSize]);
-    const reduced = reshaped._reduce(op);
-    return reduced.reshape(keepdim ? [...this._shape].map((s, i) => i === dim ? 1 : s) : outShape);
+
+    // Partial reduction along one dimension
+    const outputShape = keepdim ? [...this._shape].map((s, i) => i === dim ? 1 : s) : outShape;
+    const outputNumel = numel(outputShape);
+    const device = getDevice();
+    const outputBuffer = createStorageBuffer(outputNumel * getDTypeBytes(this._dtype));
+    const paramsData = new Uint32Array([dimSize, outerSize, innerSize, 0]);
+    const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
+    device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+    const pipeline = getOrCreatePipeline(REDUCE_DIM_SHADER, op);
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
+        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
+        { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+      ],
+    });
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginComputePass();
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.dispatchWorkgroups(...calculateWorkgroups(outerSize * innerSize));
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+    const self = this;
+    return new Tensor({ buffer: outputBuffer, shape: outputShape, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
+      grad_fn: this._requires_grad ? {
+        backward(gradOutput: Tensor): void {
+          const gradInput = gradOutput.expand(self._shape);
+          self.accumulateGrad(gradInput);
+        },
+        _next_tensors: [self],
+      } : undefined,
+    });
   }
 
   sum(dim?: number | number[], keepdim: boolean = false): Tensor {
