@@ -297,16 +297,17 @@ function qrIterationTridiagonal(diag: Float64Array, offdiag: Float64Array, n: nu
             const delta = (a - c) / 2;
             const mu = c - Math.sign(delta) * b * b / (Math.abs(delta) + Math.sqrt(delta * delta + b * b));
 
-            // Implicit QR step
-            let g = d[0] - mu;
-            for (let i = 0; i < remaining - 1; i++) {
+            // Implicit QR step — start from active subblock
+            const start = n - remaining;
+            let g = d[start] - mu;
+            for (let i = start; i < n - 1; i++) {
                 const r = Math.sqrt(g * g + e[i] * e[i]);
                 const cs = g / r, sn = e[i] / r;
-                if (i > 0) e[i - 1] = r;
+                if (i > start) e[i - 1] = r;
                 g = cs * (d[i] - mu) + sn * e[i];
                 d[i] = cs * g + sn * (cs * e[i] - sn * (d[i] - mu));
                 const tmp = cs * e[i] - sn * (d[i] - mu);
-                if (i < remaining - 2) {
+                if (i < n - 2) {
                     e[i] = cs * tmp + sn * d[i + 1];
                     d[i + 1] = -sn * tmp + cs * d[i + 1];
                 } else {
@@ -331,8 +332,9 @@ function qrIterationTridiagonal(diag: Float64Array, offdiag: Float64Array, n: nu
     const eigenvalues = new Float64Array(n);
     const eigenvectors: Float64Array[] = [];
     for (let i = 0; i < n; i++) eigenvalues[i] = d[idx[i]];
+    // Create eigenvector matrix
+    for (let i = 0; i < n; i++) eigenvectors.push(new Float64Array(n));
     for (let j = 0; j < n; j++) {
-        eigenvectors.push(new Float64Array(n));
         for (let i = 0; i < n; i++) eigenvectors[i][j] = Z[i][idx[j]];
     }
 
