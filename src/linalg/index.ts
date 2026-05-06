@@ -378,7 +378,7 @@ export const matrix_power = (A: Tensor, n: number): Tensor => {
     if (h !== w) throw new Error('linalg.matrix_power: expected square matrix');
     
     if (n === 0) {
-        return ops.eye(h, A.device as any).expand(A.shape);
+        return ops.eye(h).expand(A.shape);
     }
     if (n < 0) {
         return matrix_power(inv(A), -n);
@@ -442,9 +442,9 @@ export const inv = (A: Tensor): Tensor => {
   const n = A.shape[A.dim() - 1];
   const batch = A.dim() > 2 ? A.shape.slice(0, -2).reduce((a, b) => a * b, 1) : 1;
   const shapes = A.shape;
-  
+
   // Create identity matrix: [batch, n, n]
-  const I = ops.eye(n, A.device as any).unsqueeze(0).expand([batch, n, n]).clone();
+  const I = ops.eye(n).unsqueeze(0).expand([batch, n, n]).clone();
   
   // Apply permutation P to I: we need to swap rows.
   // P is stored as a sequence of swaps. For each step k (0..n-1),

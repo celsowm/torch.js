@@ -1,5 +1,5 @@
 node_modules/
 dist/
 
-# External references
-.externals/  
+# External references (now tracked for API reference)
+# .externals/  
