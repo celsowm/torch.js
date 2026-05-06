@@ -3663,15 +3663,26 @@ export class Tensor {
   }
 
   private _compareOp(op: string, other: Tensor): Tensor {
-    if (needsBroadcast(this._shape, other._shape)) throw new Error('Broadcasting not yet implemented for comparison');
     const device = getDevice();
-    const outputBuffer = createStorageBuffer(this.numel() * getDTypeBytes(this._dtype));
+    
+    // Handle broadcasting
+    let a: Tensor, b: Tensor;
+    if (needsBroadcast(this._shape, other._shape)) {
+      const outShape = broadcastShapes(this._shape, other._shape);
+      a = this.broadcast_to(outShape);
+      b = other.broadcast_to(outShape);
+    } else {
+      a = this;
+      b = other;
+    }
+    
+    const outputBuffer = createStorageBuffer(a.numel() * getDTypeBytes(this._dtype));
     const pipeline = getOrCreatePipeline(COMPARE_SHADER, op);
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: this._buffer, offset: 0, size: this._buffer.size } },
-        { binding: 1, resource: { buffer: other._buffer, offset: 0, size: other._buffer.size } },
+        { binding: 0, resource: { buffer: a._buffer, offset: 0, size: a._buffer.size } },
+        { binding: 1, resource: { buffer: b._buffer, offset: 0, size: b._buffer.size } },
         { binding: 2, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
       ],
     });
@@ -3679,10 +3690,11 @@ export class Tensor {
     const passEncoder = commandEncoder.beginComputePass();
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(this.numel()));
+    passEncoder.dispatchWorkgroups(...calculateWorkgroups(a.numel()));
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
-    return new Tensor({ buffer: outputBuffer, shape: [...this._shape], dtype: this._dtype, device: 'webgpu', requires_grad: false });
+    const outShape = needsBroadcast(this._shape, other._shape) ? broadcastShapes(this._shape, other._shape) : this._shape;
+    return new Tensor({ buffer: outputBuffer, shape: outShape, dtype: this._dtype, device: 'webgpu', requires_grad: false });
   }
 
   /**
