@@ -39,13 +39,13 @@ export async function stft(
   let paddedData: Float64Array;
   if (center) {
     const padLen = Math.floor(n_fft / 2);
-    const original = await input.toArray() as Float32Array;
+    const original = await input.toArray();
     paddedData = new Float64Array(signalLen + 2 * padLen);
     for (let i = 0; i < signalLen; i++) {
       paddedData[padLen + i] = original[i];
     }
   } else {
-    const d = await input.toArray() as Float32Array;
+    const d = await input.toArray();
     paddedData = new Float64Array(d);
   }
 
@@ -154,7 +154,7 @@ async function _get_window_data(window: Tensor, size: number): Promise<Float64Ar
   const d = await window.toArray();
   const result = new Float64Array(size);
   for (let i = 0; i < Math.min(size, d.length); i++) {
-    result[i] = (d as Float32Array)[i];
+    result[i] = d[i];
   }
   return result;
 }
@@ -246,7 +246,7 @@ function _fft1d_from_complex(re: number[], im: number[]): { re: number[]; im: nu
 }
 
 async function _deinterleave_complex(tensor: Tensor): Promise<{ real: number[]; imag: number[] }> {
-  const data = await tensor.toArray() as Float32Array;
+  const data = await tensor.toArray();
   const real: number[] = [];
   const imag: number[] = [];
   for (let i = 0; i < data.length; i += 2) {
@@ -275,7 +275,7 @@ export async function hfft(
   dim: number = -1,
   norm: 'forward' | 'backward' | 'ortho' = 'backward',
 ): Promise<Tensor> {
-  const data = await input.toArray() as Float32Array;
+  const data = await input.toArray();
   const shape = input.shape;
   const freqSize = shape[dim < 0 ? shape.length + dim : dim];
   const timeLen = n ?? 2 * (freqSize - 1);
@@ -318,7 +318,7 @@ export async function ihfft(
   dim: number = -1,
   norm: 'forward' | 'backward' | 'ortho' = 'backward',
 ): Promise<Tensor> {
-  const data = await input.toArray() as Float32Array;
+  const data = await input.toArray();
   const timeLen = data.length;
   const shape = input.shape;
   const freqSize = n ? Math.floor(n / 2) + 1 : Math.floor(timeLen / 2) + 1;

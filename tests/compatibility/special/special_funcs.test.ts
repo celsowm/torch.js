@@ -53,16 +53,16 @@ describe('torch.special', () => {
   // logit
   // ---------------------------------------------------------------------------
   describe('logit', () => {
-    it('logit(0.5) = 0', () => {
+    it('logit(0.5) = 0', async () => {
       const x = torch.tensor([0.5]);
       const result = torch.special.logit(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0, 5);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0, 5);
     });
 
-    it('logit(p) = log(p / (1 - p))', () => {
+    it('logit(p) = log(p / (1 - p))', async () => {
       const x = torch.tensor([0.25]);
       const result = torch.special.logit(x);
-      const val = (Array.from(result.toArray()))[0];
+      const val = (Array.from(await result.toArray()))[0];
       const expected = Math.log(0.25 / 0.75);
       expect(val).toBeCloseTo(expected, 5);
     });
@@ -90,28 +90,28 @@ describe('torch.special', () => {
   // sinc
   // ---------------------------------------------------------------------------
   describe('sinc', () => {
-    it('sinc(0) = 1', () => {
+    it('sinc(0) = 1', async () => {
       const x = torch.tensor([0.0]);
-      const result = torch.special.sinc(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(1.0, 4);
+      const result = await torch.special.sinc(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(1.0, 4);
     });
 
-    it('sinc(1) = 0 (sin(pi) = 0)', () => {
+    it('sinc(1) = 0 (sin(pi) = 0)', async () => {
       const x = torch.tensor([1.0]);
-      const result = torch.special.sinc(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0.0, 4);
+      const result = await torch.special.sinc(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0.0, 4);
     });
 
-    it('sinc(-1) = 0', () => {
+    it('sinc(-1) = 0', async () => {
       const x = torch.tensor([-1.0]);
-      const result = torch.special.sinc(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0.0, 4);
+      const result = await torch.special.sinc(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0.0, 4);
     });
 
-    it('sinc(0.5) = sin(pi/2) / (pi/2) = 2/pi', () => {
+    it('sinc(0.5) = sin(pi/2) / (pi/2) = 2/pi', async () => {
       const x = torch.tensor([0.5]);
-      const result = torch.special.sinc(x);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.sinc(x);
+      const val = (Array.from(await result.toArray()))[0];
       const expected = 2.0 / Math.PI;
       expect(val).toBeCloseTo(expected, 3);
     });
@@ -213,26 +213,26 @@ describe('torch.special', () => {
   // xlogy
   // ---------------------------------------------------------------------------
   describe('xlogy', () => {
-    it('xlogy(x, y) = x * log(y)', () => {
+    it('xlogy(x, y) = x * log(y)', async () => {
       const x = torch.tensor([2.0]);
       const y = torch.tensor([10.0]);
-      const result = torch.special.xlogy(x, y);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.xlogy(x, y);
+      const val = (Array.from(await result.toArray()))[0];
       expect(val).toBeCloseTo(2.0 * Math.log(10.0), 5);
     });
 
-    it('xlogy(0, y) should handle 0 case', () => {
+    it('xlogy(0, y) should handle 0 case', async () => {
       const x = torch.tensor([0.0]);
       const y = torch.tensor([5.0]);
-      const result = torch.special.xlogy(x, y);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.xlogy(x, y);
+      const val = (Array.from(await result.toArray()))[0];
       expect(val).toBeCloseTo(0, 5);
     });
 
-    it('xlogy with scalar other', () => {
+    it('xlogy with scalar other', async () => {
       const x = torch.tensor([3.0]);
-      const result = torch.special.xlogy(x, 2.0);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.xlogy(x, 2.0);
+      const val = (Array.from(await result.toArray()))[0];
       expect(val).toBeCloseTo(3.0 * Math.log(2.0), 5);
     });
   });
@@ -241,25 +241,25 @@ describe('torch.special', () => {
   // xlog1py
   // ---------------------------------------------------------------------------
   describe('xlog1py', () => {
-    it('xlog1py(x, y) = x * log1p(y)', () => {
+    it('xlog1py(x, y) = x * log1p(y)', async () => {
       const x = torch.tensor([2.0]);
       const y = torch.tensor([1.0]);
-      const result = torch.special.xlog1py(x, y);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.xlog1py(x, y);
+      const val = (Array.from(await result.toArray()))[0];
       expect(val).toBeCloseTo(2.0 * Math.log1p(1.0), 5);
     });
 
-    it('xlog1py(0, y) = 0', () => {
+    it('xlog1py(0, y) = 0', async () => {
       const x = torch.tensor([0.0]);
       const y = torch.tensor([5.0]);
-      const result = torch.special.xlog1py(x, y);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0, 5);
+      const result = await torch.special.xlog1py(x, y);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0, 5);
     });
 
-    it('xlog1py with scalar other', () => {
+    it('xlog1py with scalar other', async () => {
       const x = torch.tensor([3.0]);
-      const result = torch.special.xlog1py(x, 0.5);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.xlog1py(x, 0.5);
+      const val = (Array.from(await result.toArray()))[0];
       expect(val).toBeCloseTo(3.0 * Math.log1p(0.5), 5);
     });
   });
@@ -268,26 +268,26 @@ describe('torch.special', () => {
   // erfcx
   // ---------------------------------------------------------------------------
   describe('erfcx', () => {
-    it('erfcx(0) = erfc(0) = 1', () => {
+    it('erfcx(0) = erfc(0) = 1', async () => {
       const x = torch.tensor([0.0]);
-      const result = torch.special.erfcx(x);
+      const result = await torch.special.erfcx(x);
       // erfc(0) = 1, exp(0) = 1, so erfcx(0) = 1
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(1.0, 3);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(1.0, 3);
     });
 
-    it('erfcx returns positive for positive input', () => {
+    it('erfcx returns positive for positive input', async () => {
       const x = torch.tensor([0.5, 1.0, 2.0]);
-      const result = torch.special.erfcx(x);
-      const resultArr = Array.from(result.toArray());
+      const result = await torch.special.erfcx(x);
+      const resultArr = Array.from(await result.toArray());
       resultArr.forEach((v) => expect(v).toBeGreaterThan(0));
     });
 
-    it('erfcx(x) = exp(x^2) * erfc(x)', () => {
+    it('erfcx(x) = exp(x^2) * erfc(x)', async () => {
       const x = torch.tensor([0.5]);
-      const result = torch.special.erfcx(x);
-      const manual = x.square().exp().mul(x.erfc());
-      const valResult = (Array.from(result.toArray()))[0];
-      const valManual = (Array.from(manual.toArray()))[0];
+      const result = await torch.special.erfcx(x);
+      const manual = (await x.square()).exp().mul(await x.erfc());
+      const valResult = (Array.from(await result.toArray()))[0];
+      const valManual = (Array.from(await manual.toArray()))[0];
       expect(valResult).toBeCloseTo(valManual, 5);
     });
   });
@@ -296,33 +296,33 @@ describe('torch.special', () => {
   // expit (sigmoid)
   // ---------------------------------------------------------------------------
   describe('expit', () => {
-    it('expit(0) = 0.5', () => {
+    it('expit(0) = 0.5', async () => {
       const x = torch.tensor([0.0]);
-      const result = torch.special.expit(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0.5, 5);
+      const result = await torch.special.expit(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0.5, 5);
     });
 
-    it('expit(x) = 1/(1+exp(-x))', () => {
+    it('expit(x) = 1/(1+exp(-x))', async () => {
       const x = torch.tensor([1.0]);
-      const result = torch.special.expit(x);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.expit(x);
+      const val = (Array.from(await result.toArray()))[0];
       const expected = 1.0 / (1.0 + Math.exp(-1.0));
       expect(val).toBeCloseTo(expected, 5);
     });
 
-    it('expit(-x) = 1 - expit(x)', () => {
+    it('expit(-x) = 1 - expit(x)', async () => {
       const x = torch.tensor([2.0]);
-      const resultPos = torch.special.expit(x);
-      const resultNeg = torch.special.expit(x.neg());
-      const valPos = (Array.from(resultPos.toArray()))[0];
-      const valNeg = (Array.from(resultNeg.toArray()))[0];
+      const resultPos = await torch.special.expit(x);
+      const resultNeg = await torch.special.expit(x.neg());
+      const valPos = (Array.from(await resultPos.toArray()))[0];
+      const valNeg = (Array.from(await resultNeg.toArray()))[0];
       expect(valPos + valNeg).toBeCloseTo(1.0, 4);
     });
 
-    it('expit returns values in (0, 1)', () => {
+    it('expit returns values in (0, 1)', async () => {
       const x = torch.tensor([-10.0, -1.0, 0.0, 1.0, 10.0]);
-      const result = torch.special.expit(x);
-      const resultArr = Array.from(result.toArray());
+      const result = await torch.special.expit(x);
+      const resultArr = Array.from(await result.toArray());
       resultArr.forEach((v) => {
         expect(v).toBeGreaterThan(0);
         expect(v).toBeLessThan(1);
@@ -334,27 +334,27 @@ describe('torch.special', () => {
   // ndtr (normal CDF)
   // ---------------------------------------------------------------------------
   describe('ndtr', () => {
-    it('ndtr(0) = 0.5', () => {
+    it('ndtr(0) = 0.5', async () => {
       const x = torch.tensor([0.0]);
-      const result = torch.special.ndtr(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0.5, 4);
+      const result = await torch.special.ndtr(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0.5, 4);
     });
 
-    it('ndtr returns values in (0, 1)', () => {
+    it('ndtr returns values in (0, 1)', async () => {
       const x = torch.tensor([-3.0, -1.0, 0.0, 1.0, 3.0]);
-      const result = torch.special.ndtr(x);
-      const resultArr = Array.from(result.toArray());
+      const result = await torch.special.ndtr(x);
+      const resultArr = Array.from(await result.toArray());
       resultArr.forEach((v) => {
         expect(v).toBeGreaterThan(0);
         expect(v).toBeLessThan(1);
       });
     });
 
-    it('ndtr(x) + ndtr(-x) = 1 (symmetry)', () => {
+    it('ndtr(x) + ndtr(-x) = 1 (symmetry)', async () => {
       const x = torch.tensor([1.5]);
-      const resultPos = torch.special.ndtr(x);
-      const resultNeg = torch.special.ndtr(x.neg());
-      const sum = (Array.from(resultPos.toArray()))[0] + (Array.from(resultNeg.toArray()))[0];
+      const resultPos = await torch.special.ndtr(x);
+      const resultNeg = await torch.special.ndtr(x.neg());
+      const sum = (Array.from(await resultPos.toArray()))[0] + (Array.from(await resultNeg.toArray()))[0];
       expect(sum).toBeCloseTo(1.0, 4);
     });
   });
@@ -363,26 +363,26 @@ describe('torch.special', () => {
   // log_ndtr
   // ---------------------------------------------------------------------------
   describe('log_ndtr', () => {
-    it('log_ndtr(0) = log(0.5) â‰ˆ -0.6931', () => {
+    it('log_ndtr(0) = log(0.5) â‰ˆ -0.6931', async () => {
       const x = torch.tensor([0.0]);
-      const result = torch.special.log_ndtr(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(-0.6931, 3);
+      const result = await torch.special.log_ndtr(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(-0.6931, 3);
     });
 
-    it('log_ndtr returns negative values', () => {
+    it('log_ndtr returns negative values', async () => {
       const x = torch.tensor([-1.0, 0.0, 1.0]);
-      const result = torch.special.log_ndtr(x);
-      const resultArr = Array.from(result.toArray());
+      const result = await torch.special.log_ndtr(x);
+      const resultArr = Array.from(await result.toArray());
       resultArr.forEach((v) => expect(v).toBeLessThan(0));
     });
 
-    it('log_ndtr(x) = log(ndtr(x))', () => {
+    it('log_ndtr(x) = log(ndtr(x))', async () => {
       const x = torch.tensor([0.5]);
-      const logNdtr = torch.special.log_ndtr(x);
-      const ndtr = torch.special.ndtr(x);
+      const logNdtr = await torch.special.log_ndtr(x);
+      const ndtr = await torch.special.ndtr(x);
       const logOfNdtr = ndtr.log();
-      const val1 = (Array.from(logNdtr.toArray()))[0];
-      const val2 = (Array.from(logOfNdtr.toArray()))[0];
+      const val1 = (Array.from(await logNdtr.toArray()))[0];
+      const val2 = (Array.from(await logOfNdtr.toArray()))[0];
       expect(val1).toBeCloseTo(val2, 3);
     });
   });
@@ -448,24 +448,24 @@ describe('torch.special', () => {
   // spherical_bessel_j0
   // ---------------------------------------------------------------------------
   describe('spherical_bessel_j0', () => {
-    it('spherical_bessel_j0(x) = sin(x) / x', () => {
+    it('spherical_bessel_j0(x) = sin(x) / x', async () => {
       const x = torch.tensor([1.0]);
-      const result = torch.special.spherical_bessel_j0(x);
-      const val = (Array.from(result.toArray()))[0];
+      const result = await torch.special.spherical_bessel_j0(x);
+      const val = (Array.from(await result.toArray()))[0];
       const expected = Math.sin(1.0) / 1.0;
       expect(val).toBeCloseTo(expected, 5);
     });
 
-    it('spherical_bessel_j0(pi) â‰ˆ 0', () => {
+    it('spherical_bessel_j0(pi) â‰ˆ 0', async () => {
       const x = torch.tensor([Math.PI]);
-      const result = torch.special.spherical_bessel_j0(x);
-      expect((Array.from(result.toArray()))[0]).toBeCloseTo(0, 4);
+      const result = await torch.special.spherical_bessel_j0(x);
+      expect((Array.from(await result.toArray()))[0]).toBeCloseTo(0, 4);
     });
 
-    it('spherical_bessel_j0 returns finite values for positive x', () => {
+    it('spherical_bessel_j0 returns finite values for positive x', async () => {
       const x = torch.tensor([0.1, 0.5, 1.0, 2.0]);
-      const result = torch.special.spherical_bessel_j0(x);
-      const resultArr = Array.from(result.toArray());
+      const result = await torch.special.spherical_bessel_j0(x);
+      const resultArr = Array.from(await result.toArray());
       resultArr.forEach((v) => expect(Number.isFinite(v)).toBe(true));
     });
   });

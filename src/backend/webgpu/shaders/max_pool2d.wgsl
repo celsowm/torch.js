@@ -35,7 +35,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         let ih = i32(oh * params.stride_h + kh * params.dilation_h) - i32(params.pad_h);
         for (var kw = 0u; kw < params.kernel_w; kw++) {
             let iw = i32(ow * params.stride_w + kw * params.dilation_w) - i32(params.pad_w);
-            if (ih >= 0 && iu32(ih) < params.in_h && iw >= 0 && iu32(iw) < params.in_w) {
+            if (ih >= 0 && u32(ih) < params.in_h && iw >= 0 && u32(iw) < params.in_w) {
                 let inp_idx = ((b * params.channels + c) * params.in_h + u32(ih)) * params.in_w + u32(iw);
                 let val = input[inp_idx];
                 if (val > max_val) {

@@ -59,8 +59,8 @@ export class LBFGS extends Optimizer {
     for (const t of tVals) {
       const saved: number[][] = [];
       for (let i = 0; i < params.length; i++) {
-        const gArr = await grads[i].toArray() as Float32Array;
-        const pArr = await params[i].toArray() as Float32Array;
+        const gArr = await grads[i].toArray();
+        const pArr = await params[i].toArray();
         saved.push(Array.from(pArr));
         for (let j = 0; j < pArr.length; j++) {
           pArr[j] -= t * lr * gArr[j];
@@ -74,14 +74,16 @@ export class LBFGS extends Optimizer {
       }
 
       for (let i = 0; i < params.length; i++) {
-        const pArr = await params[i].toArray() as Float32Array;
-        pArr.set(saved[i]);
+        const pArr = await params[i].toArray();
+        for (let j = 0; j < pArr.length; j++) {
+          pArr[j] = saved[i][j];
+        }
       }
     }
 
     for (let i = 0; i < params.length; i++) {
-      const pArr = await params[i].toArray() as Float32Array;
-      const gArr = await grads[i].toArray() as Float32Array;
+      const pArr = await params[i].toArray();
+      const gArr = await grads[i].toArray();
       for (let j = 0; j < pArr.length; j++) {
         pArr[j] -= bestT * lr * gArr[j];
       }

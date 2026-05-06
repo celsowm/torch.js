@@ -3,10 +3,12 @@ import * as nn from './nn';
 import * as optim from './optim';
 import * as linalg from './linalg';
 import * as fft from './fft';
+import { special } from './special';
 import * as webgpu from './webgpu';
 import * as autograd from './autograd';
 import * as distributions from './distributions';
 import * as sparse from './sparse';
+import { conv2d, conv1d, max_pool2d, avg_pool2d } from './nn/functional';
 import { initWebGPU, syncDevice as _syncDevice } from './backend';
 import { no_grad, enable_grad, inference_mode, is_grad_enabled } from './grad_mode';
 import type { SaveFunc, LoadFunc } from './serialization/types';
@@ -59,5 +61,14 @@ export function createTorch(save: SaveFunc, load: LoadFunc) {
 
     // FFT module
     fft,
+
+    // Special math functions
+    special,
+
+    // Convenience re-exports from nn.functional
+    conv2d,
+    conv1d,
+    max_pool2d,
+    avg_pool2d,
   };
 }

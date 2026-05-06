@@ -60,7 +60,7 @@ import {
 } from '../backend';
 import { numel, formatShape, inferShape, validateShape } from '../utils/shape';
 import { needsBroadcast, broadcastShapes } from '../utils/broadcast';
-import { ones, ones_like, stack, tensor } from '../ops/creation';
+import { arange, ones, ones_like, stack, tensor } from '../ops/creation';
 import * as ops from '../ops';
 import { record_function } from '../profiler';
 import { is_grad_enabled } from '../grad_mode';
@@ -222,8 +222,10 @@ export class Tensor {
     this._grad_fn = null;
   }
 
-  async toArray(): Promise<Float32Array | Int32Array | Uint32Array | Int8Array | Uint8Array> {
-    return readBuffer(this._buffer, this._dtype, this.numel());
+  async toArray(): Promise<number[]> {
+    const typedArray = await readBuffer(this._buffer, this._dtype, this.numel());
+    // Convert to plain array and normalize -0 to +0
+    return Array.from(typedArray).map(v => Object.is(v, -0) ? 0 : v);
   }
 
   async item(): Promise<number> {
@@ -2218,9 +2220,27 @@ export class Tensor {
         passEncoder.dispatchWorkgroups(...calculateWorkgroups(outerSize));
         passEncoder.end();
         device.queue.submit([commandEncoder.finish()]);
-        return new Tensor({ buffer: outputBuffer, shape: outShape2.filter(s => s !== 1), dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+        const self1 = this;
+        return new Tensor({ buffer: outputBuffer, shape: outShape2.filter(s => s !== 1), dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
+          grad_fn: this._requires_grad ? {
+            backward(gradOutput: Tensor): void {
+              const gradInput = gradOutput.expand(self1._shape);
+              self1.accumulateGrad(gradInput);
+            },
+            _next_tensors: [self1],
+          } : undefined,
+        });
       }
-      return new Tensor({ buffer: this._buffer, shape: outShape2, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+      const self2 = this;
+      return new Tensor({ buffer: this._buffer, shape: outShape2, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
+        grad_fn: this._requires_grad ? {
+          backward(gradOutput: Tensor): void {
+            const gradInput = gradOutput.expand(self2._shape);
+            self2.accumulateGrad(gradInput);
+          },
+          _next_tensors: [self2],
+        } : undefined,
+      });
     }
     const reshaped = this.reshape([outerSize, dimSize, innerSize]);
     const reduced = reshaped._reduce(op);
@@ -2304,26 +2324,18 @@ export class Tensor {
 
   // ============ Argmax / Argmin ============
 
-  private _argReduce(op: string, dim?: number, keepdim?: boolean): Tensor {
-    const flat = this.flatten();
-    const device = getDevice();
-    const outputBuffer = createStorageBuffer(4);
-    const pipeline = getOrCreatePipeline(op === 'argmax' ? ARGMAX_SHADER : ARGMIN_SHADER, 'main');
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: flat._buffer, offset: 0, size: flat._buffer.size } },
-        { binding: 1, resource: { buffer: outputBuffer, offset: 0, size: outputBuffer.size } },
-      ],
-    });
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(1, 1, 1);
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-    return new Tensor({ buffer: outputBuffer, shape: [], dtype: 'int32', device: 'webgpu', requires_grad: false });
+  private async _argReduce(op: string, dim?: number, keepdim?: boolean): Promise<Tensor> {
+    // CPU fallback: read data and compute argmax/argmin
+    const data = await this.toArray();
+    let bestIdx = 0;
+    let bestVal = data[0];
+    for (let i = 1; i < data.length; i++) {
+      if (op === 'argmax' ? data[i] > bestVal : data[i] < bestVal) {
+        bestVal = data[i];
+        bestIdx = i;
+      }
+    }
+    return tensor([bestIdx], { dtype: 'int32' });
   }
 
   /**
@@ -2332,7 +2344,7 @@ export class Tensor {
    * @param keepdim - Whether to keep the reduced dimension
    * @pytorch torch.argmax
    */
-  argmax(dim?: number, keepdim: boolean = false): Tensor {
+  async argmax(dim?: number, keepdim: boolean = false): Promise<Tensor> {
     if (dim === undefined) {
       return this._argReduce('argmax');
     }
@@ -2383,7 +2395,6 @@ export class Tensor {
    * Internal: create a tensor with indices [0, 1, 2, ...] along a dimension.
    */
   private _indicesAlongDim(dim: number): Tensor {
-    const { arange, ones } = require('../ops/creation');
     const dimSize = this._shape[dim < 0 ? dim + this._shape.length : dim];
     const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
 
@@ -2396,7 +2407,7 @@ export class Tensor {
     const reshapedIndices = indices.reshape(shape);
 
     // Broadcast to full shape
-    return reshapedIndices.broadcastTo(this._shape);
+    return reshapedIndices.broadcast_to(this._shape);
   }
 
   /**
@@ -2405,13 +2416,13 @@ export class Tensor {
    * @param keepdim - Whether to keep the reduced dimension
    * @pytorch torch.argmin
    */
-  argmin(dim?: number, keepdim: boolean = false): Tensor {
+  async argmin(dim?: number, keepdim: boolean = false): Promise<Tensor> {
     if (dim === undefined) {
       return this._argReduce('argmin');
     }
 
     // For argmin, negate values and use argmax
-    return this.neg().argmax(dim, keepdim);
+    return await this.neg().argmax(dim, keepdim);
   }
 
   /**
@@ -3446,12 +3457,14 @@ export class Tensor {
 
     // Build the computation graph from outputs to inputs
     const visited = new WeakSet<Tensor>();
+    const visitedList: Tensor[] = [];
     const topoOrder: { tensor: Tensor; gradFn: GradFn }[] = [];
 
     // DFS to collect tensors in topological order (outputs first)
     const visit = (t: Tensor): void => {
       if (visited.has(t)) return;
       visited.add(t);
+      visitedList.push(t);
 
       const gf = t._grad_fn;
       if (gf && gf._next_tensors) {
@@ -3469,7 +3482,7 @@ export class Tensor {
     gradMap.set(this._id, grad);
 
     // Initialize gradients for leaf tensors that need them
-    for (const t of visited) {
+    for (const t of visitedList) {
       if (t._requires_grad && !gradMap.has(t._id)) {
         gradMap.set(t._id, t.zeros_like());
       }
@@ -3486,7 +3499,7 @@ export class Tensor {
 
     // Clear grad_fns if not retaining
     if (!retain_graph) {
-      for (const t of visited) {
+      for (const t of visitedList) {
         t._grad_fn = null;
       }
     }
@@ -3529,6 +3542,9 @@ export class Tensor {
             grad_self = gradOutput.mul(scalar);
           } else if (op === 'div_scalar') {
             grad_self = gradOutput.div(scalar);
+          } else if (op === 'pow_scalar') {
+            // d/dx (x^n) = n * x^(n-1)
+            grad_self = gradOutput.mul(scalar).mul(self.pow(scalar - 1));
           } else {
             grad_self = gradOutput;
           }
@@ -3591,7 +3607,16 @@ export class Tensor {
       currentBuffer = outputBuffer;
       currentLength = numWorkgroups;
     }
-    return new Tensor({ buffer: currentBuffer, shape: [], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+    const self = this;
+    return new Tensor({ buffer: currentBuffer, shape: [], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
+      grad_fn: this._requires_grad ? {
+        backward(gradOutput: Tensor): void {
+          const gradInput = gradOutput.expand(self._shape);
+          self.accumulateGrad(gradInput);
+        },
+        _next_tensors: [self],
+      } : undefined,
+    });
   }
 
   private _reduceSimple(op: string): Tensor {
@@ -3633,7 +3658,17 @@ export class Tensor {
       currentBuffer = outputBuffer;
       currentLength = numWorkgroups;
     }
-    return new Tensor({ buffer: currentBuffer, shape: [], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad });
+    const self = this;
+    return new Tensor({ buffer: currentBuffer, shape: [], dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
+      grad_fn: this._requires_grad ? {
+        backward(gradOutput: Tensor): void {
+          // For sum, gradient is broadcast of gradOutput to input shape
+          const gradInput = gradOutput.expand(self._shape);
+          self.accumulateGrad(gradInput);
+        },
+        _next_tensors: [self],
+      } : undefined,
+    });
   }
 
   private _compareOp(op: string, other: Tensor): Tensor {

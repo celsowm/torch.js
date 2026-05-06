@@ -77,6 +77,8 @@ export const heaviside = (input: Tensor, values: Tensor) => input.heaviside(valu
 // New operations added for PyTorch 1:1 compatibility
 export const std = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => input.std(dim, keepdim, unbiased);
 export const var_ = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => input.var(dim, keepdim, unbiased);
+export const mean = (input: Tensor, dim?: number | number[], keepdim: boolean = false) => input.mean(dim, keepdim);
+export const sum = (input: Tensor, dim?: number | number[], keepdim: boolean = false) => input.sum(dim, keepdim);
 export const std_mean = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => ({ std: input.std(dim, keepdim, unbiased), mean: input.mean(dim, keepdim) });
 
 export const sort = async (input: Tensor, dim: number = -1, descending: boolean = false) => input.sort(dim, descending);
@@ -96,8 +98,8 @@ export const diagonal = (input: Tensor, offset: number = 0, dim1: number = -2, d
 export const masked_select = (input: Tensor, mask: Tensor) => input.masked_select(mask);
 
 export const gather = async (input: Tensor, dim: number, index: Tensor) => input.gather(dim, index);
-export const scatter = (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter(dim, index, src);
-export const scatter_add = (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter_add(dim, index, src);
+export const scatter = async (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter(dim, index, src);
+export const scatter_add = async (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter_add(dim, index, src);
 export const repeat_interleave = async (input: Tensor, repeats: number, dim?: number) => input.repeat_interleave(repeats, dim);
 export const roll = async (input: Tensor, shifts: number | number[], dims?: number | number[]) => input.roll(shifts, dims);
 export const rot90 = async (input: Tensor, k: number = 1, dims?: number[]) => input.rot90(k, dims);
@@ -121,6 +123,10 @@ export const remainder = (input: Tensor, other: Tensor | number) => {
 export const trunc = (input: Tensor) => input.trunc();
 export const fix = trunc;
 export const round = (input: Tensor) => input.round();
+
+// Tensor manipulation
+export const reshape = (input: Tensor, shape: number[]) => input.reshape(shape);
+export const transpose = (input: Tensor, dim0: number, dim1: number) => input.transpose(dim0, dim1);
 
 // Comparison additions
 export const isposinf = (input: Tensor) => input.isposinf();
@@ -159,8 +165,8 @@ export const clamp = (input: Tensor, min?: number, max?: number) => input.clamp(
 export const flatten = (input: Tensor, startDim?: number, endDim?: number) => input.flatten(startDim, endDim);
 export const squeeze = (input: Tensor, dim?: number) => input.squeeze(dim);
 export const unsqueeze = (input: Tensor, dim: number) => input.unsqueeze(dim);
-export const argmax = (input: Tensor, dim?: number, keepdim?: boolean) => input.argmax(dim, keepdim);
-export const argmin = (input: Tensor, dim?: number, keepdim?: boolean) => input.argmin(dim, keepdim);
+export const argmax = async (input: Tensor, dim?: number, keepdim?: boolean) => input.argmax(dim, keepdim);
+export const argmin = async (input: Tensor, dim?: number, keepdim?: boolean) => input.argmin(dim, keepdim);
 export const amax = (input: Tensor, dim?: number, keepdim?: boolean) => input.amax(dim, keepdim);
 export const amin = (input: Tensor, dim?: number, keepdim?: boolean) => input.amin(dim, keepdim);
 export const all = (input: Tensor, dim?: number, keepdim?: boolean) => input.all(dim, keepdim);
