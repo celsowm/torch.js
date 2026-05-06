@@ -242,40 +242,69 @@ export class Tensor {
    */
   async multinomial(num_samples: number = 1, replacement: boolean = false): Promise<Tensor> {
     const data = await this.toArray();
-    const nCategories = data.length;
+    const shape = this._shape;
+    const { tensor } = await import('../ops/creation');
 
+    // Handle batched case: 2D tensor
+    if (shape.length === 2) {
+      const [batchSize, nCategories] = shape;
+      const allSamples: number[][] = [];
+
+      for (let b = 0; b < batchSize; b++) {
+        const rowStart = b * nCategories;
+        const row = data.slice(rowStart, rowStart + nCategories);
+
+        if (num_samples > nCategories && !replacement) {
+          throw new Error(`Cannot sample ${num_samples} values from ${nCategories} categories without replacement`);
+        }
+
+        const samples = this._sampleFromProbs(row, num_samples, replacement);
+        allSamples.push(samples);
+      }
+
+      // Flatten and create tensor
+      const flat = allSamples.flat();
+      return tensor(flat, { dtype: 'int32' }).reshape([batchSize, num_samples]);
+    }
+
+    // 1D case
+    const nCategories = data.length;
     if (num_samples > nCategories && !replacement) {
       throw new Error(`Cannot sample ${num_samples} values from ${nCategories} categories without replacement`);
     }
 
-    // Convert to probabilities (handle negative/NaN values)
-    const probs = new Float64Array(nCategories);
+    const samples = this._sampleFromProbs(data, num_samples, replacement);
+    return tensor(samples, { dtype: 'int32' });
+  }
+
+  private _sampleFromProbs(probs: number[] | Float64Array, num_samples: number, replacement: boolean): number[] {
+    const nCategories = probs.length;
+    const samples: number[] = [];
+
+    // Convert to probabilities
+    const p = new Float64Array(nCategories);
     let sum = 0;
     for (let i = 0; i < nCategories; i++) {
-      probs[i] = Math.max(0, data[i]); // clamp negatives
-      sum += probs[i];
+      p[i] = Math.max(0, probs[i]);
+      sum += p[i];
     }
     if (sum <= 0) {
-      // Uniform distribution
-      for (let i = 0; i < nCategories; i++) probs[i] = 1;
+      for (let i = 0; i < nCategories; i++) p[i] = 1;
       sum = nCategories;
     }
-    for (let i = 0; i < nCategories; i++) probs[i] /= sum;
+    for (let i = 0; i < nCategories; i++) p[i] /= sum;
 
-    // Sample
-    const samples = new Int32Array(num_samples);
     const available = replacement ? null : new Set<number>();
 
     for (let s = 0; s < num_samples; s++) {
       let idx: number;
       if (!replacement) {
-        // Sample without replacement
         do {
           let r = Math.random();
           idx = 0;
           let cumProb = 0;
           for (let i = 0; i < nCategories; i++) {
-            cumProb += probs[i];
+            cumProb += p[i];
             if (r < cumProb) {
               idx = i;
               break;
@@ -284,24 +313,21 @@ export class Tensor {
         } while (available!.has(idx));
         available!.add(idx);
       } else {
-        // Sample with replacement
         let r = Math.random();
         let cumProb = 0;
         idx = nCategories - 1;
         for (let i = 0; i < nCategories; i++) {
-          cumProb += probs[i];
+          cumProb += p[i];
           if (r < cumProb) {
             idx = i;
             break;
           }
         }
       }
-      samples[s] = idx;
+      samples.push(idx);
     }
 
-    // Return as tensor
-    const { tensor } = await import('../ops/creation');
-    return tensor(Array.from(samples), { dtype: 'int32' });
+    return samples;
   }
 
   tile(reps: readonly number[]): Tensor {
@@ -1300,22 +1326,47 @@ export class Tensor {
      * @pytorch torch.nonzero (as indices tensor)
      */
    async nonzeroIndices(): Promise<Tensor> {
-     const data = await this.toArray();
-     const indices: number[] = [];
-     for (let i = 0; i < data.length; i++) {
-       if (data[i] !== 0) {
-         indices.push(i);
-       }
-     }
-     return Tensor._fromNumberArray(indices, this._dtype).reshape([indices.length, 1]);
-   }
+    const data = await this.toArray();
+    const shape = this._shape;
+    const ndim = shape.length;
+    const indices: number[][] = [];
+
+    // Generate coordinates for each non-zero element
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] !== 0) {
+        // Convert flat index to coordinates
+        const coords: number[] = [];
+        let tempIdx = i;
+        for (let d = ndim - 1; d >= 0; d--) {
+          const stride = shape.slice(d + 1).reduce((a, b) => a * b, 1);
+          coords.unshift(Math.floor(tempIdx / stride));
+          tempIdx %= stride;
+        }
+        indices.push(coords);
+      }
+    }
+
+    // Return as [numNonzero, ndim] tensor
+    if (indices.length === 0) {
+      return Tensor._fromNumberArray([], this._dtype).reshape([0, ndim]);
+    }
+    const flat = indices.flat();
+    return Tensor._fromNumberArray(flat, this._dtype).reshape([indices.length, ndim]);
+  }
 
   select(dim: number, index: number): Tensor {
     return this.narrow(dim, index, 1).squeeze(dim);
   }
 
-  take(indices: Tensor): Tensor {
-    return this.flatten().index_select(0, indices);
+  async take(indices: Tensor): Promise<Tensor> {
+    // CPU fallback: flatten and gather
+    const data = await this.toArray();
+    const idxData = await indices.toArray();
+    const result: number[] = [];
+    for (const idx of idxData) {
+      result.push(data[Math.round(idx)]);
+    }
+    return tensor(result, { dtype: this.dtype }).reshape(indices.shape);
   }
 
   where(condition: Tensor, other: Tensor): Tensor {
@@ -1601,12 +1652,38 @@ export class Tensor {
    * @status implemented
    * @pytorch tensor.split()
    */
-  split(split_size: number, dim: number = 0): Tensor[] {
+  split(split_size: number | number[], dim: number = 0): Tensor[] {
     if (dim < 0) dim += this._shape.length;
 
     const dimSize = this._shape[dim];
-    const numChunks = Math.ceil(dimSize / split_size);
     const results: Tensor[] = [];
+
+    // Handle sections array
+    if (Array.isArray(split_size)) {
+      const sections = split_size;
+      const totalSections = sections.reduce((a, b) => a + b, 0);
+      if (totalSections !== dimSize) {
+        throw new Error(`Split sections sum ${totalSections} does not match dim size ${dimSize}`);
+      }
+      let start = 0;
+      for (const sectionSize of sections) {
+        const end = start + sectionSize;
+        const slices: Array<{ start: number; stop: number }> = [];
+        for (let d = 0; d < this._shape.length; d++) {
+          if (d === dim) {
+            slices.push({ start, stop: end });
+          } else {
+            slices.push({ start: 0, stop: this._shape[d] });
+          }
+        }
+        results.push(this._sliceMultiDim(slices));
+        start = end;
+      }
+      return results;
+    }
+
+    // Handle split_size number
+    const numChunks = Math.ceil(dimSize / split_size);
 
     for (let i = 0; i < numChunks; i++) {
       const start = i * split_size;
@@ -1995,7 +2072,8 @@ export class Tensor {
     }
     if (self._shape.length === 2 && other._shape.length === 1) {
       // (M, N) @ (N,) -> (M,)
-      return self.matmul(other.unsqueeze(0)).squeeze(-1);
+      // unsqueeze to make [N] → [N, 1], then squeeze to make [M, 1] → [M]
+      return self.matmul(other.unsqueeze(-1)).squeeze(-1);
     }
 
     // Case 3: one 1D, one ND (N > 2)
@@ -2165,9 +2243,12 @@ export class Tensor {
   }
 
   addbmm(batch1: Tensor, batch2: Tensor, beta: number = 1, alpha: number = 1): Tensor {
-    const prod = batch1.bmm(batch2);
-    if (beta === 1) return this.add(prod.mul(alpha));
-    return this.mul(beta).add(prod.mul(alpha));
+    // addbmm: input + alpha * sum(batch1 @ batch2 over batch dim)
+    // PyTorch addbmm sums the batch dimension results
+    const prod = batch1.bmm(batch2);  // [B, N, M]
+    const prodSum = prod.sum(0);  // Sum over batch dim -> [N, M]
+    if (beta === 1) return this.add(prodSum.mul(alpha));
+    return this.mul(beta).add(prodSum.mul(alpha));
   }
 
   dot(other: Tensor): Tensor {
@@ -2183,10 +2264,17 @@ export class Tensor {
 
   private _reduceDim(op: string, dim: number | number[], keepdim: boolean): Tensor {
     if (Array.isArray(dim)) {
+      // Resolve negative dimensions first
+      const resolved = dim.map(d => d < 0 ? d + this._shape.length : d);
+      // Sort descending so we reduce from highest index to lowest
+      const sorted = [...resolved].sort((a, b) => b - a);
       let result: Tensor = this;
-      const sorted = [...dim].sort((a, b) => b - a);
-      for (const d of sorted) {
-        result = result._reduceDim(op, d, keepdim);
+      for (let i = 0; i < sorted.length; i++) {
+        const d = sorted[i];
+        // After previous reductions, dimension index may have shifted
+        // Only pass keepdim=true on the last iteration to keep the reduced dims
+        const isLast = i === sorted.length - 1;
+        result = result._reduceDim(op, d, isLast ? keepdim : false);
       }
       return result;
     }
@@ -2206,10 +2294,12 @@ export class Tensor {
     const outputNumel = numel(outputShape);
     const device = getDevice();
     const outputBuffer = createStorageBuffer(outputNumel * getDTypeBytes(this._dtype));
-    const paramsData = new Uint32Array([dimSize, outerSize, innerSize, 0]);
+    const opMap: Record<string, number> = { sum: 0, mean: 1, max_reduce: 2, min_reduce: 3, prod: 4, any: 5, all: 6 };
+    const opCode = opMap[op] ?? 0;
+    const paramsData = new Uint32Array([outerSize, dimSize, innerSize, opCode]);
     const paramsBuffer = device.createBuffer({ size: 16, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
     device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-    const pipeline = getOrCreatePipeline(REDUCE_DIM_SHADER, op);
+    const pipeline = getOrCreatePipeline(REDUCE_DIM_SHADER, 'main');
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
@@ -2222,9 +2312,11 @@ export class Tensor {
     const passEncoder = commandEncoder.beginComputePass();
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, bindGroup);
+
     passEncoder.dispatchWorkgroups(...calculateWorkgroups(outerSize * innerSize));
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
+
     const self = this;
     return new Tensor({ buffer: outputBuffer, shape: outputShape, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad,
       grad_fn: this._requires_grad ? {
@@ -2339,6 +2431,8 @@ export class Tensor {
       return this._argReduce('argmax');
     }
 
+    // CPU fallback: read data and compute argmax along dimension
+    const data = await this.toArray();
     const resolvedDim = dim < 0 ? dim + this._shape.length : dim;
     const dimSize = this._shape[resolvedDim];
     const outShape = keepdim
@@ -2346,8 +2440,45 @@ export class Tensor {
       : this._shape.filter((_, i) => i !== resolvedDim);
     const outNumel = outShape.reduce((a, b) => a * b, 1);
 
-    // Use CPU fallback for now - read values and compute argmax
-    return this._argmaxDimSimple(resolvedDim, keepdim, outShape);
+    // Compute strides
+    const strides: number[] = new Array(this._shape.length).fill(1);
+    for (let i = this._shape.length - 2; i >= 0; i--) {
+      strides[i] = strides[i + 1] * this._shape[i + 1];
+    }
+    const dimStride = strides[resolvedDim];
+
+    const result: number[] = [];
+    for (let outIdx = 0; outIdx < outNumel; outIdx++) {
+      // Calculate the base index in the flat array for this output element
+      let baseIdx = 0;
+      let tempOut = outIdx;
+      let outShapeIdx = outShape.length - 1;
+      for (let d = this._shape.length - 1; d >= 0; d--) {
+        if (d === resolvedDim) {
+          baseIdx += 0; // dim index starts at 0
+        } else {
+          const idxInDim = tempOut % outShape[outShapeIdx];
+          tempOut = Math.floor(tempOut / outShape[outShapeIdx]);
+          baseIdx += idxInDim * strides[d];
+          outShapeIdx--;
+        }
+      }
+
+      // Find argmax along the dimension
+      let maxVal = -Infinity;
+      let maxIdx = 0;
+      for (let d = 0; d < dimSize; d++) {
+        const idx = baseIdx + d * dimStride;
+        const val = data[idx];
+        if (val > maxVal) {
+          maxVal = val;
+          maxIdx = d;
+        }
+      }
+      result.push(maxIdx);
+    }
+
+    return tensor(result, { dtype: 'int32' }).reshape(outShape);
   }
 
   /**
@@ -2609,39 +2740,51 @@ export class Tensor {
     // CPU implementation
     const data = await tensor.toArray();
     const outNumel = outShape.reduce((a, b) => a * b, 1);
-    const outputData = new Float32Array(outNumel);
+    const outputData: number[] = [];
 
     const shape = [...tensor._shape];
     const ndim = shape.length;
     const resolvedDim = dim !== undefined ? (dim < 0 ? dim + ndim : dim) : 0;
 
+    // Simple case: 1D tensor
+    if (ndim === 1 || dim === undefined) {
+      for (let i = 0; i < data.length; i++) {
+        for (let r = 0; r < repeats; r++) {
+          outputData.push(data[i]);
+        }
+      }
+      return Tensor._fromNumberArray(outputData, tensor.dtype);
+    }
+
+    // Multi-dimensional case
+    const outStrides: number[] = new Array(ndim).fill(1);
+    for (let d = ndim - 2; d >= 0; d--) {
+      outStrides[d] = outStrides[d + 1] * outShape[d + 1];
+    }
+    const inStrides: number[] = new Array(ndim).fill(1);
+    for (let d = ndim - 2; d >= 0; d--) {
+      inStrides[d] = inStrides[d + 1] * shape[d + 1];
+    }
+
     for (let outIdx = 0; outIdx < outNumel; outIdx++) {
       // Convert output flat index to coordinates
-      const outCoords: number[] = [];
       let tempIdx = outIdx;
-      for (let d = ndim - 1; d >= 0; d--) {
-        outCoords.unshift(tempIdx % outShape[d]);
-        tempIdx = Math.floor(tempIdx / outShape[d]);
+      const outCoords: number[] = new Array(ndim);
+      for (let d = 0; d < ndim; d++) {
+        outCoords[d] = Math.floor(tempIdx / outStrides[d]);
+        tempIdx %= outStrides[d];
       }
 
       // Map back to input coordinates
-      const inCoords = [...outCoords];
-      if (dim !== undefined) {
-        inCoords[resolvedDim] = Math.floor(outCoords[resolvedDim] / repeats);
-      }
-
-      // Convert input coordinates to flat index
       let inIdx = 0;
-      let stride = 1;
-      for (let d = ndim - 1; d >= 0; d--) {
-        inIdx += inCoords[d] * stride;
-        stride *= shape[d];
+      for (let d = 0; d < ndim; d++) {
+        const coord = d === resolvedDim ? Math.floor(outCoords[d] / repeats) : outCoords[d];
+        inIdx += coord * inStrides[d];
       }
-
-      outputData[outIdx] = data[inIdx];
+      outputData.push(data[inIdx]);
     }
 
-    return Tensor._fromNumberArray(Array.from(outputData), this._dtype).reshape(outShape);
+    return Tensor._fromNumberArray(outputData, tensor.dtype).reshape(outShape);
   }
 
   /**
@@ -3400,6 +3543,11 @@ export class Tensor {
             grad_self = gradOutput.mul(self).mul(2);
           } else if (op === 'reciprocal_op') {
             grad_self = gradOutput.div(self.pow(2)).neg();
+          } else if (op === 'exp_op') {
+            const out = self.exp();
+            grad_self = gradOutput.mul(out);
+          } else if (op === 'log_op') {
+            grad_self = gradOutput.div(self);
           } else if (op === 'neg') {
             grad_self = gradOutput.neg();
           }
@@ -4140,6 +4288,26 @@ export class Tensor {
     // Simple case: 'ij->' (sum all)
     if (terms.length === 1 && terms[0] === 'ij' && rhs === '') {
       return operands[0].sum();
+    }
+
+    // Dot product: 'i,i->' (sum of element-wise multiply)
+    if (terms.length === 2 && terms[0] === 'i' && terms[1] === 'i' && rhs === '') {
+      return operands[0].mul(operands[1]).sum();
+    }
+
+    // Transpose: 'ij->ji'
+    if (terms.length === 1 && terms[0] === 'ij' && rhs === 'ji') {
+      return operands[0].t();
+    }
+
+    // Batched matmul: 'bij,bjk->bik'
+    if (terms.length === 2 && terms[0] === 'bij' && terms[1] === 'bjk' && rhs === 'bik') {
+      return operands[0].bmm(operands[1]);
+    }
+
+    // Batched matmul (4D): '...ij,...jk->...ik'
+    if (terms.length === 2 && terms[0].endsWith('ij') && terms[1].endsWith('jk') && rhs.endsWith('ik')) {
+      return operands[0].matmul(operands[1]);
     }
 
     // For unsupported cases, throw error

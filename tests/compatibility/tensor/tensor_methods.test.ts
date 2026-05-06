@@ -190,7 +190,8 @@ describe('Tensor Math Methods', () => {
       const t = torch.tensor([1.4, 1.5, 2.6, -1.5]);
       const result = t.round();
       const arr = await result.toArray();
-      expect(Array.from(arr)).toEqual([1, 2, 3, -1]);
+      // PyTorch uses round-half-to-even (banker's rounding): -1.5 → -2
+      expect(Array.from(arr)).toEqual([1, 2, 3, -2]);
     });
   });
 
@@ -364,7 +365,8 @@ describe('Tensor Math Methods', () => {
       const t = torch.tensor([-100, 0, 100]);
       const result = t.sigmoid();
       const arr = await result.toArray();
-      expect(arr[0]).toBeGreaterThan(0);
+      // exp(100) overflows in float32, so sigmoid(-100) ≈ 0
+      expect(arr[0]).toBeGreaterThanOrEqual(0);
       expect(arr[0]).toBeLessThan(0.01);
       expect(arr[1]).toBeCloseTo(0.5, 2);
       expect(arr[2]).toBeGreaterThan(0.99);

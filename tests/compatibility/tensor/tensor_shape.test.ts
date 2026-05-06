@@ -412,7 +412,7 @@ describe('Tensor Shape Methods', () => {
     it('takes elements by flat indices', async () => {
       const t = torch.tensor([[1, 2], [3, 4]]);
       const indices = torch.tensor([0, 3], { dtype: 'int32' });
-      const result = t.take(indices);
+      const result = await t.take(indices);
       const arr = await result.toArray();
       expect(Array.from(arr)).toEqual([1, 4]);
     });
@@ -420,7 +420,7 @@ describe('Tensor Shape Methods', () => {
     it('take with single index', async () => {
       const t = torch.tensor([10, 20, 30]);
       const indices = torch.tensor([1], { dtype: 'int32' });
-      const result = t.take(indices);
+      const result = await t.take(indices);
       const arr = await result.toArray();
       expect(Array.from(arr)).toEqual([20]);
     });

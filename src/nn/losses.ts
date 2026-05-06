@@ -8,6 +8,7 @@
 import { Tensor } from '../tensor';
 import { Module } from './module';
 import { arange, zeros, full } from '../ops/creation';
+import { where } from '../ops/index';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -327,7 +328,7 @@ export function huber_loss(
   const quadPart = diff.pow(2).mul(0.5 / delta);
   const linearPart = absDiff.sub(0.5 * delta);
 
-  const loss = isSmall.where(quadPart, linearPart);
+  const loss = where(isSmall, quadPart, linearPart);
   return apply_reduction(loss, reduction);
 }
 
@@ -475,7 +476,7 @@ export function hinge_embedding_loss(
   const marginTensor = full([...input.shape] as number[], margin, { dtype: input.dtype });
   const lossNegative = marginTensor.sub(input).clamp(0);
   const isPositive = target.eq(1);
-  const loss = isPositive.where(input, lossNegative);
+  const loss = where(isPositive, input, lossNegative);
   return apply_reduction(loss, reduction);
 }
 
@@ -532,7 +533,7 @@ export function cosine_embedding_loss(
   const lossNegative = cosSim.sub(margin).clamp(0);
 
   const isPositive = target.eq(1);
-  const loss = isPositive.where(lossPositive, lossNegative);
+  const loss = where(isPositive, lossPositive, lossNegative);
   return apply_reduction(loss, reduction);
 }
 

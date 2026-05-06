@@ -2,7 +2,7 @@ struct Params {
     batch_size: u32,    // outerSize: number of reduction groups
     reduce_size: u32,   // dimSize: size of the dimension being reduced
     inner_size: u32,    // innerSize: elements within each slice
-    _pad: u32,
+    op: u32,            // operation: 0=sum, 1=mean, 2=max, 3=min, 4=prod, 5=any, 6=all
 }
 
 @group(0) @binding(0) var<storage, read> input: array<f32>;
@@ -12,7 +12,8 @@ struct Params {
 @compute @workgroup_size(256)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let output_idx = global_id.x;
-    if (output_idx >= params.batch_size * params.inner_size) {
+    let max_idx = params.batch_size * params.inner_size;
+    if (output_idx >= max_idx) {
         return;
     }
 
@@ -25,9 +26,9 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     if (params.op == 0u || params.op == 1u || params.op == 5u) {
         acc = 0.0;
     } else if (params.op == 2u) {
-        acc = -3.4028235e+38;
+        acc = -1e38;  // Approximate -FLT_MAX for max
     } else if (params.op == 3u) {
-        acc = 3.4028235e+38;
+        acc = 1e38;   // Approximate FLT_MAX for min
     } else if (params.op == 4u || params.op == 6u) {
         acc = 1.0;
     }

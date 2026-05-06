@@ -89,7 +89,7 @@ describe('F.max_pool2d', () => {
   beforeAll(async () => { await torch.init(); });
   it('kernel 2', async () => { expect(F.max_pool2d(torch.randn([2, 3, 32, 32]), 2).shape).toEqual([2, 3, 16, 16]); });
   it('stride', async () => { expect(F.max_pool2d(torch.randn([1, 1, 10, 10]), 3, 2).shape).toEqual([1, 1, 4, 4]); });
-  it('padding', async () => { expect(F.max_pool2d(torch.randn([1, 1, 8, 8]), 2, 2, 1).shape).toEqual([1, 1, 4, 4]); });
+  it('padding', async () => { expect(F.max_pool2d(torch.randn([1, 1, 8, 8]), 2, 2, 1).shape).toEqual([1, 1, 5, 5]); });
 });
 
 describe('F.avg_pool2d', () => {
@@ -128,11 +128,11 @@ describe('F.pad', () => {
 describe('F.one_hot', () => {
   beforeAll(async () => { await torch.init(); });
   it('3 classes', async () => {
-    const out = F.one_hot(torch.tensor([0, 1, 2], { dtype: 'int32' }), 3);
+    const out = await F.one_hot(torch.tensor([0, 1, 2], { dtype: 'int32' }), 3);
     expect(out.shape).toEqual([3, 3]);
     expect(await out.toArray()).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
   });
-  it('auto num_classes', async () => { expect(F.one_hot(torch.tensor([0, 2, 4], { dtype: 'int32' })).shape).toEqual([3, 5]); });
+  it('auto num_classes', async () => { expect((await F.one_hot(torch.tensor([0, 2, 4], { dtype: 'int32' }))).shape).toEqual([3, 5]); });
 });
 
 describe('F loss functions', () => {

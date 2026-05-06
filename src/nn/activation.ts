@@ -9,6 +9,7 @@ import { Module } from './module';
 import { Parameter } from './parameter';
 import * as F from './functional';
 import { tensor, zeros, rand } from '../ops/creation';
+import { where } from '../ops/index';
 
 /**
  * ReLU activation.
@@ -215,7 +216,7 @@ export class Hardshrink extends Module {
   forward(input: Tensor): Tensor {
     // Hardshrink: x if |x| > lambd, else 0
     const condition = input.abs().gt(this.lambd);
-    return condition.where(input, zeros([...input.shape], { dtype: input.dtype }));
+    return where(condition, input, zeros([...input.shape], { dtype: input.dtype }));
   }
 }
 
@@ -343,7 +344,7 @@ export class Threshold extends Module {
   forward(input: Tensor): Tensor {
     const condition = input.gt(this.threshold);
     const fill = zeros([...input.shape], { dtype: input.dtype }).add(this.value);
-    return condition.where(input, fill);
+    return where(condition, input, fill);
   }
 }
 
@@ -368,7 +369,7 @@ export class Softplus extends Module {
     const condition = bx.gt(this.threshold);
     // log(1 + exp(beta*x)) / beta
     const logResult = bx.exp().add(1).log().mul(1 / this.beta);
-    return condition.where(input, logResult);
+    return where(condition, input, logResult);
   }
 }
 

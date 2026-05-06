@@ -70,7 +70,8 @@ describe('Core: Shape & Manipulation APIs', () => {
     it('converts 2D to 3D', async () => {
       const t = torch.tensor([[2, 3]]);
       const result = torch.atleast_3d(t);
-      expect(result.shape).toEqual([1, 1, 2]);
+      // PyTorch: 2D (H, W) → 3D (H, W, 1)
+      expect(result.shape).toEqual([1, 2, 1]);
       const arr = await result.toArray();
       expect(Array.from(arr)).toEqual([2, 3]);
     });
@@ -97,7 +98,7 @@ describe('Core: Shape & Manipulation APIs', () => {
     it('computes Cartesian product of two 1D tensors', async () => {
       const a = torch.tensor([1, 2]);
       const b = torch.tensor([3, 4]);
-      const result = torch.cartesian_prod(a, b);
+      const result = await torch.cartesian_prod(a, b);
       expect(result.shape).toEqual([4, 2]);
       const arr = await result.toArray();
       const rows = [];
@@ -111,7 +112,7 @@ describe('Core: Shape & Manipulation APIs', () => {
       const a = torch.tensor([1]);
       const b = torch.tensor([2]);
       const c = torch.tensor([3]);
-      const result = torch.cartesian_prod(a, b, c);
+      const result = await torch.cartesian_prod(a, b, c);
       expect(result.shape).toEqual([1, 3]);
       const arr = await result.toArray();
       expect(Array.from(arr)).toEqual([1, 2, 3]);
@@ -124,7 +125,7 @@ describe('Core: Shape & Manipulation APIs', () => {
   describe('torch.combinations', () => {
     it('computes combinations of 3 elements taken 2 at a time', async () => {
       const t = torch.tensor([1, 2, 3]);
-      const result = torch.combinations(t, 2);
+      const result = await torch.combinations(t, 2);
       expect(result.shape).toEqual([3, 2]);
       const arr = await result.toArray();
       const rows = [];
@@ -136,7 +137,7 @@ describe('Core: Shape & Manipulation APIs', () => {
 
     it('computes combinations with replacement', async () => {
       const t = torch.tensor([1, 2]);
-      const result = torch.combinations(t, 2, true);
+      const result = await torch.combinations(t, 2, true);
       expect(result.shape).toEqual([3, 2]);
       const arr = await result.toArray();
       const rows = [];
@@ -148,7 +149,7 @@ describe('Core: Shape & Manipulation APIs', () => {
 
     it('default r=2', async () => {
       const t = torch.tensor([10, 20, 30]);
-      const result = torch.combinations(t);
+      const result = await torch.combinations(t);
       expect(result.shape).toEqual([3, 2]);
       const arr = await result.toArray();
       const rows = [];
@@ -359,7 +360,7 @@ describe('Core: Shape & Manipulation APIs', () => {
   describe('torch.unravel_index', () => {
     it('converts flat indices to multi-indices', async () => {
       const indices = torch.tensor([0, 1, 2], { dtype: 'int32' });
-      const result = torch.unravel_index(indices, [2, 3]);
+      const result = await torch.unravel_index(indices, [2, 3]);
       expect(result.shape).toEqual([3, 2]);
       expect(result.dtype).toBe('int32');
       const arr = await result.toArray();
@@ -372,7 +373,7 @@ describe('Core: Shape & Manipulation APIs', () => {
 
     it('converts larger flat indices', async () => {
       const indices = torch.tensor([3, 4, 5], { dtype: 'int32' });
-      const result = torch.unravel_index(indices, [2, 3]);
+      const result = await torch.unravel_index(indices, [2, 3]);
       expect(result.shape).toEqual([3, 2]);
       const arr = await result.toArray();
       const rows = [];

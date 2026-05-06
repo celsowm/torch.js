@@ -205,7 +205,13 @@ export class RNN extends Module {
 
     const stacked = stack(output);
 
-    return [stacked, h];
+    // Transpose back if batch_first
+    let out = stacked;
+    if (this.batch_first) {
+      out = stacked.transpose(0, 1);
+    }
+
+    return [out, h];
   }
 }
 
@@ -296,28 +302,23 @@ export class LSTM extends Module {
     const outputs: Tensor[] = [];
 
     for (let t = 0; t < seqLen; t++) {
+      // For bidirectional, input should be concatenated from both directions
+      // For now, we'll handle forward direction only
       let layerInput = inp.select(0, t);
 
       for (let layer = 0; layer < this.num_layers; layer++) {
-        for (let dir = 0; dir < numDirs; dir++) {
-          const dirSuffix = dir === 1 ? '_reverse' : '';
-          const suffix = `l${layer}${dirSuffix}`;
-          const layerIdx = layer * numDirs + dir;
+        // Forward direction
+        const hLayer = h.select(0, layer * numDirs);
+        const cLayer = c.select(0, layer * numDirs);
 
-          const hLayer = h.select(0, layerIdx);
-          const cLayer = c.select(0, layerIdx);
+        const suffix = `l${layer}`;
+        const w_ih = this.get_parameter(`weight_ih_${suffix}`)!;
+        const w_hh = this.get_parameter(`weight_hh_${suffix}`)!;
+        const b_ih = this.get_parameter(`bias_ih_${suffix}`) ?? null;
+        const b_hh = this.get_parameter(`bias_hh_${suffix}`) ?? null;
 
-          const w_ih = this.get_parameter(`weight_ih_${suffix}`)!;
-          const w_hh = this.get_parameter(`weight_hh_${suffix}`)!;
-          const b_ih = this.get_parameter(`bias_ih_${suffix}`) ?? null;
-          const b_hh = this.get_parameter(`bias_hh_${suffix}`) ?? null;
-
-          const [hNew, cNew] = _lstmStep(layerInput, hLayer, cLayer, w_ih, w_hh, b_ih, b_hh);
-
-          if (dir === 0) {
-            layerInput = hNew;
-          }
-        }
+        const [hNew, cNew] = _lstmStep(layerInput, hLayer, cLayer, w_ih, w_hh, b_ih, b_hh);
+        layerInput = hNew;
       }
 
       outputs.push(layerInput);
@@ -325,7 +326,13 @@ export class LSTM extends Module {
 
     const output = stack(outputs);
 
-    return [output, h, c];
+    // Transpose back if batch_first
+    let out = output;
+    if (this.batch_first) {
+      out = output.transpose(0, 1);
+    }
+
+    return [out, h, c];
   }
 }
 
@@ -433,6 +440,12 @@ export class GRU extends Module {
 
     const output = stack(outputs);
 
-    return [output, h];
+    // Transpose back if batch_first
+    let out = output;
+    if (this.batch_first) {
+      out = output.transpose(0, 1);
+    }
+
+    return [out, h];
   }
 }

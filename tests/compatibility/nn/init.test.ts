@@ -166,7 +166,11 @@ describe('nn.init.calculate_gain', () => {
   it('sigmoid=1', () => { expect(init.calculateGain('sigmoid')).toBe(1); });
   it('tanh=5/3', () => { expect(init.calculateGain('tanh')).toBeCloseTo(5 / 3, 4); });
   it('relu=sqrt(2)', () => { expect(init.calculateGain('relu')).toBeCloseTo(Math.sqrt(2), 4); });
-  it('leaky_relu default', () => { expect(init.calculateGain('leaky_relu')).toBeCloseTo(Math.sqrt(2), 4); });
+  it('leaky_relu default', () => { 
+    // PyTorch leaky_relu default gain uses negative_slope=0.01
+    // gain = sqrt(2 / (1 + 0.01^2)) ≈ 1.4141
+    expect(init.calculateGain('leaky_relu')).toBeCloseTo(1.41414, 3); 
+  });
   it('leaky_relu custom', () => { expect(init.calculateGain('leaky_relu', 0.2)).toBeCloseTo(Math.sqrt(2 / (1 + 0.04)), 4); });
   it('unknown=1', () => { expect(init.calculateGain('unknown')).toBe(1); });
 });

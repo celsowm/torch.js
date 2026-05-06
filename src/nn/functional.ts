@@ -16,8 +16,8 @@ import {
 } from '../backend';
 import { getDTypeBytes } from '../dtype';
 import { LOG_SOFTMAX_SHADER, NLL_LOSS_SHADER, NLL_LOSS_BACKWARD_SHADER, LOG_SOFTMAX_BACKWARD_SHADER, CONV_SHADER, CONV_BACKWARD_SHADER, MAX_POOL2D_SHADER, AVG_POOL2D_SHADER } from '../backend/webgpu/shaders';
-import { DEBUG_ASYNC, log } from '../debug';
-import { full, zeros, arange } from '../ops/creation';
+import { DEBUG_ASYNC, debugLog as log } from '../debug';
+import { full, zeros, arange, tensor } from '../ops/creation';
 
 /**
  * Apply ReLU activation function.
@@ -456,9 +456,14 @@ export function conv2d(
   const [outChannels, _, kH, kW] = weight.shape as number[];
   const [sH, sW] = st;
   const [pH, pW] = pd;
+  const [dH, dW] = dl;
 
-  const outH = Math.floor((inH + 2 * pH - kH) / sH) + 1;
-  const outW = Math.floor((inW + 2 * pW - kW) / sW) + 1;
+  // Effective kernel size with dilation
+  const effKH = kH + (kH - 1) * (dH - 1);
+  const effKW = kW + (kW - 1) * (dW - 1);
+
+  const outH = Math.floor((inH + 2 * pH - effKH) / sH) + 1;
+  const outW = Math.floor((inW + 2 * pW - effKW) / sW) + 1;
 
   const total = batch * outChannels * outH * outW;
   const device = getDevice();
@@ -480,6 +485,8 @@ export function conv2d(
   view.setUint32(44, pH, true);
   view.setUint32(48, pW, true);
   view.setUint32(52, groups, true);
+  view.setUint32(56, dH, true);
+  view.setUint32(60, dW, true);
 
   const paramsBuffer = device.createBuffer({ size: 64, usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST });
   device.queue.writeBuffer(paramsBuffer, 0, paramsData);
@@ -665,7 +672,17 @@ export function interpolate(
   recompute_scale_factor: boolean = false,
 ): Tensor {
   const shape = input.shape;
-  const spatialDims = mode === 'linear' ? 1 : mode === 'bilinear' || mode === 'bicubic' ? 2 : 3;
+  const ndim = shape.length;
+  
+  // Determine spatial dimensions based on input tensor dimensionality
+  // For 'nearest' mode, infer spatial dims from input shape
+  let spatialDims: number;
+  if (mode === 'nearest' || mode === 'linear') {
+    spatialDims = ndim - 2; // N, C, + spatial dims
+    if (spatialDims < 1) spatialDims = 1;
+  } else {
+    spatialDims = mode === 'bilinear' || mode === 'bicubic' ? 2 : 3;
+  }
   
   // Calculate output size
   let outSize: number[];
@@ -744,21 +761,38 @@ export function grid_sample(
  * Create one-hot encoded tensor.
  * @pytorch F.one_hot
  */
-export function one_hot(
+export async function one_hot(
   input: Tensor,
   num_classes: number = -1,
-): Tensor {
+): Promise<Tensor> {
   // Determine num_classes if not provided
-  const maxVal = num_classes > 0 ? num_classes : 10; // Default fallback
+  let maxVal = num_classes;
+  if (maxVal <= 0) {
+    // Auto-determine from input
+    const inputData = await input.flatten().toArray();
+    let maxV = -Infinity;
+    for (let i = 0; i < inputData.length; i++) {
+      if (inputData[i] > maxV) maxV = inputData[i];
+    }
+    maxVal = Math.floor(maxV) + 1;
+    if (maxVal <= 0) maxVal = 1;
+  }
+
+  // Read input data on CPU
+  const inputFlat = await input.flatten().toArray();
+  const n = inputFlat.length;
+  const result: number[] = new Array(n * maxVal).fill(0);
   
-  // Create range tensor [0, 1, ..., num_classes-1]
-  const ar = arange(0, maxVal, 1, { dtype: input.dtype });
-  const indices = input.flatten().unsqueeze(-1);
-  const oneHot = indices.eq(ar.unsqueeze(0)).to(input.dtype);
-  
-  // Reshape back to original shape + num_classes
+  for (let i = 0; i < n; i++) {
+    const idx = Math.round(inputFlat[i]);
+    if (idx >= 0 && idx < maxVal) {
+      result[i * maxVal + idx] = 1;
+    }
+  }
+
+  // Reshape to [..., num_classes]
   const outShape = [...input.shape, maxVal];
-  return oneHot.reshape(outShape);
+  return tensor(result, { dtype: 'float32' }).reshape(outShape);
 }
 
 /**

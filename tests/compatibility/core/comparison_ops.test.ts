@@ -140,21 +140,21 @@ describe('Core: Comparison Operations', () => {
     it('returns true for identical tensors', async () => {
       const a = torch.tensor([1, 2, 3]);
       const b = torch.tensor([1, 2, 3]);
-      const r = torch.equal(a, b);
+      const r = await torch.equal(a, b);
       expect(r).toBe(true);
     });
 
     it('returns false for different tensors', async () => {
       const a = torch.tensor([1, 2, 3]);
       const b = torch.tensor([1, 2, 4]);
-      const r = torch.equal(a, b);
+      const r = await torch.equal(a, b);
       expect(r).toBe(false);
     });
 
-    it('returns false for different shapes', () => {
+    it('returns false for different shapes', async () => {
       const a = torch.tensor([1, 2, 3]);
       const b = torch.tensor([[1, 2, 3]]);
-      const r = torch.equal(a, b);
+      const r = await torch.equal(a, b);
       expect(r).toBe(false);
     });
   });
@@ -198,21 +198,21 @@ describe('Core: Comparison Operations', () => {
     it('returns true for close tensors', async () => {
       const a = torch.tensor([1.0, 1.0001, 0.9999]);
       const b = torch.tensor([1.0, 1.0001, 0.9999]);
-      const r = torch.allclose(a, b);
+      const r = await torch.allclose(a, b);
       expect(r).toBe(true);
     });
 
     it('returns false for different tensors', async () => {
       const a = torch.tensor([1.0, 2.0, 3.0]);
       const b = torch.tensor([1.0, 2.0, 4.0]);
-      const r = torch.allclose(a, b, 1e-5, 1e-8);
+      const r = await torch.allclose(a, b, 1e-5, 1e-8);
       expect(r).toBe(false);
     });
 
     it('handles NaN with equal_nan', async () => {
       const a = torch.tensor([1, NaN, 3]);
       const b = torch.tensor([1, NaN, 3]);
-      const r = torch.allclose(a, b, 1e-5, 1e-8, true);
+      const r = await torch.allclose(a, b, 1e-5, 1e-8, true);
       expect(r).toBe(true);
     });
   });

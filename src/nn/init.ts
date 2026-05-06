@@ -5,7 +5,7 @@
  */
 
 import { Tensor } from '../tensor';
-import { randn, zeros, eye } from '../ops/creation';
+import { randn, zeros, eye, tensor as createTensor } from '../ops/creation';
 
 /**
  * Fill tensor with constant value.
@@ -68,9 +68,14 @@ export function normal_(tensor: Tensor, mean: number = 0, std: number = 1): Tens
  */
 export function uniform_(tensor: Tensor, a: number = 0, b: number = 1): Tensor {
   const shape = [...tensor.shape];
-  const data = randn(shape, { dtype: tensor.dtype });
-  // Transform normal to uniform (approximation)
-  return tensor.copy_(data.mul(b - a).add(a));
+  // Use CPU fallback for proper uniform initialization
+  const n = shape.reduce((x, y) => x * y, 1);
+  const data: number[] = [];
+  for (let i = 0; i < n; i++) {
+    data.push(a + Math.random() * (b - a));
+  }
+  const newTensor = createTensor(data, { dtype: tensor.dtype }).reshape(shape);
+  return tensor.copy_(newTensor);
 }
 
 /**

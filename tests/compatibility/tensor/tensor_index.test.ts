@@ -162,7 +162,7 @@ describe('Tensor Indexing Methods', () => {
       const indices = torch.tensor([2], { dtype: 'int32' });
       const newValue = torch.tensor([99]);
       // Using scatter as the primary in-place modification method
-      const result = t.scatter(0, indices, newValue);
+      const result = await t.scatter(0, indices, newValue);
       const arr = await result.toArray();
       expect(Array.from(arr)).toEqual([1, 2, 99, 4]);
     });
@@ -171,7 +171,7 @@ describe('Tensor Indexing Methods', () => {
       const t = torch.zeros([5]);
       const indices = torch.tensor([0, 2, 4], { dtype: 'int32' });
       const values = torch.tensor([1, 2, 3]);
-      const result = t.scatter(0, indices, values);
+      const result = await t.scatter(0, indices, values);
       const arr = await result.toArray();
       expect(Array.from(arr)).toEqual([1, 0, 2, 0, 3]);
     });
@@ -211,7 +211,7 @@ describe('Tensor Indexing Methods', () => {
       const t = torch.zeros([3, 5]);
       const index = torch.tensor([[0, 1, 2, 0, 0], [2, 0, 0, 1, 0]], { dtype: 'int32' });
       const src = torch.tensor([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]);
-      const result = t.scatter(0, index, src);
+      const result = await t.scatter(0, index, src);
       expect(result.shape).toEqual([3, 5]);
     });
   });
@@ -370,15 +370,17 @@ describe('Tensor Indexing Methods', () => {
     it('returns indices of non-zero elements (2D)', async () => {
       const t = torch.tensor([[0, 1], [2, 0], [0, 3]]);
       const result = await t.nonzeroIndices();
-      // Should have 3 non-zero elements, each with 2 indices (row, col)
-      expect(result.shape[0]).toBe(2); // [row_indices], [col_indices]
-      expect(result.shape[1]).toBe(3); // 3 non-zero elements
+      // PyTorch returns [numNonzero, ndim], not [ndim, numNonzero]
+      // 3 non-zero elements, each with 2 coordinates
+      expect(result.shape[0]).toBe(3); // 3 non-zero elements
+      expect(result.shape[1]).toBe(2); // 2 coordinates each (row, col)
     });
 
     it('returns empty for all-zero tensor', async () => {
       const t = torch.zeros([3]);
       const result = await t.nonzeroIndices();
-      expect(result.shape[1]).toBe(0); // no non-zero elements
+      expect(result.shape[0]).toBe(0); // no non-zero elements
+      expect(result.shape[1]).toBe(1); // ndim = 1
     });
   });
 });

@@ -43,7 +43,7 @@ export function DEBUG_ASYNC(fn: () => Promise<void>): void {
 /**
  * Debug log helper - use inside DEBUG() blocks.
  */
-export function log(message: string, ...args: unknown[]): void {
+export function debugLog(message: string, ...args: unknown[]): void {
   console.log(`[torch.js] ${message}`, ...args);
 }
 

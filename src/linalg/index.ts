@@ -253,12 +253,13 @@ export const cholesky = (A: Tensor, upper: boolean = false): Tensor => {
  */
 export const norm = (input: Tensor, ord?: number | string, dim?: number | number[], keepdim: boolean = false): Tensor => {
   if (typeof dim === 'number') dim = [dim];
-  
+
   // Matrix norm
   if ((dim === undefined && input.dim() === 2) || (dim !== undefined && dim.length === 2)) {
-    return matrix_norm(input, ord, dim as [number, number], keepdim);
+    const matrixDim = dim ?? [-2, -1];
+    return matrix_norm(input, ord, matrixDim as [number, number], keepdim);
   }
-  
+
   // Vector norm
   return vector_norm(input, ord as any, dim, keepdim);
 };
@@ -371,7 +372,7 @@ export const vander = (x: Tensor, N?: number, increasing: boolean = false): Tens
  * Computes the n-th power of a square matrix for an integer n.
  * @pytorch torch.linalg.matrix_power
  */
-export const matrix_power = (A: Tensor, n: number): Tensor => {
+export const matrix_power = async (A: Tensor, n: number): Promise<Tensor> => {
     if (A.dim() < 2) throw new Error('linalg.matrix_power: expected tensor with at least 2 dimensions');
     const h = A.shape[A.dim() - 2];
     const w = A.shape[A.dim() - 1];
@@ -381,7 +382,7 @@ export const matrix_power = (A: Tensor, n: number): Tensor => {
         return ops.eye(h).expand(A.shape);
     }
     if (n < 0) {
-        return matrix_power(inv(A), -n);
+        return matrix_power(await inv(A), -n);
     }
     
     let res = A;
@@ -437,24 +438,96 @@ function applyPermutation(B: Tensor, P: Tensor, n: number): void {
  * Computes the inverse of a square matrix if it exists.
  * @pytorch torch.linalg.inv
  */
-export const inv = (A: Tensor): Tensor => {
-  const [LU, P] = lu_factor(A);
-  const n = A.shape[A.dim() - 1];
-  const batch = A.dim() > 2 ? A.shape.slice(0, -2).reduce((a, b) => a * b, 1) : 1;
-  const shapes = A.shape;
-
-  // Create identity matrix: [batch, n, n]
-  const I = ops.eye(n).unsqueeze(0).expand([batch, n, n]).clone();
+export const inv = async (A: Tensor): Promise<Tensor> => {
+  const [m, n] = [A.shape[A.dim() - 2], A.shape[A.dim() - 1]];
+  if (m !== n) throw new Error('linalg.inv: expected square matrix');
   
-  // Apply permutation P to I: we need to swap rows.
-  // P is stored as a sequence of swaps. For each step k (0..n-1),
-  // swap row k with row P[k] (stored at P[batch * n + k]).
-  // To apply P to I (i.e., P * I), we replay swaps forward.
-  // We'll use index_select to swap rows.
+  const data = await A.toArray();
   
-  // inv is not yet fully implemented - return identity for now
-  // TODO: implement proper permutation handling for LU-based inverse
-  return I;
+  // For 1x1 matrix, just invert the single element
+  if (n === 1) {
+    return ops.tensor([1 / data[0]], { dtype: 'float32' }).reshape([1, 1]);
+  }
+  
+  // For 2x2 matrix, use direct formula
+  if (n === 2) {
+    const [a, b, c, d] = [data[0], data[1], data[2], data[3]];
+    const det = a * d - b * c;
+    if (Math.abs(det) < 1e-12) throw new Error('linalg.inv: singular matrix');
+    const invData = [d / det, -b / det, -c / det, a / det];
+    return ops.tensor(invData, { dtype: 'float32' }).reshape([2, 2]);
+  }
+  
+  // For 3x3 matrix, use adjugate method
+  if (n === 3) {
+    const [a, b, c, d, e, f, g, h, i] = [data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8]];
+    
+    const det = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
+    if (Math.abs(det) < 1e-12) throw new Error('linalg.inv: singular matrix');
+    
+    const invData = [
+      (e*i - f*h) / det, (c*h - b*i) / det, (b*f - c*e) / det,
+      (f*g - d*i) / det, (a*i - c*g) / det, (c*d - a*f) / det,
+      (d*h - e*g) / det, (b*g - a*h) / det, (a*e - b*d) / det
+    ];
+    return ops.tensor(invData, { dtype: 'float32' }).reshape([3, 3]);
+  }
+  
+  // For larger matrices, use Gaussian elimination
+  // Create augmented matrix [A | I]
+  const aug: number[][] = [];
+  for (let r = 0; r < n; r++) {
+    const row: number[] = [];
+    for (let c = 0; c < n; c++) {
+      row.push(data[r * n + c]);
+    }
+    for (let c = 0; c < n; c++) {
+      row.push(r === c ? 1 : 0);
+    }
+    aug.push(row);
+  }
+  
+  // Forward elimination
+  for (let col = 0; col < n; col++) {
+    // Find pivot
+    let maxRow = col;
+    let maxVal = Math.abs(aug[col][col]);
+    for (let row = col + 1; row < n; row++) {
+      if (Math.abs(aug[row][col]) > maxVal) {
+        maxVal = Math.abs(aug[row][col]);
+        maxRow = row;
+      }
+    }
+    if (maxVal < 1e-12) throw new Error('linalg.inv: singular matrix');
+    
+    // Swap rows
+    [aug[col], aug[maxRow]] = [aug[maxRow], aug[col]];
+    
+    // Scale pivot row
+    const pivot = aug[col][col];
+    for (let j = 0; j < 2 * n; j++) {
+      aug[col][j] /= pivot;
+    }
+    
+    // Eliminate other rows
+    for (let row = 0; row < n; row++) {
+      if (row === col) continue;
+      const factor = aug[row][col];
+      for (let j = 0; j < 2 * n; j++) {
+        aug[row][j] -= factor * aug[col][j];
+      }
+    }
+  }
+  
+  // Extract inverse from augmented matrix
+  const invData: number[] = [];
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      invData.push(aug[r][n + c]);
+    }
+  }
+  
+  return ops.tensor(invData, { dtype: 'float32' }).reshape([n, n]);
 };
 
 /**

@@ -32,7 +32,7 @@ export { initWebGPU as init, syncDevice } from './backend';
 export type { SaveFunc, LoadFunc } from './serialization/types';
 
 // Debug utilities (stripped in production builds)
-export { DEBUG, DEBUG_ASYNC, log, warn, error, assert } from './debug';
+export { DEBUG, DEBUG_ASYNC, debugLog, warn, error, assert } from './debug';
 
 // Internal exports for debugging (not part of public API)
 import { getDevice, getOrCreatePipeline, calculateWorkgroups, readBuffer } from './backend';

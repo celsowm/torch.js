@@ -681,7 +681,7 @@ describe('Core: Tensor Operations', () => {
     it('takes elements by flattened index', async () => {
       const t = torch.tensor([[1, 2], [3, 4]]);
       const idx = torch.tensor([0, 3]);
-      const r = torch.take(t, idx);
+      const r = await torch.take(t, idx);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 4]);
     });
@@ -718,7 +718,7 @@ describe('Core: Tensor Operations', () => {
       const src = torch.tensor([[1, 2], [3, 4]]);
       const idx = torch.tensor([[0, 1], [1, 0]], { dtype: 'int32' });
       const out = torch.zeros([2, 2]);
-      const r = torch.scatter(out, 1, idx, src);
+      const r = await torch.scatter(out, 1, idx, src);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 2, 4, 3]);
     });
@@ -732,7 +732,7 @@ describe('Core: Tensor Operations', () => {
       const src = torch.tensor([[1, 2], [3, 4]]);
       const idx = torch.tensor([[0, 1], [0, 1]], { dtype: 'int32' });
       const out = torch.zeros([2, 2]);
-      const r = torch.scatter_add(out, 0, idx, src);
+      const r = await torch.scatter_add(out, 0, idx, src);
       const arr = await r.toArray();
       expect(arr).toEqual([4, 0, 0, 6]);
     });
@@ -768,7 +768,7 @@ describe('Core: Tensor Operations', () => {
     it('selects elements where mask is true', async () => {
       const t = torch.tensor([1, 2, 3, 4, 5]);
       const mask = torch.tensor([true, false, true, false, true], { dtype: 'bool' });
-      const r = torch.masked_select(t, mask);
+      const r = await torch.masked_select(t, mask);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 3, 5]);
     });
@@ -776,7 +776,7 @@ describe('Core: Tensor Operations', () => {
     it('selects from 2D tensor', async () => {
       const t = torch.tensor([[1, 2], [3, 4]]);
       const mask = torch.tensor([[true, false], [false, true]], { dtype: 'bool' });
-      const r = torch.masked_select(t, mask);
+      const r = await torch.masked_select(t, mask);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 4]);
     });

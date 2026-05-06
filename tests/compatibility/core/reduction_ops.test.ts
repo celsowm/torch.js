@@ -299,28 +299,28 @@ describe('Core: Reduction Operations', () => {
   describe('argmax', () => {
     it('returns index of max element', async () => {
       const t = torch.tensor([1, 5, 3, 2]);
-      const r = torch.argmax(t);
+      const r = await torch.argmax(t);
       const arr = await r.toArray();
       expect(arr[0]).toBe(1);
     });
 
     it('argmax along dim 0', async () => {
       const t = torch.tensor([[1, 5], [3, 2]]);
-      const r = torch.argmax(t, 0);
+      const r = await torch.argmax(t, 0);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 0]);
     });
 
     it('argmax along dim 1', async () => {
       const t = torch.tensor([[1, 5], [3, 2]]);
-      const r = torch.argmax(t, 1);
+      const r = await torch.argmax(t, 1);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 0]);
     });
 
     it('argmax with keepdim', async () => {
       const t = torch.tensor([[1, 5], [3, 2]]);
-      const r = torch.argmax(t, 0, true);
+      const r = await torch.argmax(t, 0, true);
       expect(r.shape).toEqual([1, 2]);
     });
   });
@@ -331,21 +331,21 @@ describe('Core: Reduction Operations', () => {
   describe('argmin', () => {
     it('returns index of min element', async () => {
       const t = torch.tensor([3, 1, 5, 2]);
-      const r = torch.argmin(t);
+      const r = await torch.argmin(t);
       const arr = await r.toArray();
       expect(arr[0]).toBe(1);
     });
 
     it('argmin along dim 0', async () => {
       const t = torch.tensor([[3, 1], [2, 5]]);
-      const r = torch.argmin(t, 0);
+      const r = await torch.argmin(t, 0);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 0]);
     });
 
     it('argmin along dim 1', async () => {
       const t = torch.tensor([[3, 1], [2, 5]]);
-      const r = torch.argmin(t, 1);
+      const r = await torch.argmin(t, 1);
       const arr = await r.toArray();
       expect(arr).toEqual([1, 0]);
     });

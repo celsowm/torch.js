@@ -216,14 +216,14 @@ describe('torch.linalg decomposition and solvers', () => {
   describe('torch.linalg.inv', () => {
     it('computes matrix inverse', async () => {
       const A = torch.tensor([[1.0, 2.0], [3.0, 4.0]]);
-      const Ainv = torch.linalg.inv(A);
+      const Ainv = await torch.linalg.inv(A);
       const shape = Ainv.shape;
       expect(shape).toEqual([2, 2]);
     });
 
     it('A @ inv(A) approximates I', async () => {
       const A = torch.tensor([[1.0, 0.0], [0.0, 2.0]]);
-      const Ainv = torch.linalg.inv(A);
+      const Ainv = await torch.linalg.inv(A);
       const product = torch.matmul(A, Ainv);
       const expected = Array.from(await torch.eye(2).toArray()) as Float32Array;
       const actual = Array.from(await product.toArray()) as Float32Array;
@@ -232,8 +232,8 @@ describe('torch.linalg decomposition and solvers', () => {
 
     it('inv(inv(A)) approximates A', async () => {
       const A = torch.tensor([[2.0, 1.0], [1.0, 3.0]]);
-      const Ainv = torch.linalg.inv(A);
-      const Ainvinv = torch.linalg.inv(Ainv);
+      const Ainv = await torch.linalg.inv(A);
+      const Ainvinv = await torch.linalg.inv(Ainv);
       const original = Array.from(await A.toArray()) as Float32Array;
       const recon = Array.from(await Ainvinv.toArray()) as Float32Array;
       expect(maxAbsDiff(original, recon)).toBeLessThan(1e-3);
@@ -281,7 +281,7 @@ describe('torch.linalg decomposition and solvers', () => {
   describe('torch.linalg.matrix_power', () => {
     it('computes A^n for positive n', async () => {
       const A = torch.tensor([[1.0, 1.0], [0.0, 1.0]]);
-      const A2 = torch.linalg.matrix_power(A, 2);
+      const A2 = await torch.linalg.matrix_power(A, 2);
       const data = Array.from(await A2.toArray());
       // [[1,1],[0,1]]^2 = [[1,2],[0,1]]
       expect(data[0]).toBeCloseTo(1.0, 4);
@@ -292,7 +292,7 @@ describe('torch.linalg decomposition and solvers', () => {
 
     it('computes A^0 = I', async () => {
       const A = torch.tensor([[1.0, 2.0], [3.0, 4.0]]);
-      const A0 = torch.linalg.matrix_power(A, 0);
+      const A0 = await torch.linalg.matrix_power(A, 0);
       const expected = Array.from(await torch.eye(2).toArray()) as Float32Array;
       const actual = Array.from(await A0.toArray()) as Float32Array;
       expect(maxAbsDiff(expected, actual)).toBeLessThan(1e-4);
@@ -300,7 +300,7 @@ describe('torch.linalg decomposition and solvers', () => {
 
     it('computes A^n for negative n (inverse power)', async () => {
       const A = torch.tensor([[2.0, 0.0], [0.0, 3.0]]);
-      const Aneg1 = torch.linalg.matrix_power(A, -1);
+      const Aneg1 = await torch.linalg.matrix_power(A, -1);
       const data = Array.from(await Aneg1.toArray());
       // inv([[2,0],[0,3]]) = [[0.5,0],[0,1/3]]
       expect(data[0]).toBeCloseTo(0.5, 4);

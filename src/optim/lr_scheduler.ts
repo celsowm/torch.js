@@ -264,20 +264,14 @@ export class ReduceLROnPlateau {
       ? metrics < this.best - this.threshold
       : metrics > this.best + this.threshold;
 
-    const is_equal = this.mode === 'min'
-      ? Math.abs(metrics - this.best) <= this.threshold
-      : Math.abs(metrics - this.best) <= this.threshold;
-
     if (is_better) {
       this.best = metrics;
-      this.num_bad_epochs = 0;
-    } else if (is_equal) {
       this.num_bad_epochs = 0;
     } else {
       this.num_bad_epochs++;
     }
 
-    if (this.num_bad_epochs > this.patience) {
+    if (this.num_bad_epochs >= this.patience) {
       this._reduce_lr();
       this.cooldown_counter = this.cooldown;
       this.num_bad_epochs = 0;
@@ -360,9 +354,12 @@ export class LambdaLR extends _LRScheduler {
     if (this.last_epoch < 0) {
       return this.optimizer.param_groups.map(g => g.initial_lr ?? g.lr);
     }
-    return this.optimizer.param_groups.map((group, i) =>
-      (group.initial_lr ?? group.lr) * this.lr_lambdas[i](this.last_epoch)
-    );
+    return this.optimizer.param_groups.map((group, i) => {
+      if (i >= this.lr_lambdas.length) {
+        throw new Error(`LambdaLR: number of lambdas (${this.lr_lambdas.length}) doesn't match number of param groups (${this.optimizer.param_groups.length})`);
+      }
+      return (group.initial_lr ?? group.lr) * this.lr_lambdas[i](this.last_epoch);
+    });
   }
 }
 

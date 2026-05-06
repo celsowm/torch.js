@@ -28,8 +28,8 @@ describe('torch.linalg norms', () => {
       const x = torch.tensor([[-1.0, 2.0], [3.0, -4.0]]);
       const n = torch.linalg.norm(x, 1);
       const data = Array.from(await n.toArray());
-      // sqrt(1+4+9+16) = sqrt(30)
-      expect(data[0]).toBeCloseTo(Math.sqrt(30), 4);
+      // Matrix L1 norm: max column sum = max(1+3, 2+4) = 6
+      expect(data[0]).toBeCloseTo(6.0, 4);
     });
 
     it('computes L2 norm (ord=2)', async () => {
@@ -43,8 +43,8 @@ describe('torch.linalg norms', () => {
       const x = torch.tensor([[-5.0, 3.0], [2.0, -8.0]]);
       const n = torch.linalg.norm(x, Infinity);
       const data = Array.from(await n.toArray());
-      // max absolute value = 8
-      expect(data[0]).toBeCloseTo(8.0, 4);
+      // Matrix infinity norm: max row sum = max(5+3, 2+8) = 10
+      expect(data[0]).toBeCloseTo(10.0, 4);
     });
 
     it('computes norm with keepdim', async () => {

@@ -24,7 +24,7 @@ type NestedArray = number | NestedArray[];
  * Infer shape from nested array.
  */
 function inferShapeFromData(data: NestedArray): number[] {
-  if (typeof data === 'number') {
+  if (typeof data === 'number' || typeof data === 'boolean') {
     return [];
   }
   if (!Array.isArray(data) || data.length === 0) {
@@ -41,6 +41,9 @@ function inferShapeFromData(data: NestedArray): number[] {
 function flattenData(data: NestedArray): number[] {
   if (typeof data === 'number') {
     return [data];
+  }
+  if (typeof data === 'boolean') {
+    return [data ? 1 : 0];
   }
   const result: number[] = [];
   for (const item of data) {
@@ -249,6 +252,12 @@ export function arange(
   const requires_grad = options.requires_grad ?? false;
 
   const length = Math.ceil((end - start) / step);
+  if (length <= 0) {
+    // Return empty tensor for invalid ranges
+    const data = new Float32Array(0);
+    const buffer = createBufferWithData(data, dtype);
+    return new Tensor({ buffer, shape: [0], dtype, device: 'webgpu', requires_grad });
+  }
   const data = new Float32Array(length);
   for (let i = 0; i < length; i++) {
     data[i] = start + i * step;
@@ -435,8 +444,8 @@ export function dstack(tensors: Tensor[]): Tensor {
     throw new Error('dstack requires at least one tensor');
   }
   const processed = tensors.map(t => {
-    if (t.dim() === 1) return t.unsqueeze(0).unsqueeze(1);
-    if (t.dim() === 2) return t.unsqueeze(2);
+    if (t.dim() === 1) return t.reshape([1, t.shape[0], 1]);  // [N] → [1, N, 1]
+    if (t.dim() === 2) return t.reshape([t.shape[0], t.shape[1], 1]);  // [H, W] → [H, W, 1]
     return t;
   });
   return cat(processed, 2);
@@ -662,8 +671,7 @@ export function bincount(
  * @pytorch torch.meshgrid
  */
 export function meshgrid(...args: any[]): Tensor[] {
-  const { Tensor } = require('../tensor');
-  const tensors = args.filter((a: any) => a instanceof Tensor);
+  const tensors = args.filter((a: any) => a && typeof a.sum === 'function' && a.shape !== undefined);
   const opts = args.find((a: any) => typeof a === 'object' && a.indexing);
   const indexing = opts?.indexing || 'ij';
 
@@ -673,17 +681,24 @@ export function meshgrid(...args: any[]): Tensor[] {
   const ndim = tensors.length;
   const result: Tensor[] = [];
 
+  // For xy indexing with 2+ tensors, swap the first two dimensions
+  const effectiveShapes = [...shapes];
+  if (indexing === 'xy' && tensors.length >= 2) {
+    [effectiveShapes[0], effectiveShapes[1]] = [effectiveShapes[1], effectiveShapes[0]];
+  }
+
   for (let i = 0; i < ndim; i++) {
     const t = tensors[i];
     const shape = new Array(ndim).fill(1);
-    shape[i] = shapes[i];
+    // Map the tensor's dimension to the effective shape position
+    let dimIdx = i;
+    if (indexing === 'xy' && tensors.length >= 2) {
+      if (i === 0) dimIdx = 1;
+      else if (i === 1) dimIdx = 0;
+    }
+    shape[dimIdx] = shapes[i];
     const reshaped = t.reshape(shape);
-    const fullShape = [...shapes];
-    result.push(reshaped.broadcastTo(fullShape));
-  }
-
-  if (indexing === 'xy' && result.length >= 2) {
-    [result[0], result[1]] = [result[1], result[0]];
+    result.push(reshaped.expand(effectiveShapes));
   }
 
   return result;
@@ -693,7 +708,7 @@ export function meshgrid(...args: any[]): Tensor[] {
  * Returns the Cartesian product of input tensors.
  * @pytorch torch.cartesian_prod
  */
-export function cartesian_prod(...tensors: Tensor[]): Tensor {
+export async function cartesian_prod(...tensors: Tensor[]): Promise<Tensor> {
   if (tensors.length === 0) return tensor([]);
 
   const sizes = tensors.map(t => t.numel());
@@ -701,12 +716,12 @@ export function cartesian_prod(...tensors: Tensor[]): Tensor {
   const ndim = tensors.length;
   const output = new Float32Array(totalSize * ndim);
 
-  // Read all data first
-  const allData: Float32Array[] = [];
-  tensors.forEach(t => {
-    // For now, assume we can read synchronously or use placeholder
-    allData.push(new Float32Array(t.numel()));
-  });
+  // Read all data from GPU
+  const allData: number[][] = [];
+  for (const t of tensors) {
+    const arr = await t.toArray();
+    allData.push(arr);
+  }
 
   for (let i = 0; i < totalSize; i++) {
     let temp = i;
@@ -724,9 +739,9 @@ export function cartesian_prod(...tensors: Tensor[]): Tensor {
  * Returns combinations of elements.
  * @pytorch torch.combinations
  */
-export function combinations(input: Tensor, r: number = 2, with_replacement: boolean = false): Tensor {
-  const data = new Float32Array(input.numel());
-  const n = data.length;
+export async function combinations(input: Tensor, r: number = 2, with_replacement: boolean = false): Promise<Tensor> {
+  const inputData = await input.toArray();
+  const n = inputData.length;
   const indices: number[][] = [];
 
   const generate = (start: number, current: number[]) => {
@@ -745,7 +760,7 @@ export function combinations(input: Tensor, r: number = 2, with_replacement: boo
   const output = new Float32Array(indices.length * r);
   for (let i = 0; i < indices.length; i++) {
     for (let j = 0; j < r; j++) {
-      output[i * r + j] = data[indices[i][j]];
+      output[i * r + j] = inputData[indices[i][j]];
     }
   }
 
@@ -780,14 +795,14 @@ export function trace(input: Tensor): Tensor {
  * Unravel flat indices into multi-dimensional coordinates.
  * @pytorch torch.unravel_index
  */
-export function unravel_index(indices: Tensor, shape: number[]): Tensor {
+export async function unravel_index(indices: Tensor, shape: number[]): Promise<Tensor> {
   const ndim = shape.length;
   const outNumel = indices.numel();
   const output = new Int32Array(outNumel * ndim);
-  const indicesData = new Int32Array(indices.numel());
+  const indicesData = await indices.toArray();
 
   for (let i = 0; i < outNumel; i++) {
-    let tempIdx = indicesData[i];
+    let tempIdx = Math.round(indicesData[i]);
     for (let d = ndim - 1; d >= 0; d--) {
       output[i * ndim + d] = tempIdx % shape[d];
       tempIdx = Math.floor(tempIdx / shape[d]);
@@ -805,6 +820,14 @@ function _fill(
   dtype: DType,
   requires_grad: boolean
 ): Tensor {
+  // GPU fill shader only works correctly for float32
+  // For int32, bool, and other dtypes, use CPU path
+  if (dtype !== 'float32') {
+    const n = numel(shape);
+    const data = new Array(n).fill(value);
+    return tensor(data, { dtype, requires_grad });
+  }
+
   const device = getDevice();
   const n = numel(shape);
   const outputBuffer = createStorageBuffer(n * getDTypeBytes(dtype));

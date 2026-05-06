@@ -108,7 +108,7 @@ describe('MultiStepLR', () => {
     // At first milestone
     sched.step(30);
     expect(opt.param_groups[0].lr).toBeCloseTo(0.01, 6);
-    expect(sched.get_last_lr()).toContain(0.01);
+    expect(sched.get_last_lr()[0]).toBeCloseTo(0.01, 6);
 
     // Between milestones
     sched.step(50);
@@ -255,7 +255,7 @@ describe('ReduceLROnPlateau', () => {
     sched.step(initialMetric); // epoch 3 - should trigger lr reduce
 
     expect(opt.param_groups[0].lr).toBeCloseTo(0.01, 5);
-    expect(sched.get_last_lr()).toContain(0.01);
+    expect(sched.get_last_lr()[0]).toBeCloseTo(0.01, 5);
   });
 
   it('lr drops after patience epochs of no improvement (max mode)', () => {
@@ -404,9 +404,13 @@ describe('LambdaLR', () => {
   });
 
   it('supports array of lambdas for multiple param groups', () => {
+    // Create two separate param groups
     const p1 = torch.tensor([1.0], { requires_grad: true });
     const p2 = torch.tensor([1.0], { requires_grad: true });
-    const opt = new optim.SGD([p1, p2], { lr: 0.1 });
+    const opt = new optim.SGD([
+      { params: [p1], lr: 0.1 },
+      { params: [p2], lr: 0.1 }
+    ], { lr: 0.1 });
 
     const sched = new lr_scheduler.LambdaLR(opt, [
       (epoch: number) => 0.9 ** epoch,

@@ -141,7 +141,8 @@ describe('Core: Tensor Creation', () => {
     it('creates full tensor with negative value', async () => {
       const t = torch.full([4], -3.14);
       const arr = await t.toArray();
-      expect(arr.every((v: number) => v === -3.14)).toBe(true);
+      // float32 precision - -3.14 becomes approximately -3.14
+      expect(arr.every((v: number) => Math.abs(v - (-3.14)) < 0.001)).toBe(true);
     });
 
     it('creates empty full tensor', () => {

@@ -77,6 +77,8 @@ export const heaviside = (input: Tensor, values: Tensor) => input.heaviside(valu
 // New operations added for PyTorch 1:1 compatibility
 export const std = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => input.std(dim, keepdim, unbiased);
 export const var_ = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => input.var(dim, keepdim, unbiased);
+// Alias for PyTorch compatibility - torch.var maps to var_
+export { var_ as var };
 export const mean = (input: Tensor, dim?: number | number[], keepdim: boolean = false) => input.mean(dim, keepdim);
 export const sum = (input: Tensor, dim?: number | number[], keepdim: boolean = false) => input.sum(dim, keepdim);
 export const std_mean = (input: Tensor, dim?: number | number[], keepdim: boolean = false, unbiased: boolean = true) => ({ std: input.std(dim, keepdim, unbiased), mean: input.mean(dim, keepdim) });
@@ -95,7 +97,7 @@ export const aminmax = (input: Tensor, dim?: number, keepdim: boolean = false) =
 
 export const nonzero = async (input: Tensor) => input.nonzero();
 export const diagonal = (input: Tensor, offset: number = 0, dim1: number = -2, dim2: number = -1) => input.diagonal(offset, dim1, dim2);
-export const masked_select = (input: Tensor, mask: Tensor) => input.masked_select(mask);
+export const masked_select = async (input: Tensor, mask: Tensor) => await input.masked_select(mask);
 
 export const gather = async (input: Tensor, dim: number, index: Tensor) => input.gather(dim, index);
 export const scatter = async (input: Tensor, dim: number, index: Tensor, src: Tensor) => input.scatter(dim, index, src);
@@ -183,7 +185,7 @@ export const tile = (input: Tensor, reps: number[]) => input.tile(reps);
 export const unbind = (input: Tensor, dim?: number) => input.unbind(dim);
 export const index_select = (input: Tensor, dim: number, index: Tensor) => input.index_select(dim, index);
 export const select = (input: Tensor, dim: number, index: number) => input.select(dim, index);
-export const take = (input: Tensor, indices: Tensor) => input.take(indices);
+export const take = async (input: Tensor, indices: Tensor) => await input.take(indices);
 // export const masked_select = ... // skipped
 export const where = (condition: Tensor, input: Tensor, other: Tensor) => input.where(condition, other);
 
@@ -204,9 +206,9 @@ export const minimum = (input: Tensor, other: Tensor) => input.minimum(other);
 export const fmax = (input: Tensor, other: Tensor) => input.fmax(other);
 export const fmin = (input: Tensor, other: Tensor) => input.fmin(other);
 
-export const equal = (input: Tensor, other: Tensor) => input.equal(other);
+export const equal = async (input: Tensor, other: Tensor): Promise<boolean> => await input.equal(other);
 export const isclose = (input: Tensor, other: Tensor, rtol?: number, atol?: number, equal_nan?: boolean) => input.isclose(other, rtol, atol, equal_nan);
-export const allclose = (input: Tensor, other: Tensor, rtol?: number, atol?: number, equal_nan?: boolean) => input.allclose(other, rtol, atol, equal_nan);
+export const allclose = async (input: Tensor, other: Tensor, rtol?: number, atol?: number, equal_nan?: boolean): Promise<boolean> => await input.allclose(other, rtol, atol, equal_nan);
 
 export const cos = (input: Tensor) => input.cos();
 export const cosh = (input: Tensor) => input.cosh();
@@ -217,7 +219,7 @@ export const tanh = (input: Tensor) => input.tanh();
 
 export const exp = (input: Tensor) => input.exp();
 export const exp2 = (input: Tensor) => input.exp2();
-export const log = (input: Tensor) => input.log();
+export const log = (input: Tensor): Tensor => input.log();
 export const log10 = (input: Tensor) => input.log10();
 export const log2 = (input: Tensor) => input.log2();
 export const log1p = (input: Tensor) => input.log1p();

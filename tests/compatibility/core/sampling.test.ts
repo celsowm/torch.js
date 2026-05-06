@@ -13,13 +13,13 @@ describe('Core: Sampling', () => {
     it('samples from a categorical distribution', async () => {
       const weights = torch.tensor([0.5, 0.3, 0.2]);
       const r = await torch.multinomial(weights, 1);
-      expect(r.shape).toEqual([1, 1]);
+      expect(r.shape).toEqual([1]);
     });
 
     it('samples multiple items', async () => {
       const weights = torch.tensor([0.5, 0.3, 0.2]);
-      const r = await torch.multinomial(weights, 5);
-      expect(r.shape).toEqual([1, 5]);
+      const r = await torch.multinomial(weights, 5, true);  // with replacement
+      expect(r.shape).toEqual([5]);
       const arr = await r.toArray();
       for (const v of arr) {
         expect(v).toBeGreaterThanOrEqual(0);
@@ -30,7 +30,7 @@ describe('Core: Sampling', () => {
     it('samples without replacement', async () => {
       const weights = torch.tensor([0.25, 0.25, 0.25, 0.25]);
       const r = await torch.multinomial(weights, 4, false);
-      expect(r.shape).toEqual([1, 4]);
+      expect(r.shape).toEqual([4]);
       const arr = await r.toArray();
       // Without replacement, all samples should be unique
       const unique = new Set(arr);
@@ -65,7 +65,7 @@ describe('Core: Sampling', () => {
     it('multinomial with default num_samples=1', async () => {
       const weights = torch.tensor([0.5, 0.3, 0.2]);
       const r = await torch.multinomial(weights);
-      expect(r.shape).toEqual([1, 1]);
+      expect(r.shape).toEqual([1]);
     });
 
     it('multinomial prefers higher weights', async () => {

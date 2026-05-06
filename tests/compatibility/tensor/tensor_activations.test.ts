@@ -363,8 +363,9 @@ describe('Tensor Activation Math Methods', () => {
       const t = torch.tensor([-100, 100]);
       const result = t.softsign();
       const arr = await result.toArray();
-      expect(arr[0]).toBeCloseTo(-1, 2);
-      expect(arr[1]).toBeCloseTo(1, 2);
+      // softsign(x) = x / (1 + |x|), for x=100: 100/101 ≈ 0.990099
+      expect(arr[0]).toBeCloseTo(-1, 1);  // 0.1 tolerance
+      expect(arr[1]).toBeCloseTo(1, 1);
     });
   });
 

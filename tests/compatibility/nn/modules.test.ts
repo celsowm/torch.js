@@ -295,7 +295,7 @@ describe('nn.MaxPool2d', () => {
   it('kernel 2 -> half', async () => { expect(new MaxPool2d(2).forward(torch.randn([2, 3, 32, 32])).shape).toEqual([2, 3, 16, 16]); });
   it('non-square kernel', async () => { expect(new MaxPool2d([3, 2]).forward(torch.randn([1, 2, 24, 24])).shape).toEqual([1, 2, 8, 12]); });
   it('stride', async () => { expect(new MaxPool2d(3, 2).forward(torch.randn([1, 1, 10, 10])).shape).toEqual([1, 1, 4, 4]); });
-  it('padding', async () => { expect(new MaxPool2d(2, 2, 1).forward(torch.randn([1, 1, 8, 8])).shape).toEqual([1, 1, 4, 4]); });
+  it('padding', async () => { expect(new MaxPool2d(2, 2, 1).forward(torch.randn([1, 1, 8, 8])).shape).toEqual([1, 1, 5, 5]); });
 });
 
 describe('nn.AvgPool2d', () => {

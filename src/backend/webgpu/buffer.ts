@@ -127,13 +127,20 @@ export function createStorageBuffer(sizeBytes: number): WebGPUBuffer {
  */
 export function createBufferWithData(data: TypedArray, _dtype: DType): WebGPUBuffer {
   const sizeBytes = data.byteLength;
-  const buffer = bufferPool.acquire(sizeBytes, BufferUsage.STORAGE);
+  // WebGPU writeBuffer requires size to be a multiple of 4 bytes
+  const alignedSize = Math.max(4, Math.ceil(sizeBytes / 4) * 4);
+  const buffer = bufferPool.acquire(alignedSize, BufferUsage.STORAGE);
 
-  // Buffer acquired via pool might be unmapped, we need to upload data
-  // Using writeBuffer is efficient for one-time uploads to pooled buffers
+  // If data size isn't aligned, create a padded copy
   const device = getDevice();
-  device.queue.writeBuffer(buffer, 0, data);
-  
+  if (alignedSize > sizeBytes) {
+    const padded = new Uint8Array(alignedSize);
+    padded.set(new Uint8Array(data.buffer, data.byteOffset, sizeBytes));
+    device.queue.writeBuffer(buffer, 0, padded);
+  } else {
+    device.queue.writeBuffer(buffer, 0, data);
+  }
+
   return buffer;
 }
 
