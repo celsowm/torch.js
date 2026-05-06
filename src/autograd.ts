@@ -86,6 +86,51 @@ export function vjp(
 }
 
 /**
+ * Compute the Jacobian-vector product.
+ * JVP computes J @ v where J is the Jacobian of func w.r.t. inputs.
+ * @pytorch torch.autograd.functional.jvp
+ */
+export async function jvp(
+  func: (x: Tensor) => Tensor,
+  inputs: Tensor,
+  v: Tensor,
+  create_graph: boolean = false,
+): Promise<[Tensor, Tensor]> {
+  const output = func(inputs);
+  const outShape = output.shape;
+  const outNumel = outShape.reduce((a, b) => a * b, 1);
+
+  if (outNumel === 1) {
+    // Scalar output: JVP = grad(output) * v[0]
+    const [gradResult] = grad(output, inputs, undefined, false, create_graph);
+    const vData = await v.toArray();
+    const vScalar = vData[0] || 1;
+    const jvpResult = gradResult.mul(vScalar);
+    return [output, jvpResult];
+  }
+
+  // Vector output: JVP = sum over i of (v_i * grad(output_i))
+  const outputFlat = output.reshape([outNumel]);
+  const vData = await v.toArray();
+  
+  let result: Tensor | null = null;
+  for (let i = 0; i < outNumel; i++) {
+    const out_i = outputFlat.select(0, i);
+    const v_i = vData[i] || 0;
+    if (v_i === 0) continue;
+    const [grad_i] = grad(out_i, inputs, undefined, true, create_graph);
+    const weighted = grad_i.mul(v_i);
+    if (result === null) {
+      result = weighted;
+    } else {
+      result = result.add(weighted);
+    }
+  }
+
+  return [output, result || inputs.zeros_like()];
+}
+
+/**
  * Custom autograd function base class.
  * @pytorch torch.autograd.Function
  *
@@ -110,6 +155,29 @@ export class Function {
   static apply(...args: any[]): Tensor {
     const ctx = new FunctionContext();
     const result = this.forward(ctx, ...args);
+
+    // Find input tensors from args
+    const inputTensors: Tensor[] = args.filter((a): a is Tensor => 
+      a && typeof a === 'object' && 'shape' in a
+    );
+
+    // Attach grad_fn if any inputs require grad
+    const requiresGrad = inputTensors.some(t => t.requires_grad);
+    if (requiresGrad) {
+      (result as any)._grad_fn = {
+        backward: (gradOutput: any) => {
+          const gradInputs = this.backward(ctx, gradOutput);
+          const gradArray = Array.isArray(gradInputs) ? gradInputs : [gradInputs];
+          for (let i = 0; i < Math.min(inputTensors.length, gradArray.length); i++) {
+            if (inputTensors[i].requires_grad && gradArray[i]) {
+              (inputTensors[i] as any).accumulateGrad(gradArray[i]);
+            }
+          }
+        },
+        _next_tensors: inputTensors,
+      };
+    }
+
     return result;
   }
 }
@@ -132,5 +200,6 @@ export class FunctionContext {
 export default {
   grad,
   vjp,
+  jvp,
   Function,
 };

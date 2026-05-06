@@ -120,7 +120,7 @@ export class Adamax extends Optimizer {
 
     // Create a new tensor with the result data
     const device = getDevice();
-    const buffer = device.queue.createBuffer({
+    const buffer = device.createBuffer({
       size: result.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
     });

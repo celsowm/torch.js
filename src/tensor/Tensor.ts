@@ -3477,25 +3477,26 @@ export class Tensor {
 
     visit(this);
 
-    // Initialize gradient map with the output gradient
-    const gradMap = new Map<number, Tensor>();
-    gradMap.set(this._id, grad);
-
-    // Initialize gradients for leaf tensors that need them
+    // Clear any existing gradients and initialize zeros for all tensors in graph
     for (const t of visitedList) {
-      if (t._requires_grad && !gradMap.has(t._id)) {
-        gradMap.set(t._id, t.zeros_like());
-      }
+      t._grad = null; // Clear previous gradients
     }
+    // Set the output gradient
+    this._grad = grad;
 
     // Execute backward pass in reverse topological order
+    // Each gradFn.backward() will call accumulateGrad on parent tensors
     for (let i = topoOrder.length - 1; i >= 0; i--) {
       const { tensor, gradFn } = topoOrder[i];
-      const gradOutput = gradMap.get(tensor._id);
+      // Get the gradient that was accumulated on this tensor
+      const gradOutput = tensor._grad;
       if (gradOutput && gradFn) {
         gradFn.backward(gradOutput);
       }
     }
+
+    // After backward, leaf tensors should have their gradients accumulated in _grad
+    // The grad_fn backward callbacks call accumulateGrad which adds to _grad
 
     // Clear grad_fns if not retaining
     if (!retain_graph) {

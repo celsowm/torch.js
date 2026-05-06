@@ -233,12 +233,12 @@ describe('torch.autograd', () => {
       const x = torch.tensor([2.0, 3.0], { requires_grad: true });
       const eps = 1e-6;
       // Numerical gradient via finite differences
-      const x0 = x.toArray();
+      const x0 = Array.from(await x.toArray());
       const f0 = Array.from(await x.pow(2).sum(-1, true).toArray());
       const numericalGrad: number[] = [];
       for (let i = 0; i < 2; i++) {
-        const xPlus = torch.tensor(Array.from(x0) as number[], { requires_grad: false });
-        const plusData = Array.from(xPlus.toArray()) as number[];
+        const xPlus = torch.tensor([...x0], { requires_grad: false });
+        const plusData = Array.from(await xPlus.toArray()) as number[];
         plusData[i] += eps;
         const xPerturbed = torch.tensor(plusData, { requires_grad: false });
         const fPlus = Array.from(await xPerturbed.pow(2).sum(-1, true).toArray());
@@ -281,7 +281,7 @@ describe('torch.autograd', () => {
       y.backward(torch.ones_like(y));
       const analyticalGrad = Array.from(await x.grad!.toArray());
       // Numerical
-      const xData = Array.from(x.toArray()) as number[];
+      const xData = Array.from(await x.toArray()) as number[];
       const f0 = Array.from(await torch.tensor(xData).exp().sum(-1, true).toArray());
       const numericalGrad: number[] = [];
       for (let i = 0; i < 2; i++) {
