@@ -281,64 +281,79 @@ function householderTridiagonal(A: Float64Array[]): { T: Float64Array[]; Q: Floa
     return { T, Q };
 }
 
-function qrIterationTridiagonal(diag: Float64Array, offdiag: Float64Array, n: number, maxIter = 1000, tol = 1e-12) {
-    const d = new Float64Array(diag);
-    const e = new Float64Array(offdiag);
-    const Z = eye2D(n);
+// Jacobi eigenvalue algorithm - simpler and more robust than QR iteration
+function jacobiEigh(A: Float64Array[], maxIter = 1000, tol = 1e-12) {
+    const n = A.length;
+    const T = copy2D(A);
+    const V = eye2D(n);
 
-    let remaining = n;
-    while (remaining > 1) {
-        let iter = 0;
-        while (iter < maxIter) {
-            if (Math.abs(e[remaining - 2]) < tol * (Math.abs(d[remaining - 1]) + Math.abs(d[remaining - 2]) + 1e-15)) break;
-
-            // Wilkinson shift
-            const a = d[remaining - 2], b = e[remaining - 2], c = d[remaining - 1];
-            const delta = (a - c) / 2;
-            const mu = c - Math.sign(delta) * b * b / (Math.abs(delta) + Math.sqrt(delta * delta + b * b));
-
-            // Implicit QR step — start from active subblock
-            const start = n - remaining;
-            let g = d[start] - mu;
-            for (let i = start; i < n - 1; i++) {
-                const r = Math.sqrt(g * g + e[i] * e[i]);
-                const cs = g / r, sn = e[i] / r;
-                if (i > start) e[i - 1] = r;
-                g = cs * (d[i] - mu) + sn * e[i];
-                d[i] = cs * g + sn * (cs * e[i] - sn * (d[i] - mu));
-                const tmp = cs * e[i] - sn * (d[i] - mu);
-                if (i < n - 2) {
-                    e[i] = cs * tmp + sn * d[i + 1];
-                    d[i + 1] = -sn * tmp + cs * d[i + 1];
-                } else {
-                    e[i] = tmp;
-                }
-                // Accumulate
-                for (let k = 0; k < n; k++) {
-                    const zi = Z[k][i], zj = Z[k][i + 1];
-                    Z[k][i] = cs * zi + sn * zj;
-                    Z[k][i + 1] = -sn * zi + cs * zj;
+    for (let iter = 0; iter < maxIter; iter++) {
+        // Find largest off-diagonal element
+        let maxVal = 0;
+        let p = 0, q = 1;
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                if (Math.abs(T[i][j]) > maxVal) {
+                    maxVal = Math.abs(T[i][j]);
+                    p = i;
+                    q = j;
                 }
             }
-            iter++;
         }
-        remaining--;
+        if (maxVal < tol) break;
+
+        // Compute Jacobi rotation
+        const app = T[p][p], aqq = T[q][q], apq = T[p][q];
+        const tau = (aqq - app) / (2 * apq);
+        const sign = tau >= 0 ? 1 : -1;
+        const t = sign / (Math.abs(tau) + Math.sqrt(1 + tau * tau));
+        const c = 1 / Math.sqrt(1 + t * t);
+        const s = t * c;
+
+        // Apply rotation to T: T = J^T * T * J
+        // Only need to update rows/cols p and q
+        for (let i = 0; i < n; i++) {
+            if (i === p || i === q) continue;
+            const tip = T[i][p], tiq = T[i][q];
+            T[i][p] = c * tip + s * tiq;
+            T[p][i] = T[i][p]; // symmetric
+            T[i][q] = -s * tip + c * tiq;
+            T[q][i] = T[i][q]; // symmetric
+        }
+        const tpp = c * c * app + 2 * c * s * apq + s * s * aqq;
+        const tqq = s * s * app - 2 * c * s * apq + c * c * aqq;
+        T[p][p] = tpp;
+        T[q][q] = tqq;
+        T[p][q] = 0;
+        T[q][p] = 0;
+
+        // Accumulate eigenvectors: V = V * J
+        for (let i = 0; i < n; i++) {
+            const vip = V[i][p], viq = V[i][q];
+            V[i][p] = c * vip + s * viq;
+            V[i][q] = -s * vip + c * viq;
+        }
     }
+
+    // Extract eigenvalues (diagonal of T)
+    const eigenvalues = new Float64Array(n);
+    for (let i = 0; i < n; i++) eigenvalues[i] = T[i][i];
 
     // Sort ascending
     const idx = Array.from({ length: n }, (_, i) => i);
-    idx.sort((a, b) => d[a] - d[b]);
+    idx.sort((a, b) => eigenvalues[a] - eigenvalues[b]);
 
-    const eigenvalues = new Float64Array(n);
-    const eigenvectors: Float64Array[] = [];
-    for (let i = 0; i < n; i++) eigenvalues[i] = d[idx[i]];
-    // Create eigenvector matrix
-    for (let i = 0; i < n; i++) eigenvectors.push(new Float64Array(n));
+    const sortedEvals = new Float64Array(n);
+    const evecs: Float64Array[] = [];
+    for (let i = 0; i < n; i++) evecs.push(new Float64Array(n));
     for (let j = 0; j < n; j++) {
-        for (let i = 0; i < n; i++) eigenvectors[i][j] = Z[i][idx[j]];
+        for (let i = 0; i < n; i++) {
+            evecs[i][j] = V[i][idx[j]];
+        }
+        sortedEvals[j] = eigenvalues[idx[j]];
     }
 
-    return { eigenvalues, eigenvectors };
+    return { eigenvalues: sortedEvals, eigenvectors: evecs };
 }
 
 /**
@@ -368,13 +383,8 @@ export const eigh = async (input: Tensor, UPLO: 'L' | 'U' = 'L'): Promise<{ eige
         const At = transpose2D(A);
         for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) A[i][j] = (A[i][j] + At[i][j]) / 2;
 
-        const { T } = householderTridiagonal(A);
-        const diag = new Float64Array(N);
-        const offdiag = new Float64Array(N - 1);
-        for (let i = 0; i < N; i++) diag[i] = T[i][i];
-        for (let i = 0; i < N - 1; i++) offdiag[i] = T[i][i + 1];
-
-        const { eigenvalues, eigenvectors } = qrIterationTridiagonal(diag, offdiag, N);
+        // Use Jacobi algorithm directly (works on full matrix, no tridiagonalization needed)
+        const { eigenvalues, eigenvectors } = jacobiEigh(A);
         allEvals.push(eigenvalues);
         allEvecs.push(eigenvectors);
     }
@@ -692,6 +702,103 @@ export const pinv = async (input: Tensor, rcond: number = 1e-15, hermitian: bool
     const resultFlat = new Float64Array(batch * N * M);
     for (let b = 0; b < batch; b++) resultFlat.set(flattenMatrix(allResult[b]), b * N * M);
     return createTensorFromCPU(resultFlat, [...batchShape, N, M]);
+};
+
+// ============================================================================
+// CHOLESKY - Cholesky decomposition via CPU
+// ============================================================================
+
+function cholesky2D(A: Float64Array[], upper: boolean): Float64Array[] {
+    const n = A.length;
+    const L: Float64Array[] = [];
+    for (let i = 0; i < n; i++) {
+        L.push(new Float64Array(n));
+    }
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j <= i; j++) {
+            let sum = 0;
+            for (let k = 0; k < j; k++) {
+                sum += L[i][k] * L[j][k];
+            }
+            
+            if (i === j) {
+                const val = A[i][i] - sum;
+                if (val <= 0) {
+                    // Matrix is not positive definite - return NaN
+                    for (let r = 0; r < n; r++) {
+                        for (let c = 0; c < n; c++) {
+                            L[r][c] = NaN;
+                        }
+                    }
+                    return L;
+                }
+                L[i][i] = Math.sqrt(val);
+            } else {
+                if (L[j][j] === 0) {
+                    for (let r = 0; r < n; r++) {
+                        for (let c = 0; c < n; c++) {
+                            L[r][c] = NaN;
+                        }
+                    }
+                    return L;
+                }
+                L[i][j] = (A[i][j] - sum) / L[j][j];
+            }
+        }
+    }
+
+    if (upper) {
+        // Return upper triangular by transposing L
+        const U: Float64Array[] = [];
+        for (let i = 0; i < n; i++) {
+            U.push(new Float64Array(n));
+            for (let j = i; j < n; j++) {
+                U[i][j] = L[j][i];
+            }
+        }
+        return U;
+    }
+
+    return L;
+}
+
+/**
+ * Cholesky decomposition.
+ * @pytorch torch.linalg.cholesky
+ */
+export const choleskyDecomp = async (input: Tensor, upper: boolean = false): Promise<Tensor> => {
+    const shape = input.shape;
+    const ndim = shape.length;
+    if (ndim < 2) throw new Error('linalg.cholesky: expected tensor with at least 2 dimensions');
+
+    const N = shape[ndim - 1], M = shape[ndim - 2];
+    if (N !== M) throw new Error('linalg.cholesky: expected square matrix');
+
+    const batch = ndim > 2 ? shape.slice(0, -2).reduce((a, b) => a * b, 1) : 1;
+    const batchShape = ndim > 2 ? shape.slice(0, -2) : [];
+
+    const flatData = await readMatrixToCPU(input);
+    const allL: Float64Array[][] = [];
+
+    for (let b = 0; b < batch; b++) {
+        const matData = flatData.slice(b * N * N, (b + 1) * N * N);
+        const A: Float64Array[] = [];
+        for (let i = 0; i < N; i++) A.push(new Float64Array(matData.slice(i * N, (i + 1) * N)));
+        const L = cholesky2D(A, upper);
+        allL.push(L);
+    }
+
+    if (batch === 1) {
+        return createTensorFromCPU(flattenMatrix(allL[0]), [N, N]);
+    }
+
+    const Lflat = new Float64Array(batch * N * N);
+    for (let b = 0; b < batch; b++) {
+        Lflat.set(flattenMatrix(allL[b]), b * N * N);
+    }
+
+    return createTensorFromCPU(Lflat, [...batchShape, N, N]);
 };
 
 /*

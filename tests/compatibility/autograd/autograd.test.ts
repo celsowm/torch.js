@@ -110,7 +110,7 @@ describe('torch.autograd', () => {
       const x = torch.tensor([1.0, 2.0], { requires_grad: true });
       const v = torch.tensor([3.0, 4.0]);
       // JVP for f(x) = x^2: J = diag(2x) = [2, 4], J*v = [6, 16]
-      const [output, jvpResult] = torch.autograd.jvp(
+      const [output, jvpResult] = await torch.autograd.jvp(
         (t) => t.pow(2),
         x,
         v,
@@ -126,7 +126,7 @@ describe('torch.autograd', () => {
     it('computes JVP for sum function', async () => {
       const x = torch.tensor([1.0, 2.0, 3.0], { requires_grad: true });
       const v = torch.tensor([1.0, 1.0, 1.0]);
-      const [output, jvpResult] = torch.autograd.jvp(
+      const [output, jvpResult] = await torch.autograd.jvp(
         (t) => t.sum(-1, true),
         x,
         v,
@@ -139,7 +139,7 @@ describe('torch.autograd', () => {
     it('computes JVP for scalar output', async () => {
       const x = torch.tensor([2.0, 3.0], { requires_grad: true });
       const v = torch.tensor([1.0, 0.0]);
-      const [output, jvpResult] = torch.autograd.jvp(
+      const [output, jvpResult] = await torch.autograd.jvp(
         (t) => t.pow(2).sum(-1, true),
         x,
         v,

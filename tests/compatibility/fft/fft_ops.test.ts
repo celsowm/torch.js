@@ -48,14 +48,16 @@ describe('torch.fft', () => {
       const x = torch.tensor([1.0, 1.0, 1.0]);
       const result = await torch.fft.fft(x, 4);
       const shape = result.shape;
-      expect(shape).toEqual([4]);
+      // Complex tensor stored as [N, 2] for (real, imag)
+      expect(shape).toEqual([4, 2]);
     });
 
     it('computes FFT along specified dimension', async () => {
       const x = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]);
       const result = await torch.fft.fft(x, undefined, 1);
       const shape = result.shape;
-      expect(shape).toEqual([2, 3]);
+      // FFT along dim 1: [2, 3] → [2, 3, 2] for complex
+      expect(shape).toEqual([2, 3, 2]);
     });
 
     it('reconstructs signal via ifft(fft(x)) = x', async () => {
@@ -101,7 +103,8 @@ describe('torch.fft', () => {
       const X = torch.tensor(complexData).reshape([3, 2]);
       const result = await torch.fft.ifft(X, 4);
       const shape = result.shape;
-      expect(shape).toEqual([4]);
+      // IFFT with n=4: complex output stored as [4, 2]
+      expect(shape).toEqual([4, 2]);
     });
 
     it('reconstructs via FFT of IFFT result', async () => {
@@ -225,10 +228,10 @@ describe('torch.fft', () => {
       const x = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0]);
       const result = await torch.fft.ifftshift(x);
       const data = Array.from(await result.toArray());
-      // ifftshift shifts by ceil(5/2)=3: [1,2,3,4,5] -> [4,5,1,2,3]
-      expect(data[0]).toBeCloseTo(4.0, 4);
-      expect(data[1]).toBeCloseTo(5.0, 4);
-      expect(data[2]).toBeCloseTo(1.0, 4);
+      // ifftshift shifts by ceil(5/2)=3: [1,2,3,4,5] -> [3,4,5,1,2]
+      expect(data[0]).toBeCloseTo(3.0, 4);
+      expect(data[1]).toBeCloseTo(4.0, 4);
+      expect(data[2]).toBeCloseTo(5.0, 4);
     });
   });
 
@@ -250,11 +253,12 @@ describe('torch.fft', () => {
       expect(data[1]).toBeCloseTo(0.5, 4);
     });
 
-    it('frequency bins sum to zero for even N', async () => {
+    it('frequency bins for even N have correct structure', async () => {
       const freqs = torch.fft.fftfreq(8);
       const data = Array.from(await freqs.toArray());
-      const sum = data.reduce((s, v) => s + v, 0);
-      expect(Math.abs(sum)).toBeLessThan(1e-6);
+      // First element is 0, symmetric positive/negative frequencies
+      expect(data[0]).toBeCloseTo(0.0, 4);
+      expect(data[data.length - 1]).toBeCloseTo(-1/8, 4); // Last is -1/N
     });
   });
 

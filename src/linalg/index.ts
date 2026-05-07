@@ -1,11 +1,11 @@
 import { Tensor } from '../tensor';
 import * as ops from '../ops';
+import { choleskyDecomp } from './advanced';
 import {
   getDevice,
   getOrCreatePipeline,
     calculateWorkgroups,
       BufferUsage,
-      CHOLESKY_SHADER,
       TRIANGULAR_SOLVE_SHADER,
       LU_SHADER,
     } from '../backend';
@@ -137,114 +137,14 @@ import {
   
     return X;
   };
-  
-  /**
-   * Computes the Cholesky decomposition
-   of a complex Hermitian or real symmetric positive-definite matrix.
+
+/**
+ * Computes the Cholesky decomposition
+ of a complex Hermitian or real symmetric positive-definite matrix.
  * @pytorch torch.linalg.cholesky
  */
-export const cholesky = (A: Tensor, upper: boolean = false): Tensor => {
-  if (A.dim() < 2) throw new Error('linalg.cholesky: expected tensor with at least 2 dimensions');
-  const n = A.shape[A.dim() - 1];
-  const m = A.shape[A.dim() - 2];
-  if (n !== m) throw new Error('linalg.cholesky: expected square matrix');
-
-  const batch = A.dim() > 2 ? A.shape.slice(0, -2).reduce((a, b) => a * b, 1) : 1;
-  const device = getDevice();
-
-  // Work on a copy
-  const res = A.clone();
-  const buffer = res.buffer;
-
-  if (n <= 16) {
-    // For small matrices, use a single pass shader
-    const pipeline = getOrCreatePipeline(CHOLESKY_SHADER, 'cholesky_small');
-    const paramsData = new Uint32Array([n, batch, 0, 0]);
-    const paramsBuffer = device.createBuffer({
-      size: 16,
-      usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer, offset: 0, size: buffer.size } },
-        { binding: 1, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-      ],
-    });
-
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.dispatchWorkgroups(...calculateWorkgroups(batch));
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-  } else {
-    // For larger matrices, use multi-pass approach
-    const pipeline1 = getOrCreatePipeline(CHOLESKY_SHADER, 'cholesky_step1');
-    const pipeline2 = getOrCreatePipeline(CHOLESKY_SHADER, 'cholesky_step2');
-
-    for (let k = 0; k < n; k++) {
-      const paramsData = new Uint32Array([n, batch, k, 0]);
-      const paramsBuffer = device.createBuffer({
-        size: 16,
-        usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
-      });
-      device.queue.writeBuffer(paramsBuffer, 0, paramsData);
-
-      const bindGroup = device.createBindGroup({
-        layout: pipeline1.getBindGroupLayout(0),
-        entries: [
-          { binding: 0, resource: { buffer, offset: 0, size: buffer.size } },
-          { binding: 1, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-        ],
-      });
-
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginComputePass();
-      passEncoder.setPipeline(pipeline1);
-      passEncoder.setBindGroup(0, bindGroup);
-      passEncoder.dispatchWorkgroups(...calculateWorkgroups(batch));
-      passEncoder.end();
-      
-      // If not the last step, update remaining submatrix
-      if (k < n - 1) {
-          const remaining = n - 1 - k;
-          const pipeline2 = getOrCreatePipeline(CHOLESKY_SHADER, 'cholesky_step2');
-          const bindGroup2 = device.createBindGroup({
-              layout: pipeline2.getBindGroupLayout(0),
-              entries: [
-                  { binding: 0, resource: { buffer, offset: 0, size: buffer.size } },
-                  { binding: 1, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
-              ],
-          });
-          const passEncoder2 = commandEncoder.beginComputePass();
-          passEncoder2.setPipeline(pipeline2);
-          passEncoder2.setBindGroup(0, bindGroup2);
-          // dispatchWorkgroups(x, y, z) where x,y cover the submatrix and z covers the batch
-          passEncoder2.dispatchWorkgroups(
-              Math.ceil(remaining / 16),
-              Math.ceil(remaining / 16),
-              batch
-          );
-          passEncoder2.end();
-      }
-      
-      device.queue.submit([commandEncoder.finish()]);
-    }
-    
-    // Zero out upper triangle (if not already done by step2 or if we want to be sure)
-    // Actually our step2 only updates j <= i, so upper triangle stays as is.
-    // We should zero it out at the end.
-    return res.tril();
-  }
-
-  if (upper) {
-    return res.transpose(-2, -1);
-  }
-  return res;
+export const cholesky = async (A: Tensor, upper: boolean = false): Promise<Tensor> => {
+  return choleskyDecomp(A, upper);
 };
 
 /**

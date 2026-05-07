@@ -108,7 +108,8 @@ describe('torch.linalg decomposition and solvers', () => {
       const { R } = await torch.linalg.qr(A, 'reduced');
       const rData = Array.from(await R.toArray()) as Float32Array;
       // R is 2x2, lower-left element should be ~0
-      expect(Math.abs(rData[1])).toBeLessThan(1e-6); // R[1,0] in row-major
+      // Row-major: [R00, R01, R10, R11], so R[1,0] is at index 2
+      expect(Math.abs(rData[2])).toBeLessThan(1e-6); // R[1,0] in row-major
     });
 
     it('computes complete QR decomposition', async () => {
@@ -186,7 +187,7 @@ describe('torch.linalg decomposition and solvers', () => {
     it('computes lower triangular Cholesky factor', async () => {
       // A = [[4,2],[2,3]] is SPD
       const A = torch.tensor([[4.0, 2.0], [2.0, 3.0]]);
-      const L = torch.linalg.cholesky(A);
+      const L = await torch.linalg.cholesky(A);
       const lShape = L.shape;
       expect(lShape).toEqual([2, 2]);
       // Lower triangular: L[0,1] should be ~0
@@ -196,7 +197,7 @@ describe('torch.linalg decomposition and solvers', () => {
 
     it('reconstructs matrix: A ~ L @ L^T', async () => {
       const A = torch.tensor([[4.0, 2.0], [2.0, 3.0]]);
-      const L = torch.linalg.cholesky(A);
+      const L = await torch.linalg.cholesky(A);
       const Lt = L.transpose(-2, -1);
       const reconstructed = torch.matmul(L, Lt);
       const original = Array.from(await A.toArray()) as Float32Array;
@@ -206,7 +207,7 @@ describe('torch.linalg decomposition and solvers', () => {
 
     it('computes upper triangular Cholesky factor', async () => {
       const A = torch.tensor([[4.0, 2.0], [2.0, 3.0]]);
-      const U = torch.linalg.cholesky(A, true);
+      const U = await torch.linalg.cholesky(A, true);
       const uData = Array.from(await U.toArray()) as Float32Array;
       // Upper triangular: U[1,0] should be ~0
       expect(Math.abs(uData[2])).toBeLessThan(1e-6);
