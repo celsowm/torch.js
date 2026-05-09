@@ -39,6 +39,7 @@ import {
   COMPARE_SHADER,
   BROADCAST_SHADER,
   SLICE_SHADER,
+  SLICE_BACKWARD_SHADER,
   MASKED_FILL_SHADER,
   WHERE_SHADER,
   TRANSPOSE_ND_SHADER,
@@ -110,6 +111,7 @@ export class Tensor {
   private _grad: Tensor | null = null;
   private _grad_fn: GradFn | null = null;
   private _is_leaf: boolean = true;
+  private _is_complex: boolean = false;
   readonly _id: number;
   private static _nextId = 0;
 
@@ -122,7 +124,12 @@ export class Tensor {
     this._requires_grad = data.requires_grad;
     this._grad_fn = data.grad_fn ?? null;
     this._is_leaf = !data.grad_fn;
+    this._is_complex = data.is_complex ?? false;
     this._id = Tensor._nextId++;
+  }
+
+  get is_complex(): boolean {
+    return this._is_complex;
   }
 
   /**
@@ -197,12 +204,33 @@ export class Tensor {
 
     device.queue.submit([commandEncoder.finish()]);
 
+    const requires_grad = tensors.some(t => t.requires_grad);
+
     return new Tensor({
       buffer: outputBuffer,
       shape: outputShape,
       dtype: first.dtype,
       device: 'webgpu',
-      requires_grad: tensors.some(t => t.requires_grad),
+      requires_grad,
+      grad_fn: requires_grad ? {
+        name: 'CatBackward',
+        _next_tensors: tensors,
+        backward: (grad_output: Tensor) => {
+          let currentOffset = 0;
+          for (let i = 0; i < tensors.length; i++) {
+            const t = tensors[i];
+            if (t.requires_grad) {
+              const sliceIndices = outputShape.map((s, d) => 
+                d === dim 
+                  ? { start: currentOffset, stop: currentOffset + t.shape[dim] } 
+                  : { start: 0, stop: s }
+              );
+              t.accumulateGrad(grad_output.slice(sliceIndices));
+            }
+            currentOffset += t.shape[dim];
+          }
+        }
+      } : undefined,
     });
   }
 
@@ -1595,6 +1623,7 @@ export class Tensor {
       device: this._device,
       requires_grad: this._requires_grad,
       grad_fn,
+      is_complex: this._is_complex,
     });
   }
 
@@ -1906,12 +1935,69 @@ export class Tensor {
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
 
+    const self = this;
+    const grad_fn = this._requires_grad ? {
+      name: 'SliceBackward',
+      _next_tensors: [this],
+      backward: (gradOutput: Tensor) => {
+        const gradInput = self.zeros_like();
+        const gradOutputSize = numel(newShape);
+        
+        // Use SLICE_BACKWARD_SHADER
+        const paramsData = new ArrayBuffer(96);
+        const view = new DataView(paramsData);
+        
+        const inputShape4 = pad4u(newShape); // gradOutput shape
+        for (let i = 0; i < 4; i++) view.setUint32(i * 4, inputShape4[i], true);
+        
+        const outputShape4 = pad4u([...self._shape]); // original shape
+        for (let i = 0; i < 4; i++) view.setUint32(16 + i * 4, outputShape4[i], true);
+        
+        const starts4 = pad4(normSlices.map((s) => s.start!));
+        for (let i = 0; i < 4; i++) view.setInt32(32 + i * 4, starts4[i], true);
+        
+        const steps4 = pad4(normSlices.map((s) => s.step!));
+        for (let i = 0; i < 4; i++) view.setInt32(48 + i * 4, steps4[i], true);
+        
+        view.setUint32(64, self._shape.length, true);
+        view.setUint32(68, gradOutputSize, true);
+        
+        const paramsBuffer = device.createBuffer({
+          size: 96,
+          usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST,
+        });
+        device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+        
+        const b_pipeline = getOrCreatePipeline(SLICE_BACKWARD_SHADER, 'slice_backward');
+        const b_bindGroup = device.createBindGroup({
+          layout: b_pipeline.getBindGroupLayout(0),
+          entries: [
+            { binding: 0, resource: { buffer: gradOutput._buffer, offset: 0, size: gradOutput._buffer.size } },
+            { binding: 1, resource: { buffer: gradInput._buffer, offset: 0, size: gradInput._buffer.size } },
+            { binding: 2, resource: { buffer: paramsBuffer, offset: 0, size: paramsBuffer.size } },
+          ],
+        });
+        
+        const b_commandEncoder = device.createCommandEncoder();
+        const b_passEncoder = b_commandEncoder.beginComputePass();
+        b_passEncoder.setPipeline(b_pipeline);
+        b_passEncoder.setBindGroup(0, b_bindGroup);
+        b_passEncoder.dispatchWorkgroups(...calculateWorkgroups(gradOutputSize));
+        b_passEncoder.end();
+        device.queue.submit([b_commandEncoder.finish()]);
+        
+        self.accumulateGrad(gradInput);
+      }
+    } : undefined;
+
     return new Tensor({
       buffer: outputBuffer,
       shape: newShape,
       dtype: this._dtype,
       device: 'webgpu',
       requires_grad: this._requires_grad,
+      grad_fn,
+      is_complex: this._is_complex,
     });
   }
 
@@ -2032,7 +2118,15 @@ export class Tensor {
       };
     }
 
-    return new Tensor({ buffer: outputBuffer, shape: newShape, dtype: this._dtype, device: 'webgpu', requires_grad: this._requires_grad, grad_fn });
+    return new Tensor({ 
+      buffer: outputBuffer, 
+      shape: newShape, 
+      dtype: this._dtype, 
+      device: 'webgpu', 
+      requires_grad: this._requires_grad, 
+      grad_fn,
+      is_complex: this._is_complex,
+    });
   }
 
   mm(other: Tensor): Tensor {
@@ -2285,8 +2379,9 @@ export class Tensor {
     const outShape = this._shape.filter((_, i) => i !== dim);
 
     if (outShape.length === 0) {
-      // Full reduction - use _reduce
-      return this._reduce(op);
+      // Full reduction - use _reduce but respect keepdim
+      const res = this._reduce(op);
+      return keepdim ? res.reshape(new Array(this._shape.length).fill(1)) : res;
     }
 
     // Partial reduction along one dimension

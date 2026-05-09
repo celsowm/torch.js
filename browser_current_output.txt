@@ -1,0 +1,771 @@
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 42 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:93:5 > torch.distributions > Bernoulli > constructs with probs
+AssertionError: expected [ 0.30000001192092896, …(1) ] to deeply equal [ 0.3, 0.7 ]
+
+- Expected
++ Received
+
+  [
+-   0.3,
+-   0.7,
++   0.30000001192092896,
++   0.699999988079071,
+  ]
+
+ ❯ tests/compatibility/distributions/distributions.test.ts:97:23
+     95|       const dist = new torch.distributions.Bernoulli(probs);
+     96|       const probsOut = Array.from(await dist.probs.toArray());
+     97|       expect(probsOut).toEqual([0.3, 0.7]);
+       |                       ^
+     98|     });
+     99|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:129:5 > torch.distributions > Bernoulli > mean equals probs
+AssertionError: expected [ 0.30000001192092896, …(1) ] to deeply equal [ 0.3, 0.7 ]
+
+- Expected
++ Received
+
+  [
+-   0.3,
+-   0.7,
++   0.30000001192092896,
++   0.699999988079071,
+  ]
+
+ ❯ tests/compatibility/distributions/distributions.test.ts:133:31
+    131|       const dist = new torch.distributions.Bernoulli(probs);
+    132|       const mean = await dist.mean.toArray();
+    133|       expect(Array.from(mean)).toEqual([0.3, 0.7]);
+       |                               ^
+    134|     });
+    135|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:168:5 > torch.distributions > Categorical > log_prob returns finite values
+TypeError: Failed to execute 'createBuffer' on 'GPUDevice': Failed to read the 'size' property from 'GPUBufferDescriptor': Value is not of type 'unsigned long long'.
+ ❯ GPUBufferPool.acquire src/backend/webgpu/buffer.ts:52:26
+     50|
+     51|     // Create new buffer
+     52|     const buffer = device.createBuffer({
+       |                          ^
+     53|       size: alignedSize,
+     54|       usage: usage | BufferUsage.COPY_SRC | BufferUsage.COPY_DST,
+ ❯ createStorageBuffer src/backend/webgpu/buffer.ts:122:20
+ ❯ Tensor.slice src/tensor/Tensor.ts:1766:25
+ ❯ Tensor.narrow src/tensor/Tensor.ts:1697:16
+ ❯ Tensor.select src/tensor/Tensor.ts:1314:16
+ ❯ Categorical.log_prob src/distributions/index.ts:234:26
+ ❯ tests/compatibility/distributions/distributions.test.ts:172:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:216:5 > torch.distributions > Uniform > log_prob returns finite for in-range values
+AssertionError: expected NaN to be close to +0, received difference is NaN, but expected 0.00005
+ ❯ tests/compatibility/distributions/distributions.test.ts:224:20
+    222|       const lpVal = (Array.from(await lp.toArray()))[0];
+    223|       // log(1/(1-0)) = 0
+    224|       expect(lpVal).toBeCloseTo(0.0, 4);
+       |                    ^
+    225|     });
+    226|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:381:5 > torch.distributions > Beta > sample returns values in (0, 1)
+AssertionError: expected 1 to be less than 1
+ ❯ tests/compatibility/distributions/distributions.test.ts:390:18
+    388|       sampleArr.forEach((v) => {
+    389|         expect(v).toBeGreaterThan(0);
+    390|         expect(v).toBeLessThan(1);
+       |                  ^
+    391|       });
+    392|     });
+ ❯ tests/compatibility/distributions/distributions.test.ts:388:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:421:5 > torch.distributions > Beta > entropy is positive for uniform-like params
+AssertionError: expected -2.384185791015625e-7 to be greater than 0
+ ❯ tests/compatibility/distributions/distributions.test.ts:427:16
+    425|       const entropy = dist.entropy();
+    426|       const h = (Array.from(await entropy.toArray()))[0];
+    427|       expect(h).toBeGreaterThan(0);
+       |                ^
+    428|       // entropy of Beta(1,1) = 0 (uniform), actually exactly 0
+    429|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:482:5 > torch.distributions > Dirichlet > entropy is positive for symmetric params
+AssertionError: expected -0.6931471824645996 to be greater than 0
+ ❯ tests/compatibility/distributions/distributions.test.ts:487:16
+    485|       const entropy = dist.entropy();
+    486|       const h = (Array.from(await entropy.toArray()))[0];
+    487|       expect(h).toBeGreaterThan(0);
+       |                ^
+    488|     });
+    489|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:522:5 > torch.distributions > Poisson > mean approximates rate
+AssertionError: expected 4.534200191497803 to be close to 5, received difference is 0.46579980850219727, but expected 0.05
+ ❯ tests/compatibility/distributions/distributions.test.ts:528:22
+    526|       const sampleMean = samples.mean(0);
+    527|       const meanVal = (Array.from(await sampleMean.toArray()))[0];
+    528|       expect(meanVal).toBeCloseTo(5.0, 1);
+       |                      ^
+    529|     });
+    530|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/42]⎯
+
+ FAIL   chromium  tests/compatibility/distributions/distributions.test.ts:531:5 > torch.distributions > Poisson > variance approximates rate
+AssertionError: expected 4.882625102996826 to be close to 5, received difference is 0.11737489700317383, but expected 0.05
+ ❯ tests/compatibility/distributions/distributions.test.ts:538:21
+    536|       const sampleVar = samples.sub(sampleMean).pow(2).mean(0);
+    537|       const varVal = (Array.from(await sampleVar.toArray()))[0];
+    538|       expect(varVal).toBeCloseTo(5.0, 1);
+       |                     ^
+    539|     });
+    540|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/math_ops.test.ts:222:5 > Core: Math Operations > log > computes natural log
+TypeError: Cannot read properties of undefined (reading 'toArray')
+ ❯ tests/compatibility/core/math_ops.test.ts:225:26
+    223|       const t = torch.tensor([1, Math.E, Math.E * Math.E]);
+    224|       const r = torch.log(t);
+    225|       const arr = await r.toArray();
+       |                          ^
+    226|       expect(arr[0]).toBeCloseTo(0);
+    227|       expect(arr[1]).toBeCloseTo(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:300:5 > Core: Reduction Operations > argmax > returns index of max element
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/reduction_ops.test.ts:303:26
+    301|       const t = torch.tensor([1, 5, 3, 2]);
+    302|       const r = torch.argmax(t);
+    303|       const arr = await r.toArray();
+       |                          ^
+    304|       expect(arr[0]).toBe(1);
+    305|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:307:5 > Core: Reduction Operations > argmax > argmax along dim 0
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/reduction_ops.test.ts:310:26
+    308|       const t = torch.tensor([[1, 5], [3, 2]]);
+    309|       const r = torch.argmax(t, 0);
+    310|       const arr = await r.toArray();
+       |                          ^
+    311|       expect(arr).toEqual([1, 0]);
+    312|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:314:5 > Core: Reduction Operations > argmax > argmax along dim 1
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/reduction_ops.test.ts:317:26
+    315|       const t = torch.tensor([[1, 5], [3, 2]]);
+    316|       const r = torch.argmax(t, 1);
+    317|       const arr = await r.toArray();
+       |                          ^
+    318|       expect(arr).toEqual([1, 0]);
+    319|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:321:5 > Core: Reduction Operations > argmax > argmax with keepdim
+AssertionError: expected undefined to deeply equal [ 1, 2 ]
+
+- Expected:
+[
+  1,
+  2,
+]
+
++ Received:
+undefined
+
+ ❯ tests/compatibility/core/reduction_ops.test.ts:324:22
+    322|       const t = torch.tensor([[1, 5], [3, 2]]);
+    323|       const r = torch.argmax(t, 0, true);
+    324|       expect(r.shape).toEqual([1, 2]);
+       |                      ^
+    325|     });
+    326|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:332:5 > Core: Reduction Operations > argmin > returns index of min element
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/reduction_ops.test.ts:335:26
+    333|       const t = torch.tensor([3, 1, 5, 2]);
+    334|       const r = torch.argmin(t);
+    335|       const arr = await r.toArray();
+       |                          ^
+    336|       expect(arr[0]).toBe(1);
+    337|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:339:5 > Core: Reduction Operations > argmin > argmin along dim 0
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/reduction_ops.test.ts:342:26
+    340|       const t = torch.tensor([[3, 1], [2, 5]]);
+    341|       const r = torch.argmin(t, 0);
+    342|       const arr = await r.toArray();
+       |                          ^
+    343|       expect(arr).toEqual([1, 0]);
+    344|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/reduction_ops.test.ts:346:5 > Core: Reduction Operations > argmin > argmin along dim 1
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/reduction_ops.test.ts:349:26
+    347|       const t = torch.tensor([[3, 1], [2, 5]]);
+    348|       const r = torch.argmin(t, 1);
+    349|       const arr = await r.toArray();
+       |                          ^
+    350|       expect(arr).toEqual([1, 0]);
+    351|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:70:5 > Core: Shape & Manipulation APIs > torch.atleast_3d > converts 2D to 3D
+AssertionError: expected [ 1, 2, 1 ] to deeply equal [ 1, 1, 2 ]
+
+- Expected
++ Received
+
+  [
+    1,
+-   1,
+    2,
++   1,
+  ]
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:73:27
+     71|       const t = torch.tensor([[2, 3]]);
+     72|       const result = torch.atleast_3d(t);
+     73|       expect(result.shape).toEqual([1, 1, 2]);
+       |                           ^
+     74|       const arr = await result.toArray();
+     75|       expect(Array.from(arr)).toEqual([2, 3]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:97:5 > Core: Shape & Manipulation APIs > torch.cartesian_prod > computes Cartesian product of two 1D tensors
+AssertionError: expected undefined to deeply equal [ 4, 2 ]
+
+- Expected:
+[
+  4,
+  2,
+]
+
++ Received:
+undefined
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:101:27
+     99|       const b = torch.tensor([3, 4]);
+    100|       const result = torch.cartesian_prod(a, b);
+    101|       expect(result.shape).toEqual([4, 2]);
+       |                           ^
+    102|       const arr = await result.toArray();
+    103|       const rows = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:110:5 > Core: Shape & Manipulation APIs > torch.cartesian_prod > computes Cartesian product of three tensors
+AssertionError: expected undefined to deeply equal [ 1, 3 ]
+
+- Expected:
+[
+  1,
+  3,
+]
+
++ Received:
+undefined
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:115:27
+    113|       const c = torch.tensor([3]);
+    114|       const result = torch.cartesian_prod(a, b, c);
+    115|       expect(result.shape).toEqual([1, 3]);
+       |                           ^
+    116|       const arr = await result.toArray();
+    117|       expect(Array.from(arr)).toEqual([1, 2, 3]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:125:5 > Core: Shape & Manipulation APIs > torch.combinations > computes combinations of 3 elements taken 2 at a time
+AssertionError: expected undefined to deeply equal [ 3, 2 ]
+
+- Expected:
+[
+  3,
+  2,
+]
+
++ Received:
+undefined
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:128:27
+    126|       const t = torch.tensor([1, 2, 3]);
+    127|       const result = torch.combinations(t, 2);
+    128|       expect(result.shape).toEqual([3, 2]);
+       |                           ^
+    129|       const arr = await result.toArray();
+    130|       const rows = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:137:5 > Core: Shape & Manipulation APIs > torch.combinations > computes combinations with replacement
+AssertionError: expected undefined to deeply equal [ 3, 2 ]
+
+- Expected:
+[
+  3,
+  2,
+]
+
++ Received:
+undefined
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:140:27
+    138|       const t = torch.tensor([1, 2]);
+    139|       const result = torch.combinations(t, 2, true);
+    140|       expect(result.shape).toEqual([3, 2]);
+       |                           ^
+    141|       const arr = await result.toArray();
+    142|       const rows = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:149:5 > Core: Shape & Manipulation APIs > torch.combinations > default r=2
+AssertionError: expected undefined to deeply equal [ 3, 2 ]
+
+- Expected:
+[
+  3,
+  2,
+]
+
++ Received:
+undefined
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:152:27
+    150|       const t = torch.tensor([10, 20, 30]);
+    151|       const result = torch.combinations(t);
+    152|       expect(result.shape).toEqual([3, 2]);
+       |                           ^
+    153|       const arr = await result.toArray();
+    154|       const rows = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:166:5 > Core: Shape & Manipulation APIs > torch.meshgrid > creates 2D coordinate grids
+TypeError: reshaped.broadcastTo is not a function
+ ❯ Module.meshgrid src/ops/creation.ts:691:25
+    689|     const reshaped = t.reshape(shape);
+    690|     const fullShape = [...shapes];
+    691|     result.push(reshaped.broadcastTo(fullShape));
+       |                         ^
+    692|   }
+    693|
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:169:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:179:5 > Core: Shape & Manipulation APIs > torch.meshgrid > creates grids with xy indexing
+TypeError: reshaped.broadcastTo is not a function
+ ❯ Module.meshgrid src/ops/creation.ts:691:25
+    689|     const reshaped = t.reshape(shape);
+    690|     const fullShape = [...shapes];
+    691|     result.push(reshaped.broadcastTo(fullShape));
+       |                         ^
+    692|   }
+    693|
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:182:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:276:5 > Core: Shape & Manipulation APIs > torch.tensor_split > splits tensor at specified indices
+AssertionError: expected +0 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:279:28
+    277|       const t = torch.tensor([1, 2, 3, 4, 5]);
+    278|       const chunks = torch.tensor_split(t, [2, 4]);
+    279|       expect(chunks.length).toBe(3);
+       |                            ^
+    280|       expect(chunks[0].shape).toEqual([2]);
+    281|       expect(chunks[1].shape).toEqual([2]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:291:5 > Core: Shape & Manipulation APIs > torch.tensor_split > splits with single index
+AssertionError: expected +0 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:294:28
+    292|       const t = torch.tensor([10, 20, 30, 40]);
+    293|       const chunks = torch.tensor_split(t, [2]);
+    294|       expect(chunks.length).toBe(2);
+       |                            ^
+    295|       expect(chunks[0].shape).toEqual([2]);
+    296|       expect(chunks[1].shape).toEqual([2]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:299:5 > Core: Shape & Manipulation APIs > torch.tensor_split > splits 2D tensor along specific dimension
+AssertionError: expected +0 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:302:28
+    300|       const t = torch.tensor([[1, 2, 3], [4, 5, 6]]);
+    301|       const chunks = torch.tensor_split(t, [1], 1);
+    302|       expect(chunks.length).toBe(2);
+       |                            ^
+    303|       expect(chunks[0].shape).toEqual([2, 1]);
+    304|       expect(chunks[1].shape).toEqual([2, 2]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:360:5 > Core: Shape & Manipulation APIs > torch.unravel_index > converts flat indices to multi-indices
+AssertionError: expected [ [ +0, +0 ], [ +0, +0 ], [ +0, +0 ] ] to deeply equal [ [ +0, +0 ], [ +0, 1 ], [ +0, 2 ] ]
+
+- Expected
++ Received
+
+@@ -3,12 +3,12 @@
+      0,
+      0,
+    ],
+    [
+      0,
+-     1,
++     0,
+    ],
+    [
++     0,
+      0,
+-     2,
+    ],
+  ]
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:370:19
+    368|         rows.push([arr[i * 2], arr[i * 2 + 1]]);
+    369|       }
+    370|       expect(rows).toEqual([[0, 0], [0, 1], [0, 2]]);
+       |                   ^
+    371|     });
+    372|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/shape_manipulation.test.ts:373:5 > Core: Shape & Manipulation APIs > torch.unravel_index > converts larger flat indices
+AssertionError: expected [ [ +0, +0 ], [ +0, +0 ], [ +0, +0 ] ] to deeply equal [ [ 1, +0 ], [ 1, 1 ], [ 1, 2 ] ]
+
+- Expected
++ Received
+
+  [
+    [
+-     1,
++     0,
+      0,
+    ],
+    [
+-     1,
+-     1,
++     0,
++     0,
+    ],
+    [
+-     1,
+-     2,
++     0,
++     0,
+    ],
+  ]
+
+ ❯ tests/compatibility/core/shape_manipulation.test.ts:382:19
+    380|         rows.push([arr[i * 2], arr[i * 2 + 1]]);
+    381|       }
+    382|       expect(rows).toEqual([[1, 0], [1, 1], [1, 2]]);
+       |                   ^
+    383|     });
+    384|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_creation.test.ts:35:5 > Core: Tensor Creation > tensor > creates tensor with bool dtype
+OperationError: Failed to execute 'writeBuffer' on 'GPUQueue': Number of bytes to write must be a multiple of 4
+ ❯ createBufferWithData src/backend/webgpu/buffer.ts:135:15
+    133|   // Using writeBuffer is efficient for one-time uploads to pooled buf…
+    134|   const device = getDevice();
+    135|   device.queue.writeBuffer(buffer, 0, data);
+       |               ^
+    136|
+    137|   return buffer;
+ ❯ Module.tensor src/ops/creation.ts:74:17
+ ❯ tests/compatibility/core/tensor_creation.test.ts:36:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_creation.test.ts:127:5 > Core: Tensor Creation > full > creates full tensor with int32 dtype
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/compatibility/core/tensor_creation.test.ts:131:49
+    129|       expect(t.dtype).toBe('int32');
+    130|       const arr = await t.toArray();
+    131|       expect(arr.every((v: number) => v === 42)).toBe(true);
+       |                                                 ^
+    132|     });
+    133|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_creation.test.ts:141:5 > Core: Tensor Creation > full > creates full tensor with negative value
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/compatibility/core/tensor_creation.test.ts:144:52
+    142|       const t = torch.full([4], -3.14);
+    143|       const arr = await t.toArray();
+    144|       expect(arr.every((v: number) => v === -3.14)).toBe(true);
+       |                                                    ^
+    145|     });
+    146|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:180:5 > Core: Tensor Operations > dstack > stacks tensors along depth (dim 2)
+AssertionError: expected [ 1, 1, 6 ] to deeply equal [ 1, 3, 2 ]
+
+- Expected
++ Received
+
+  [
+    1,
+-   3,
+-   2,
++   1,
++   6,
+  ]
+
+ ❯ tests/compatibility/core/tensor_ops.test.ts:184:22
+    182|       const b = torch.tensor([4, 5, 6]);
+    183|       const c = torch.dstack([a, b]);
+    184|       expect(c.shape).toEqual([1, 3, 2]);
+       |                      ^
+    185|     });
+    186|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:597:5 > Core: Tensor Operations > repeat_interleave > repeats each element
+AssertionError: expected [ 1, 2, 3, NaN, NaN, NaN ] to deeply equal [ 1, 1, 2, 2, 3, 3 ]
+
+- Expected
++ Received
+
+  [
+    1,
+-   1,
+    2,
+-   2,
+-   3,
+    3,
++   NaN,
++   NaN,
++   NaN,
+  ]
+
+ ❯ tests/compatibility/core/tensor_ops.test.ts:602:18
+    600|       expect(r.shape).toEqual([6]);
+    601|       const arr = await r.toArray();
+    602|       expect(arr).toEqual([1, 1, 2, 2, 3, 3]);
+       |                  ^
+    603|     });
+    604|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:681:5 > Core: Tensor Operations > take > takes elements by flattened index
+AssertionError: expected [ 1, +0 ] to deeply equal [ 1, 4 ]
+
+- Expected
++ Received
+
+  [
+    1,
+-   4,
++   0,
+  ]
+
+ ❯ tests/compatibility/core/tensor_ops.test.ts:686:18
+    684|       const r = torch.take(t, idx);
+    685|       const arr = await r.toArray();
+    686|       expect(arr).toEqual([1, 4]);
+       |                  ^
+    687|     });
+    688|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:717:5 > Core: Tensor Operations > scatter > scatters values along dim 1
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/tensor_ops.test.ts:722:26
+    720|       const out = torch.zeros([2, 2]);
+    721|       const r = torch.scatter(out, 1, idx, src);
+    722|       const arr = await r.toArray();
+       |                          ^
+    723|       expect(arr).toEqual([1, 2, 4, 3]);
+    724|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:731:5 > Core: Tensor Operations > scatter_add > scatters and adds values
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/tensor_ops.test.ts:736:26
+    734|       const out = torch.zeros([2, 2]);
+    735|       const r = torch.scatter_add(out, 0, idx, src);
+    736|       const arr = await r.toArray();
+       |                          ^
+    737|       expect(arr).toEqual([4, 0, 0, 6]);
+    738|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:768:5 > Core: Tensor Operations > masked_select > selects elements where mask is true
+OperationError: Failed to execute 'writeBuffer' on 'GPUQueue': Number of bytes to write must be a multiple of 4
+ ❯ createBufferWithData src/backend/webgpu/buffer.ts:135:15
+    133|   // Using writeBuffer is efficient for one-time uploads to pooled buf…
+    134|   const device = getDevice();
+    135|   device.queue.writeBuffer(buffer, 0, data);
+       |               ^
+    136|
+    137|   return buffer;
+ ❯ Module.tensor src/ops/creation.ts:74:17
+ ❯ tests/compatibility/core/tensor_ops.test.ts:770:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/42]⎯
+
+ FAIL   chromium  tests/compatibility/core/tensor_ops.test.ts:776:5 > Core: Tensor Operations > masked_select > selects from 2D tensor
+TypeError: r.toArray is not a function
+ ❯ tests/compatibility/core/tensor_ops.test.ts:780:26
+    778|       const mask = torch.tensor([[true, false], [false, true]], { dtyp…
+    779|       const r = torch.masked_select(t, mask);
+    780|       const arr = await r.toArray();
+       |                          ^
+    781|       expect(arr).toEqual([1, 4]);
+    782|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/42]⎯
+
+ FAIL   chromium  tests/compatibility/tensor/tensor_methods.test.ts:189:5 > Tensor Math Methods > tensor.round() > rounds to nearest integer
+AssertionError: expected [ 1, 2, 3, 1 ] to deeply equal [ 1, 2, 3, -1 ]
+
+- Expected
++ Received
+
+  [
+    1,
+    2,
+    3,
+-   -1,
++   1,
+  ]
+
+ ❯ tests/compatibility/tensor/tensor_methods.test.ts:193:30
+    191|       const result = t.round();
+    192|       const arr = await result.toArray();
+    193|       expect(Array.from(arr)).toEqual([1, 2, 3, -1]);
+       |                              ^
+    194|     });
+    195|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/42]⎯
+
+ FAIL   chromium  tests/compatibility/tensor/tensor_methods.test.ts:363:5 > Tensor Math Methods > tensor.sigmoid() > sigmoid output is between 0 and 1
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/compatibility/tensor/tensor_methods.test.ts:367:21
+    365|       const result = t.sigmoid();
+    366|       const arr = await result.toArray();
+    367|       expect(arr[0]).toBeGreaterThan(0);
+       |                     ^
+    368|       expect(arr[0]).toBeLessThan(0.01);
+    369|       expect(arr[1]).toBeCloseTo(0.5, 2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/42]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Failed to run the test C:/Users/celso/Documents/projetos/torch.js/tests/compatibility/sparse/sparse.test.ts.
+ ❯ node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:2626:17
+
+Caused by: Error: [vitest] Browser connection was closed while running tests. Was the page closed unexpectedly?
+ ❯ WebSocket.<anonymous> node_modules/@vitest/browser/dist/index.js:3034:16
+ ❯ WebSocket.emit node:events:520:35
+ ❯ WebSocket.emitClose node_modules/ws/lib/websocket.js:273:10
+ ❯ Socket.socketOnClose node_modules/ws/lib/websocket.js:1346:15
+ ❯ Socket.emit node:events:520:35
+ ❯ TCP.<anonymous> node:net:346:12
+
+Caused by: Error: [birpc] rpc is closed, cannot call "createTesters"
+ ❯ node_modules/@vitest/browser/dist/index.js:2896:34
+ ❯ Proxy.$close node_modules/@vitest/browser/dist/index.js:2895:18
+ ❯ WebSocket.<anonymous> node_modules/@vitest/browser/dist/index.js:3034:9
+ ❯ WebSocket.emit node:events:520:35
+ ❯ WebSocket.emitClose node_modules/ws/lib/websocket.js:273:10
+ ❯ Socket.socketOnClose node_modules/ws/lib/websocket.js:1346:15
+ ❯ Socket.emit node:events:520:35
+ ❯ TCP.<anonymous> node:net:346:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+

@@ -1,0 +1,99 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:222:5[22m[2m[2m > [22m[2mCore: Math Operations[2m > [22m[2mlog[2m > [22m[2mcomputes natural log
+[22m[39m[torch.js] [object Object]
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/math_ops.test.ts [2m([22m[2m66 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m65 skipped[39m[2m)[22m[32m 264[2mms[22m[39m
+       [2m[90m↓[39m[22m adds two tensors element-wise
+       [2m[90m↓[39m[22m adds scalar to tensor
+       [2m[90m↓[39m[22m broadcasts during add
+       [2m[90m↓[39m[22m subtracts two tensors
+       [2m[90m↓[39m[22m subtracts scalar from tensor
+       [2m[90m↓[39m[22m multiplies two tensors element-wise
+       [2m[90m↓[39m[22m multiplies by scalar
+       [2m[90m↓[39m[22m divides two tensors element-wise
+       [2m[90m↓[39m[22m divides by scalar
+       [2m[90m↓[39m[22m computes absolute value
+       [2m[90m↓[39m[22m abs of positive is unchanged
+       [2m[90m↓[39m[22m computes ceiling
+       [2m[90m↓[39m[22m computes floor
+       [2m[90m↓[39m[22m rounds to nearest integer
+       [2m[90m↓[39m[22m truncates toward zero
+       [2m[90m↓[39m[22m computes fractional part
+       [2m[90m↓[39m[22m computes e^x
+       [2m[90m↓[39m[22m computes 2^x
+[31m       [31m×[31m computes natural log[39m[32m 2[2mms[22m[39m
+       [2m[90m↓[39m[22m computes log base 2
+       [2m[90m↓[39m[22m computes log base 10
+       [2m[90m↓[39m[22m computes log(1 + x)
+       [2m[90m↓[39m[22m computes square root
+       [2m[90m↓[39m[22m computes 1/sqrt(x)
+       [2m[90m↓[39m[22m computes x^2
+       [2m[90m↓[39m[22m computes 1/x
+       [2m[90m↓[39m[22m computes x^exponent
+       [2m[90m↓[39m[22m works with float exponent
+       [2m[90m↓[39m[22m computes sine
+       [2m[90m↓[39m[22m computes cosine
+       [2m[90m↓[39m[22m computes tangent
+       [2m[90m↓[39m[22m computes arcsine
+       [2m[90m↓[39m[22m computes arccosine
+       [2m[90m↓[39m[22m computes arctangent
+       [2m[90m↓[39m[22m computes hyperbolic sine
+       [2m[90m↓[39m[22m computes hyperbolic cosine
+       [2m[90m↓[39m[22m computes hyperbolic tangent
+       [2m[90m↓[39m[22m computes inverse hyperbolic sine
+       [2m[90m↓[39m[22m computes inverse hyperbolic cosine
+       [2m[90m↓[39m[22m computes inverse hyperbolic tangent
+       [2m[90m↓[39m[22m computes sigmoid function
+       [2m[90m↓[39m[22m sigmoid of large positive approaches 1
+       [2m[90m↓[39m[22m sigmoid of large negative approaches 0
+       [2m[90m↓[39m[22m computes ReLU
+       [2m[90m↓[39m[22m ReLU of all positive is identity
+       [2m[90m↓[39m[22m computes GELU
+       [2m[90m↓[39m[22m computes softplus
+       [2m[90m↓[39m[22m computes SiLU (x * sigmoid(x))
+       [2m[90m↓[39m[22m negates tensor
+       [2m[90m↓[39m[22m computes sign
+       [2m[90m↓[39m[22m computes error function
+       [2m[90m↓[39m[22m computes complementary error function
+       [2m[90m↓[39m[22m detects NaN values
+       [2m[90m↓[39m[22m non-NaN values are false
+       [2m[90m↓[39m[22m clips values to range
+       [2m[90m↓[39m[22m clips with only min
+       [2m[90m↓[39m[22m clips with only max
+       [2m[90m↓[39m[22m clamps values to range
+       [2m[90m↓[39m[22m clamp with only min
+       [2m[90m↓[39m[22m clamps minimum values
+       [2m[90m↓[39m[22m clamps maximum values
+       [2m[90m↓[39m[22m computes remainder with sign of dividend
+       [2m[90m↓[39m[22m computes remainder always positive
+       [2m[90m↓[39m[22m element-wise maximum
+       [2m[90m↓[39m[22m maximum with broadcasting
+       [2m[90m↓[39m[22m element-wise minimum
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m65 skipped[39m[90m (66)[39m
+[2m   Start at [22m 12:13:09
+[2m   Duration [22m 4.18s[2m (transform 0ms, setup 0ms, import 617ms, tests 264ms, environment 0ms)[22m
+

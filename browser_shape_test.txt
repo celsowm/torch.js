@@ -1,0 +1,94 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+Port 63315 is in use, trying another one...
+[90mstdout[2m | tests/compatibility/core/shape_manipulation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Shape & Manipulation APIs
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/shape_manipulation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Shape & Manipulation APIs
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/shape_manipulation.test.ts [2m([22m[2m62 tests[22m[2m | [22m[31m13 failed[39m[2m)[22m[33m 900[2mms[22m[39m
+       [32m✓[39m converts scalar to 1D[32m 74[2mms[22m[39m
+       [32m✓[39m leaves 1D tensor unchanged[32m 41[2mms[22m[39m
+       [32m✓[39m leaves 2D tensor unchanged[32m 1[2mms[22m[39m
+       [32m✓[39m converts 1D to 2D[32m 8[2mms[22m[39m
+       [32m✓[39m leaves 2D tensor unchanged[32m 4[2mms[22m[39m
+       [32m✓[39m converts scalar to 2D[32m 4[2mms[22m[39m
+[31m       [31m×[31m converts 2D to 3D[39m[32m 6[2mms[22m[39m
+       [32m✓[39m leaves 3D tensor unchanged[32m 1[2mms[22m[39m
+       [32m✓[39m converts 1D to 3D with shape [1, N, 1][32m 13[2mms[22m[39m
+[31m       [31m×[31m computes Cartesian product of two 1D tensors[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m computes Cartesian product of three tensors[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m computes combinations of 3 elements taken 2 at a time[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m computes combinations with replacement[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m default r=2[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m creates 2D coordinate grids[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m creates grids with xy indexing[39m[32m 1[2mms[22m[39m
+       [32m✓[39m moves dimension 0 to position 2[32m 2[2mms[22m[39m
+       [32m✓[39m moves multiple dimensions[32m 1[2mms[22m[39m
+       [32m✓[39m handles negative dimensions[32m 1[2mms[22m[39m
+       [32m✓[39m rotates 2D tensor by 90 degrees[32m 64[2mms[22m[39m
+       [32m✓[39m rotates by 180 degrees (k=2)[32m 22[2mms[22m[39m
+       [32m✓[39m rotates by 270 degrees (k=3)[32m 18[2mms[22m[39m
+       [32m✓[39m k=0 returns unchanged[32m 4[2mms[22m[39m
+       [32m✓[39m swaps dimensions 0 and 1[32m 2[2mms[22m[39m
+       [32m✓[39m swaps dimensions in 2D tensor (like transpose)[32m 6[2mms[22m[39m
+[31m       [31m×[31m splits tensor at specified indices[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m splits with single index[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m splits 2D tensor along specific dimension[39m[32m 1[2mms[22m[39m
+       [32m✓[39m computes trace of 2x2 matrix[32m 28[2mms[22m[39m
+       [32m✓[39m computes trace of 3x3 matrix[32m 22[2mms[22m[39m
+       [32m✓[39m computes trace of non-square matrix[32m 49[2mms[22m[39m
+       [32m✓[39m unflattens a dimension[32m 1[2mms[22m[39m
+       [32m✓[39m unflattens first dimension[32m 0[2mms[22m[39m
+       [32m✓[39m throws when product does not match dimension size[32m 1[2mms[22m[39m
+[31m       [31m×[31m converts flat indices to multi-indices[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m converts larger flat indices[39m[32m 7[2mms[22m[39m
+       [32m✓[39m stacks 1D tensors as rows (alias of vstack)[32m 2[2mms[22m[39m
+       [32m✓[39m produces same result as vstack[32m 9[2mms[22m[39m
+       [32m✓[39m returns number of dimensions for 1D tensor[32m 0[2mms[22m[39m
+       [32m✓[39m returns number of dimensions for 3D tensor[32m 0[2mms[22m[39m
+       [32m✓[39m returns 0 for scalar tensor[32m 0[2mms[22m[39m
+       [32m✓[39m expands singleton dimension[32m 20[2mms[22m[39m
+       [32m✓[39m expands to higher dimension[32m 4[2mms[22m[39m
+       [32m✓[39m expands scalar-like to 2D[32m 3[2mms[22m[39m
+       [32m✓[39m moves dimension 0 to position 2[32m 1[2mms[22m[39m
+       [32m✓[39m moves multiple dimensions[32m 1[2mms[22m[39m
+       [32m✓[39m rotates 2D tensor by 90 degrees[32m 10[2mms[22m[39m
+       [32m✓[39m rotates by 180 degrees[32m 13[2mms[22m[39m
+       [32m✓[39m swaps dimensions 0 and 1[32m 1[2mms[22m[39m
+       [32m✓[39m swaps dimensions in 2D tensor[32m 6[2mms[22m[39m
+       [32m✓[39m unflattens a dimension[32m 0[2mms[22m[39m
+       [32m✓[39m unflattens with different sizes[32m 0[2mms[22m[39m
+       [32m✓[39m computes element-wise arctan2[32m 28[2mms[22m[39m
+       [32m✓[39m computes arctan2 for various quadrants[32m 2[2mms[22m[39m
+       [32m✓[39m computes log(exp(x) + exp(y))[32m 20[2mms[22m[39m
+       [32m✓[39m computes logaddexp for different values[32m 2[2mms[22m[39m
+       [32m✓[39m computes logaddexp element-wise on tensors[32m 1[2mms[22m[39m
+       [32m✓[39m fills values where mask is true[32m 22[2mms[22m[39m
+       [32m✓[39m fills with non-zero value[32m 6[2mms[22m[39m
+       [32m✓[39m no mask true returns unchanged[32m 2[2mms[22m[39m
+       [32m✓[39m computes log(exp(x) + exp(y)) as function[32m 5[2mms[22m[39m
+       [32m✓[39m matches Tensor.logaddexp method[32m 8[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m13 failed[39m[22m[2m | [22m[1m[32m49 passed[39m[22m[90m (62)[39m
+[2m   Start at [22m 11:43:18
+[2m   Duration [22m 5.48s[2m (transform 0ms, setup 0ms, import 742ms, tests 900ms, environment 0ms)[22m
+

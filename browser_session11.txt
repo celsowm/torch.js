@@ -1,0 +1,727 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:217:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mcomputes matrix inverse
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_pivot] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_pivot] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_update] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_update] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:233:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2minv(inv(A)) approximates A
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:233:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2minv(inv(A)) approximates A
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:301:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.matrix_power[2m > [22m[2mcomputes A^n for negative n (inverse power)
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/linalg/decomp.test.ts [2m([22m[2m31 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 949[2mms[22m[39m
+       [32m✓[39m decomposes MxN matrix into U, S, Vh[32m 9[2mms[22m[39m
+       [32m✓[39m reconstructs matrix: A ~ U @ diag(S) @ Vh[32m 59[2mms[22m[39m
+       [32m✓[39m singular values are sorted descending[32m 9[2mms[22m[39m
+       [32m✓[39m computes eigenvalues and eigenvectors of symmetric matrix[32m 5[2mms[22m[39m
+       [32m✓[39m eigenvalues are in ascending order[32m 7[2mms[22m[39m
+[31m       [31m×[31m reconstructs matrix: A = V @ diag(eigenvalues) @ V^T[39m[32m 40[2mms[22m[39m
+       [32m✓[39m computes reduced QR decomposition[32m 5[2mms[22m[39m
+       [32m✓[39m Q is orthogonal (Q^T Q = I)[32m 31[2mms[22m[39m
+[31m       [31m×[31m R is upper triangular[39m[32m 28[2mms[22m[39m
+       [32m✓[39m computes complete QR decomposition[32m 7[2mms[22m[39m
+       [32m✓[39m solves Ax = b for single RHS[32m 16[2mms[22m[39m
+       [32m✓[39m solves Ax = b for multiple RHS columns[32m 14[2mms[22m[39m
+       [32m✓[39m solution is correct for known system[32m 14[2mms[22m[39m
+       [32m✓[39m computes Moore-Penrose pseudo-inverse[32m 46[2mms[22m[39m
+       [32m✓[39m A @ pinv(A) approximates I (for full row rank)[32m 13[2mms[22m[39m
+       [32m✓[39m pinv(A) @ A approximates I (for full column rank)[32m 22[2mms[22m[39m
+[31m       [31m×[31m computes lower triangular Cholesky factor[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m reconstructs matrix: A ~ L @ L^T[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m computes upper triangular Cholesky factor[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m computes matrix inverse[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m A @ inv(A) approximates I[39m[32m 87[2mms[22m[39m
+[31m       [31m×[31m inv(inv(A)) approximates A[39m[32m 14[2mms[22m[39m
+       [32m✓[39m computes cross product of 3D vectors[32m 62[2mms[22m[39m
+       [32m✓[39m result is perpendicular to both input vectors[32m 19[2mms[22m[39m
+       [32m✓[39m computes batched cross products[32m 13[2mms[22m[39m
+       [32m✓[39m computes A^n for positive n[32m 6[2mms[22m[39m
+       [32m✓[39m computes A^0 = I[32m 7[2mms[22m[39m
+[31m       [31m×[31m computes A^n for negative n (inverse power)[39m[32m 12[2mms[22m[39m
+       [32m✓[39m computes dot product of two vectors[32m 7[2mms[22m[39m
+       [32m✓[39m computes batched vector dot products[32m 27[2mms[22m[39m
+       [32m✓[39m computes dot product along specified dimension[32m 6[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/linear_algebra.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Linear Algebra
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/linear_algebra.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Linear Algebra
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/linear_algebra.test.ts [2m([22m[2m34 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 845[2mms[22m[39m
+       [32m✓[39m matrix multiplies 2D tensors[32m 33[2mms[22m[39m
+       [32m✓[39m matrix-vector multiplication[32m 4[2mms[22m[39m
+       [32m✓[39m vector-matrix multiplication[32m 2[2mms[22m[39m
+       [32m✓[39m dot product of vectors[32m 16[2mms[22m[39m
+       [32m✓[39m batched matmul[32m 1[2mms[22m[39m
+       [32m✓[39m matrix multiplies 2D tensors[32m 84[2mms[22m[39m
+       [32m✓[39m mm with identity matrix[32m 7[2mms[22m[39m
+       [32m✓[39m batch matrix multiply[32m 65[2mms[22m[39m
+       [32m✓[39m bmm with non-identity[32m 13[2mms[22m[39m
+       [32m✓[39m computes dot product[32m 4[2mms[22m[39m
+       [32m✓[39m dot with zeros[32m 6[2mms[22m[39m
+       [32m✓[39m computes vector dot product[32m 4[2mms[22m[39m
+       [32m✓[39m computes outer product[32m 1[2mms[22m[39m
+       [32m✓[39m outer with ones[32m 5[2mms[22m[39m
+       [32m✓[39m computes outer product (alias of outer)[32m 4[2mms[22m[39m
+       [32m✓[39m computes beta*input + alpha*mat1 @ mat2[32m 21[2mms[22m[39m
+       [32m✓[39m addmm with beta=0[32m 4[2mms[22m[39m
+       [32m✓[39m addmm with alpha scaling[32m 4[2mms[22m[39m
+[31m       [31m×[31m adds batched matrix multiply result[39m[32m 2[2mms[22m[39m
+       [32m✓[39m batched addmm[32m 23[2mms[22m[39m
+       [32m✓[39m matrix-vector multiply[32m 4[2mms[22m[39m
+       [32m✓[39m mv with identity[32m 8[2mms[22m[39m
+       [32m✓[39m adds matrix-vector multiply result[32m 8[2mms[22m[39m
+       [32m✓[39m addmv with beta=0[32m 4[2mms[22m[39m
+       [32m✓[39m adds outer product of two vectors[32m 4[2mms[22m[39m
+       [32m✓[39m matrix multiply with einsum[32m 1[2mms[22m[39m
+       [32m✓[39m dot product with einsum[32m 4[2mms[22m[39m
+       [32m✓[39m transpose with einsum[32m 13[2mms[22m[39m
+       [32m✓[39m sum with einsum[32m 5[2mms[22m[39m
+       [32m✓[39m batched matmul with einsum[32m 1[2mms[22m[39m
+       [32m✓[39m computes hypotenuse[32m 13[2mms[22m[39m
+       [32m✓[39m hypot with zeros[32m 5[2mms[22m[39m
+       [32m✓[39m computes trapezoidal integration[32m 8[2mms[22m[39m
+       [32m✓[39m trapezoid with different dx[32m 5[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/optim/optimizers.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/optimizers.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/optim/optimizers.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 18056[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step (basic convergence on f(x)=x^2) [33m 328[2mms[22m[39m
+     [33m[2m✓[22m[39m momentum accelerates convergence [33m 903[2mms[22m[39m
+     [33m[2m✓[22m[39m higher lr leads to faster convergence [33m 389[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 554[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with default hyperparameters [33m 1641[2mms[22m[39m
+     [33m[2m✓[22m[39m weight_decay regularizes [33m 792[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 596[2mms[22m[39m
+     [33m[2m✓[22m[39m weight_decay decouples from gradient update [33m 1034[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 793[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with weight_decay [33m 1101[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 803[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with weight_decay [33m 838[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 782[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with weight_decay [33m 812[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 698[2mms[22m[39m
+     [33m[2m✓[22m[39m lambd controls decay rate [33m 827[2mms[22m[39m
+     [33m[2m✓[22m[39m alpha affects lr decay exponent [33m 668[2mms[22m[39m
+     [33m[2m✓[22m[39m momentum helps convergence [33m 408[2mms[22m[39m
+     [33m[2m✓[22m[39m weight_decay regularizes [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m SGD optimizes multiple parameters simultaneously [33m 717[2mms[22m[39m
+     [33m[2m✓[22m[39m Adam optimizes multiple parameters simultaneously [33m 1158[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/distributions/distributions.test.ts[2m:16:1[22m[2m[2m > [22m[2mtorch.distributions
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/distributions/distributions.test.ts[2m:16:1[22m[2m[2m > [22m[2mtorch.distributions
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/distributions/distributions.test.ts [2m([22m[2m52 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1423[2mms[22m[39m
+       [32m✓[39m constructs with loc and scale[32m 6[2mms[22m[39m
+       [32m✓[39m sample returns correct shape[32m 1[2mms[22m[39m
+       [32m✓[39m sample returns correct shape with no sample_shape[32m 1[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values[32m 172[2mms[22m[39m
+[31m       [31m×[31m mean approximates loc and variance approximates scale^2[39m[32m 35[2mms[22m[39m
+       [32m✓[39m entropy has correct sign for unit normal[32m 13[2mms[22m[39m
+       [32m✓[39m constructs with probs[32m 5[2mms[22m[39m
+       [32m✓[39m sample returns values in {0, 1}[32m 42[2mms[22m[39m
+       [32m✓[39m sample shape without sample_shape[32m 0[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values[32m 5[2mms[22m[39m
+       [32m✓[39m mean equals probs[32m 4[2mms[22m[39m
+       [32m✓[39m variance = p*(1-p)[32m 2[2mms[22m[39m
+       [32m✓[39m constructs with probs that sum to 1[32m 5[2mms[22m[39m
+       [33m[2m✓[22m[39m sample returns valid category indices [33m 588[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values[32m 1[2mms[22m[39m
+       [32m✓[39m entropy is positive for uniform probs[32m 9[2mms[22m[39m
+       [32m✓[39m constructs with low and high[32m 9[2mms[22m[39m
+       [32m✓[39m sample returns values in [low, high][32m 26[2mms[22m[39m
+       [32m✓[39m log_prob returns finite for in-range values[32m 15[2mms[22m[39m
+       [32m✓[39m entropy = log(high - low)[32m 4[2mms[22m[39m
+       [32m✓[39m mean = (low + high) / 2[32m 4[2mms[22m[39m
+       [32m✓[39m variance = (high - low)^2 / 12[32m 4[2mms[22m[39m
+       [32m✓[39m entropy is positive for non-degenerate range[32m 5[2mms[22m[39m
+       [32m✓[39m constructs with rate[32m 4[2mms[22m[39m
+       [32m✓[39m sample returns values > 0[32m 16[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values[32m 4[2mms[22m[39m
+       [32m✓[39m mean = 1/rate[32m 16[2mms[22m[39m
+       [32m✓[39m variance = 1/rate^2[32m 6[2mms[22m[39m
+       [32m✓[39m entropy is positive[32m 4[2mms[22m[39m
+       [32m✓[39m constructs with concentration and rate[32m 7[2mms[22m[39m
+       [32m✓[39m sample returns values > 0[32m 35[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values[32m 17[2mms[22m[39m
+       [32m✓[39m mean = concentration / rate[32m 5[2mms[22m[39m
+       [32m✓[39m variance = concentration / rate^2[32m 5[2mms[22m[39m
+       [32m✓[39m constructs with concentration1 and concentration0[32m 8[2mms[22m[39m
+       [32m✓[39m sample returns values in (0, 1)[32m 24[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values for valid samples[32m 8[2mms[22m[39m
+       [32m✓[39m mean = c1 / (c1 + c0)[32m 4[2mms[22m[39m
+       [32m✓[39m variance matches formula[32m 5[2mms[22m[39m
+       [32m✓[39m entropy is positive for uniform-like params[32m 22[2mms[22m[39m
+       [32m✓[39m constructs with concentration vector[32m 4[2mms[22m[39m
+       [32m✓[39m sample returns simplex (values sum to 1)[32m 9[2mms[22m[39m
+       [32m✓[39m sample values are positive[32m 8[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values[32m 4[2mms[22m[39m
+       [32m✓[39m mean = concentration / sum(concentration)[32m 4[2mms[22m[39m
+       [32m✓[39m entropy is positive for symmetric params[32m 8[2mms[22m[39m
+       [32m✓[39m constructs with rate[32m 4[2mms[22m[39m
+       [32m✓[39m sample returns integer values >= 0[32m 23[2mms[22m[39m
+       [32m✓[39m log_prob returns finite values for integer samples[32m 6[2mms[22m[39m
+       [32m✓[39m mean approximates rate[32m 8[2mms[22m[39m
+       [32m✓[39m variance approximates rate[32m 8[2mms[22m[39m
+       [32m✓[39m entropy is positive[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/math_ops.test.ts [2m([22m[2m66 tests[22m[2m)[22m[33m 888[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/special/special_funcs.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.special
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/special/special_funcs.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.special
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/special/special_funcs.test.ts [2m([22m[2m53 tests[22m[2m)[22m[33m 772[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/tensor_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/tensor_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/tensor_ops.test.ts [2m([22m[2m89 tests[22m[2m)[22m[33m 723[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/reduction_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Reduction Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/reduction_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Reduction Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/reduction_ops.test.ts [2m([22m[2m62 tests[22m[2m)[22m[33m 765[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/tensor/tensor_methods.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Math Methods
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/tensor/tensor_methods.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Math Methods
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/tensor/tensor_methods.test.ts [2m([22m[2m55 tests[22m[2m)[22m[33m 762[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/tensor/tensor_shape.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Shape Methods
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/tensor/tensor_shape.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Shape Methods
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/tensor/tensor_shape.test.ts [2m([22m[2m69 tests[22m[2m)[22m[33m 433[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/optim/lr_scheduler.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/lr_scheduler.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/optim/lr_scheduler.test.ts [2m([22m[2m36 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 187[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 1[2mms[22m[39m
+     [32m✓[39m lr decreases by gamma every step_size steps[32m 1[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m auto-increment epoch when not provided[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+[31m     [31m×[31m lr drops at specific milestones[39m[32m 1[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr *= gamma each epoch[32m 1[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr follows cosine schedule[32m 0[2mms[22m[39m
+     [32m✓[39m lr returns to near base_lr after full cycle[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+[31m     [31m×[31m lr drops after patience epochs of no improvement (min mode)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m lr drops after patience epochs of no improvement (max mode)[39m[32m 0[2mms[22m[39m
+     [32m✓[39m lr does not drop when metrics improve[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch tracks number of step calls[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr stays constant at factor * base_lr[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m factor=1.0 keeps base lr[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr follows custom lambda schedule[32m 0[2mms[22m[39m
+     [32m✓[39m supports linear warmup lambda[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+[31m     [31m×[31m supports array of lambdas for multiple param groups[39m[32m 1[2mms[22m[39m
+     [32m✓[39m StepLR state_dict contains last_epoch[32m 0[2mms[22m[39m
+     [32m✓[39m LambdaLR state_dict contains last_epoch[32m 0[2mms[22m[39m
+     [32m✓[39m load_state_dict restores last_epoch[32m 0[2mms[22m[39m
+     [32m✓[39m ReduceLROnPlateau state_dict contains best and counters[32m 0[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/tensor/tensor_index.test.ts[2m:5:1[22m[2m[2m > [22m[2mTensor Indexing Methods
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/tensor/tensor_index.test.ts[2m:5:1[22m[2m[2m > [22m[2mTensor Indexing Methods
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/tensor/tensor_index.test.ts [2m([22m[2m40 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 420[2mms[22m[39m
+       [32m✓[39m selects a single index[32m 24[2mms[22m[39m
+       [32m✓[39m selects multiple indices[32m 5[2mms[22m[39m
+       [32m✓[39m slices with Slice object[32m 4[2mms[22m[39m
+       [32m✓[39m mixed select and slice[32m 6[2mms[22m[39m
+       [32m✓[39m slice with step[32m 3[2mms[22m[39m
+       [32m✓[39m negative index[32m 4[2mms[22m[39m
+       [32m✓[39m full slice with Slice.null[32m 3[2mms[22m[39m
+       [32m✓[39m variadic index selection[32m 2[2mms[22m[39m
+       [32m✓[39m single index via at[32m 4[2mms[22m[39m
+       [32m✓[39m slice via at[32m 4[2mms[22m[39m
+       [32m✓[39m slices along single dimension[32m 5[2mms[22m[39m
+       [32m✓[39m slices along multiple dimensions[32m 4[2mms[22m[39m
+       [32m✓[39m slice with step[32m 4[2mms[22m[39m
+       [32m✓[39m slice entire dimension (defaults)[32m 10[2mms[22m[39m
+       [32m✓[39m slices with Slice objects[32m 6[2mms[22m[39m
+       [32m✓[39m mixed select and slice[32m 8[2mms[22m[39m
+       [32m✓[39m step slicing[32m 10[2mms[22m[39m
+[31m       [31m×[31m sets value at index via get + destroy pattern[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m sets multiple values via scatter[39m[32m 1[2mms[22m[39m
+       [32m✓[39m gathers values along dimension 0[32m 11[2mms[22m[39m
+       [32m✓[39m gathers values along dimension 1[32m 12[2mms[22m[39m
+       [32m✓[39m gather preserves index shape[32m 0[2mms[22m[39m
+[31m       [31m×[31m scatters values into tensor[39m[32m 1[2mms[22m[39m
+       [32m✓[39m adds scattered values[32m 1[2mms[22m[39m
+       [32m✓[39m selects from two tensors based on condition[32m 11[2mms[22m[39m
+       [32m✓[39m all true selects first[32m 1[2mms[22m[39m
+       [32m✓[39m all false selects second[32m 1[2mms[22m[39m
+       [32m✓[39m selects elements where mask is true[32m 10[2mms[22m[39m
+       [32m✓[39m no elements selected returns empty[32m 6[2mms[22m[39m
+       [32m✓[39m all elements selected returns all[32m 9[2mms[22m[39m
+       [32m✓[39m 2D mask selection[32m 18[2mms[22m[39m
+       [32m✓[39m returns indices of non-zero elements in 1D[32m 6[2mms[22m[39m
+       [32m✓[39m returns indices of non-zero elements in 2D[32m 8[2mms[22m[39m
+       [32m✓[39m all zeros returns empty[32m 1[2mms[22m[39m
+       [32m✓[39m selects elements along dimension 0[32m 14[2mms[22m[39m
+       [32m✓[39m selects elements along dimension 1[32m 3[2mms[22m[39m
+       [32m✓[39m selects with repeated indices[32m 8[2mms[22m[39m
+       [32m✓[39m returns indices of non-zero elements (1D)[32m 7[2mms[22m[39m
+[31m       [31m×[31m returns indices of non-zero elements (2D)[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m returns empty for all-zero tensor[39m[32m 5[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/comparison_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Comparison Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/comparison_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Comparison Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/comparison_ops.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 659[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/quick_wins.test.ts[2m:5:1[22m[2m[2m > [22m[2mQuick Wins: Compatibility Tests
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/quick_wins.test.ts[2m:5:1[22m[2m[2m > [22m[2mQuick Wins: Compatibility Tests
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/quick_wins.test.ts [2m([22m[2m49 tests[22m[2m)[22m[33m 579[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/shape_manipulation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Shape & Manipulation APIs
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/shape_manipulation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Shape & Manipulation APIs
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/shape_manipulation.test.ts [2m([22m[2m62 tests[22m[2m)[22m[33m 540[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/math_aliases.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Aliases and Less Common Functions
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/math_aliases.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Aliases and Less Common Functions
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/math_aliases.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 556[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:36:1[22m[2m[2m > [22m[2medge_cases
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:36:1[22m[2m[2m > [22m[2medge_cases
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:99:5[22m[2m[2m > [22m[2medge_cases[2m > [22m[2mtorch.linalg.lu_factor[2m > [22m[2mlu_factor of 3x3 matrix returns (LU, pivots)
+[22m[39mlu_factor P details: {
+  "buffer_size": 12,
+  "dtype": "float32",
+  "numel": 3,
+  "shape": [
+    1,
+    3,
+  ],
+}
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:107:5[22m[2m[2m > [22m[2medge_cases[2m > [22m[2mtorch.linalg.lu_factor[2m > [22m[2mLU shape matches A shape for square matrix
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:118:5[22m[2m[2m > [22m[2medge_cases[2m > [22m[2mtorch.linalg.solve_triangular[2m > [22m[2msolve upper triangular system: AX=B verified by A @ X ≈ B
+[22m[39m[WGSL lu_pivot] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:118:5[22m[2m[2m > [22m[2medge_cases[2m > [22m[2mtorch.linalg.solve_triangular[2m > [22m[2msolve upper triangular system: AX=B verified by A @ X ≈ B
+[22m[39m[WGSL lu_pivot] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:118:5[22m[2m[2m > [22m[2medge_cases[2m > [22m[2mtorch.linalg.solve_triangular[2m > [22m[2msolve upper triangular system: AX=B verified by A @ X ≈ B
+[22m[39m[WGSL lu_update] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/core/edge_cases.test.ts[2m:118:5[22m[2m[2m > [22m[2medge_cases[2m > [22m[2mtorch.linalg.solve_triangular[2m > [22m[2msolve upper triangular system: AX=B verified by A @ X ≈ B
+[22m[39m[WGSL lu_update] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/edge_cases.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 483[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/core/tensor_creation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Creation
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/tensor_creation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Creation
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/core/tensor_creation.test.ts [2m([22m[2m77 tests[22m[2m)[22m[33m 515[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/sparse/sparse.test.ts[2m:7:1[22m[2m[2m > [22m[2mtorch.sparse
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/sparse/sparse.test.ts[2m:7:1[22m[2m[2m > [22m[2mtorch.sparse
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+
+[2m Test Files [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m13 passed[39m[22m[90m (41)[39m
+[2m      Tests [22m [1m[31m20 failed[39m[22m[2m | [22m[1m[32m909 passed[39m[22m[90m (957)[39m
+[2m     Errors [22m [1m[31m1 error[39m[22m
+[2m   Start at [22m 13:52:22
+[2m   Duration [22m 46.19s[2m (transform 0ms, setup 0ms, import 4.48s, tests 29.56s, environment 0ms)[22m
+

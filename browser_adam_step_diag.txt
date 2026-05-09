@@ -1,0 +1,90 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mshould show Adam state after first step
+[22m[39mParam before step: [
+  2,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mshould show Adam state after first step
+[22m[39mGrad: [
+  4,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mshould show Adam state after first step
+[22m[39mParam after 1 step: [
+  1.899999976158142,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mshould show Adam state after first step
+[22m[39mGrad 2nd step: [
+  3.799999952316284,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mshould show Adam state after first step
+[22m[39mParam after 2 steps: [
+  1.8001664876937866,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mshould show Adam state after first step
+[22m[39mParam after 12 steps: [
+  0.8435153961181641,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:48:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mtest zeros_like works
+[22m[39mzeros_like result: [
+  0,
+  0,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:55:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mtest exp_avg and exp_avg_sq creation
+[22m[39mexp_avg: [
+  0,
+  0,
+  0,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:55:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mtest exp_avg and exp_avg_sq creation
+[22m[39mexp_avg_sq: [
+  0,
+  0,
+  0,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:55:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mtest exp_avg and exp_avg_sq creation
+[22m[39mgrad: [
+  4,
+  -6,
+  3,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:55:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mtest exp_avg and exp_avg_sq creation
+[22m[39mnew_exp_avg: [
+  0.4000000059604645,
+  -0.6000000238418579,
+  0.30000001192092896,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_step_diagnostic.test.ts[2m:55:3[22m[2m[2m > [22m[2mAdam step-by-step[2m > [22m[2mtest exp_avg and exp_avg_sq creation
+[22m[39mnew_exp_avg_sq: [
+  0.01600000075995922,
+  0.036000002175569534,
+  0.009000000543892384,
+]
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/optim/adam_step_diagnostic.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 515[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 02:02:19
+[2m   Duration [22m 4.39s[2m (transform 0ms, setup 0ms, import 605ms, tests 515ms, environment 0ms)[22m
+

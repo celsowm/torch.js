@@ -1,0 +1,73 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/activations.test.ts[2m:130:1[22m[2m[2m > [22m[2mnn.Hardshrink
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/activations.test.ts[2m:130:1[22m[2m[2m > [22m[2mnn.Hardshrink
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/activations.test.ts [2m([22m[2m42 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m41 skipped[39m[2m)[22m[33m 391[2mms[22m[39m
+     [2m[90m↓[39m[22m preserves shape
+     [2m[90m↓[39m[22m clamps negatives to zero
+     [2m[90m↓[39m[22m values in (0,1)
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m values in (-1,1)
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m large positive ~ x
+     [2m[90m↓[39m[22m sums to 1
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m all positive
+     [2m[90m↓[39m[22m values <= 0
+     [2m[90m↓[39m[22m exp sums to 1
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m learnable weight
+     [2m[90m↓[39m[22m positive unchanged
+     [2m[90m↓[39m[22m negative scaled
+     [2m[90m↓[39m[22m positive unchanged
+     [2m[90m↓[39m[22m negative transformed
+     [2m[90m↓[39m[22m custom alpha
+     [2m[90m↓[39m[22m training mode: negatives scaled randomly
+     [2m[90m↓[39m[22m eval mode: avg slope
+     [2m[90m↓[39m[22m clamps
+     [2m[90m↓[39m[22m custom range
+[31m     [31m×[31m zeroes |x| <= lambd[39m[32m 99[2mms[22m[39m
+     [2m[90m↓[39m[22m shrinks toward zero
+     [2m[90m↓[39m[22m values <= 0
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m sums to 1, higher prob for smaller values
+     [2m[90m↓[39m[22m training: scales by (1-p)
+     [2m[90m↓[39m[22m eval: identity
+     [2m[90m↓[39m[22m p=0: identity
+     [2m[90m↓[39m[22m 3D input training
+     [2m[90m↓[39m[22m 3D input eval
+     [2m[90m↓[39m[22m 2D input
+     [2m[90m↓[39m[22m training
+     [2m[90m↓[39m[22m eval: identity
+     [2m[90m↓[39m[22m training
+     [2m[90m↓[39m[22m eval
+     [2m[90m↓[39m[22m training
+     [2m[90m↓[39m[22m eval: identity
+     [2m[90m↓[39m[22m p=0: identity
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m41 skipped[39m[90m (42)[39m
+[2m   Start at [22m 15:34:31
+[2m   Duration [22m 4.63s[2m (transform 0ms, setup 0ms, import 646ms, tests 391ms, environment 0ms)[22m
+

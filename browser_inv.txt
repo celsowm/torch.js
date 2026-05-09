@@ -1,0 +1,110 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:217:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mcomputes matrix inverse
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_pivot] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_pivot] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_update] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_update] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:233:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2minv(inv(A)) approximates A
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:233:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2minv(inv(A)) approximates A
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/linalg/decomp.test.ts [2m([22m[2m31 tests[22m[2m | [22m[31m3 failed[39m[2m | [22m[33m28 skipped[39m[2m)[22m[33m 464[2mms[22m[39m
+       [2m[90m↓[39m[22m decomposes MxN matrix into U, S, Vh
+       [2m[90m↓[39m[22m reconstructs matrix: A ~ U @ diag(S) @ Vh
+       [2m[90m↓[39m[22m singular values are sorted descending
+       [2m[90m↓[39m[22m computes eigenvalues and eigenvectors of symmetric matrix
+       [2m[90m↓[39m[22m eigenvalues are in ascending order
+       [2m[90m↓[39m[22m reconstructs matrix: A = V @ diag(eigenvalues) @ V^T
+       [2m[90m↓[39m[22m computes reduced QR decomposition
+       [2m[90m↓[39m[22m Q is orthogonal (Q^T Q = I)
+       [2m[90m↓[39m[22m R is upper triangular
+       [2m[90m↓[39m[22m computes complete QR decomposition
+       [2m[90m↓[39m[22m solves Ax = b for single RHS
+       [2m[90m↓[39m[22m solves Ax = b for multiple RHS columns
+       [2m[90m↓[39m[22m solution is correct for known system
+       [2m[90m↓[39m[22m computes Moore-Penrose pseudo-inverse
+       [2m[90m↓[39m[22m A @ pinv(A) approximates I (for full row rank)
+       [2m[90m↓[39m[22m pinv(A) @ A approximates I (for full column rank)
+       [2m[90m↓[39m[22m computes lower triangular Cholesky factor
+       [2m[90m↓[39m[22m reconstructs matrix: A ~ L @ L^T
+       [2m[90m↓[39m[22m computes upper triangular Cholesky factor
+[31m       [31m×[31m computes matrix inverse[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m A @ inv(A) approximates I[39m[32m 77[2mms[22m[39m
+[31m       [31m×[31m inv(inv(A)) approximates A[39m[32m 19[2mms[22m[39m
+       [2m[90m↓[39m[22m computes cross product of 3D vectors
+       [2m[90m↓[39m[22m result is perpendicular to both input vectors
+       [2m[90m↓[39m[22m computes batched cross products
+       [2m[90m↓[39m[22m computes A^n for positive n
+       [2m[90m↓[39m[22m computes A^0 = I
+       [2m[90m↓[39m[22m computes A^n for negative n (inverse power)
+       [2m[90m↓[39m[22m computes dot product of two vectors
+       [2m[90m↓[39m[22m computes batched vector dot products
+       [2m[90m↓[39m[22m computes dot product along specified dimension
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[33m28 skipped[39m[90m (31)[39m
+[2m   Start at [22m 18:00:09
+[2m   Duration [22m 5.44s[2m (transform 0ms, setup 0ms, import 823ms, tests 464ms, environment 0ms)[22m
+

@@ -1,0 +1,74 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39mA shape: [
+  2,
+  2,
+]
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39mA data: [
+  1,
+  0,
+  0,
+  2,
+]
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39mAinv shape: [
+  2,
+  2,
+]
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39mAinv data: [
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+]
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39mproduct shape: [
+  2,
+  2,
+]
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39mproduct data: [
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+]
+[90mstdout[2m | tests/compatibility/linalg/inv_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2minv debug[2m > [22m[2mdebug 2x2 inverse
+[22m[39meye data: [
+  1,
+  0,
+  0,
+  1,
+]
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/linalg/inv_debug.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 449[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 18:01:59
+[2m   Duration [22m 5.67s[2m (transform 0ms, setup 0ms, import 1.15s, tests 449ms, environment 0ms)[22m
+

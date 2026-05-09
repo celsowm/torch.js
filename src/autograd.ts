@@ -5,6 +5,7 @@
 
 import { Tensor } from './tensor/index';
 import { is_grad_enabled } from './grad_mode';
+import { tensor } from './ops/creation';
 
 /**
  * Computes and returns the sum of gradients of outputs with respect to the inputs.
@@ -101,33 +102,31 @@ export async function jvp(
   const outNumel = outShape.reduce((a, b) => a * b, 1);
 
   if (outNumel === 1) {
-    // Scalar output: JVP = grad(output) * v[0]
-    const [gradResult] = grad(output, inputs, undefined, false, create_graph);
-    const vData = await v.toArray();
-    const vScalar = vData[0] || 1;
-    const jvpResult = gradResult.mul(vScalar);
-    return [output, jvpResult];
+    // Scalar output: JVP = dot(grad(output), v)
+    const [gradResult] = grad(output, inputs, undefined, true, create_graph);
+    const dotProduct = gradResult.reshape([-1]).mul(v.reshape([-1])).sum();
+    return [output, dotProduct.reshape(outShape)];
   }
 
-  // Vector output: JVP = sum over i of (v_i * grad(output_i))
+  // Vector output: JVP = J @ v
+  // The i-th element of JVP is dot(grad(output_i), v)
   const outputFlat = output.reshape([outNumel]);
-  const vData = await v.toArray();
+  const resultData: number[] = [];
   
-  let result: Tensor | null = null;
   for (let i = 0; i < outNumel; i++) {
     const out_i = outputFlat.select(0, i);
-    const v_i = vData[i] || 0;
-    if (v_i === 0) continue;
     const [grad_i] = grad(out_i, inputs, undefined, true, create_graph);
-    const weighted = grad_i.mul(v_i);
-    if (result === null) {
-      result = weighted;
-    } else {
-      result = result.add(weighted);
-    }
+    
+    // Compute dot product of grad_i and v
+    const dotProduct = grad_i.reshape([-1]).mul(v.reshape([-1])).sum();
+    const dotData = await dotProduct.toArray();
+    // console.log(`out_i=${i}, grad_i=${await grad_i.toArray()}, v=${await v.toArray()}, dot=${dotData[0]}`);
+    resultData.push(dotData[0]);
   }
 
-  return [output, result || inputs.zeros_like()];
+  // Reshape back to output shape
+  const tensorResult = tensor(resultData, { dtype: inputs.dtype });
+  return [output, tensorResult.reshape(outShape)];
 }
 
 /**

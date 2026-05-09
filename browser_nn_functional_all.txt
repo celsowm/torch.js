@@ -1,0 +1,68 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/functional.test.ts[2m:11:1[22m[2m[2m > [22m[2mF.relu
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/functional.test.ts[2m:11:1[22m[2m[2m > [22m[2mF.relu
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/functional.test.ts [2m([22m[2m37 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 1382[2mms[22m[39m
+     [32m✓[39m clamps negatives[32m 154[2mms[22m[39m
+     [32m✓[39m shape[32m 2[2mms[22m[39m
+     [32m✓[39m values in (0,1)[32m 38[2mms[22m[39m
+     [32m✓[39m values in (-1,1)[32m 18[2mms[22m[39m
+     [32m✓[39m sums to 1[32m 111[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m values <= 0[32m 4[2mms[22m[39m
+     [32m✓[39m exp sums to 1[32m 7[2mms[22m[39m
+     [32m✓[39m eval: identity[32m 26[2mms[22m[39m
+     [32m✓[39m train: scales[32m 25[2mms[22m[39m
+     [32m✓[39m p=0: identity[32m 3[2mms[22m[39m
+     [32m✓[39m p=1: zeros[32m 4[2mms[22m[39m
+     [32m✓[39m basic[32m 2[2mms[22m[39m
+     [32m✓[39m stride[32m 1[2mms[22m[39m
+     [32m✓[39m padding[32m 1[2mms[22m[39m
+     [32m✓[39m bias[32m 1[2mms[22m[39m
+[31m     [31m×[31m dilation[39m[32m 9[2mms[22m[39m
+     [32m✓[39m kernel 2[32m 1[2mms[22m[39m
+     [32m✓[39m stride[32m 1[2mms[22m[39m
+[31m     [31m×[31m padding[39m[32m 3[2mms[22m[39m
+     [32m✓[39m kernel 2[32m 2[2mms[22m[39m
+     [32m✓[39m stride[32m 1[2mms[22m[39m
+     [32m✓[39m size nearest[32m 1[2mms[22m[39m
+[31m     [31m×[31m scale_factor nearest[39m[32m 4[2mms[22m[39m
+     [32m✓[39m downsample[32m 1[2mms[22m[39m
+     [32m✓[39m L2 norm [3,4] -> [0.6,0.8][32m 288[2mms[22m[39m
+     [32m✓[39m unit norm[32m 33[2mms[22m[39m
+     [32m✓[39m constant pad[32m 2[2mms[22m[39m
+     [32m✓[39m 3 classes[32m 8[2mms[22m[39m
+     [32m✓[39m auto num_classes[32m 5[2mms[22m[39m
+     [32m✓[39m mse_loss[32m 26[2mms[22m[39m
+     [32m✓[39m l1_loss[32m 6[2mms[22m[39m
+     [32m✓[39m cross_entropy[32m 47[2mms[22m[39m
+     [32m✓[39m binary_cross_entropy[32m 51[2mms[22m[39m
+     [32m✓[39m nll_loss[32m 10[2mms[22m[39m
+     [32m✓[39m huber_loss[32m 53[2mms[22m[39m
+     [32m✓[39m kl_div_loss[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m34 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 15:13:58
+[2m   Duration [22m 7.84s[2m (transform 0ms, setup 0ms, import 1.37s, tests 1.38s, environment 0ms)[22m
+

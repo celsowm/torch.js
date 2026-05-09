@@ -1,0 +1,37 @@
+[34mCLI[39m Building entry: {"index":"src/index.ts","core":"src/core.ts","serialization/common":"src/serialization/common.ts"}
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Using tsup config: C:\Users\celso\Documents\projetos\torch.js\tsup.config.ts
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist\serialization\common.js     [22m[32m301.00 B[39m
+[32mESM[39m [1mdist\index.js                    [22m[32m6.96 KB[39m
+[32mESM[39m [1mdist\chunk-NX4OSIJM.js           [22m[32m285.41 KB[39m
+[32mESM[39m [1mdist\chunk-A3OCYSEQ.js           [22m[32m4.02 KB[39m
+[32mESM[39m [1mdist\core.js                     [22m[32m5.47 KB[39m
+[32mESM[39m [1mdist\backend-6C7JQVHV.js         [22m[32m4.58 KB[39m
+[32mESM[39m [1mdist\chunk-CRJTLFNU.js           [22m[32m278.71 KB[39m
+[32mESM[39m [1mdist\creation-HF34DJWC.js        [22m[32m1.03 KB[39m
+[32mESM[39m [1mdist\Tensor-KRKICTGG.js          [22m[32m190.00 B[39m
+[32mESM[39m [1mdist\chunk-UB3CS3P2.js           [22m[32m124.48 KB[39m
+[32mESM[39m [1mdist\chunk-RROBQSND.js           [22m[32m191.48 KB[39m
+[32mESM[39m [1mdist\serialization\common.js.map [22m[32m71.00 B[39m
+[32mESM[39m [1mdist\index.js.map                [22m[32m3.48 KB[39m
+[32mESM[39m [1mdist\chunk-A3OCYSEQ.js.map       [22m[32m8.53 KB[39m
+[32mESM[39m [1mdist\core.js.map                 [22m[32m71.00 B[39m
+[32mESM[39m [1mdist\backend-6C7JQVHV.js.map     [22m[32m71.00 B[39m
+[32mESM[39m [1mdist\Tensor-KRKICTGG.js.map      [22m[32m71.00 B[39m
+[32mESM[39m [1mdist\creation-HF34DJWC.js.map    [22m[32m71.00 B[39m
+[32mESM[39m [1mdist\chunk-NX4OSIJM.js.map       [22m[32m621.00 KB[39m
+[32mESM[39m [1mdist\chunk-UB3CS3P2.js.map       [22m[32m144.39 KB[39m
+[32mESM[39m [1mdist\chunk-CRJTLFNU.js.map       [22m[32m510.55 KB[39m
+[32mESM[39m [1mdist\chunk-RROBQSND.js.map       [22m[32m336.61 KB[39m
+[32mESM[39m ⚡️ Build success in 141ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 5864ms
+[32mDTS[39m [1mdist\index.d.ts                   [22m[32m20.36 KB[39m
+[32mDTS[39m [1mdist\serialization\common.d.ts    [22m[32m917.00 B[39m
+[32mDTS[39m [1mdist\core.d.ts                    [22m[32m3.66 KB[39m
+[32mDTS[39m [1mdist\core-jWtxIBKk.d.ts           [22m[32m193.33 KB[39m
+[32mDTS[39m [1mdist\pytorch_loader-DQJp8N7I.d.ts [22m[32m349.00 B[39m

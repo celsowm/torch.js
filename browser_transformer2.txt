@@ -1,0 +1,31 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/transformer.test.ts[2m:12:1[22m[2m[2m > [22m[2mnn.TransformerEncoderLayer
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/transformer.test.ts[2m:12:1[22m[2m[2m > [22m[2mnn.TransformerEncoderLayer
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/nn/transformer.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 1979[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m31 passed[39m[22m[90m (31)[39m
+[2m   Start at [22m 17:52:59
+[2m   Duration [22m 5.99s[2m (transform 0ms, setup 0ms, import 622ms, tests 1.98s, environment 0ms)[22m
+

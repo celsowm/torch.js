@@ -1,0 +1,69 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+Port 63315 is in use, trying another one...
+[90mstdout[2m | tests/compatibility/core/comparison_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Comparison Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/comparison_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Comparison Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/comparison_ops.test.ts [2m([22m[2m37 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 1292[2mms[22m[39m
+       [32m✓[39m element-wise equality[32m 70[2mms[22m[39m
+       [32m✓[39m equality with broadcasting[32m 37[2mms[22m[39m
+       [32m✓[39m element-wise not equal[32m 36[2mms[22m[39m
+       [32m✓[39m not_equal alias[32m 3[2mms[22m[39m
+       [32m✓[39m element-wise less than[32m 44[2mms[22m[39m
+       [32m✓[39m less alias[32m 22[2mms[22m[39m
+       [32m✓[39m element-wise less than or equal[32m 27[2mms[22m[39m
+       [32m✓[39m less_equal alias[32m 2[2mms[22m[39m
+       [32m✓[39m element-wise greater than[32m 23[2mms[22m[39m
+       [32m✓[39m greater alias[32m 9[2mms[22m[39m
+       [32m✓[39m element-wise greater than or equal[32m 23[2mms[22m[39m
+       [32m✓[39m greater_equal alias[32m 18[2mms[22m[39m
+[31m       [31m×[31m returns true for identical tensors[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m returns false for different tensors[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m returns false for different shapes[39m[32m 1[2mms[22m[39m
+       [32m✓[39m detects close values with default tolerance[32m 267[2mms[22m[39m
+       [32m✓[39m handles NaN with equal_nan[32m 9[2mms[22m[39m
+       [32m✓[39m handles different tolerances[32m 11[2mms[22m[39m
+[31m       [31m×[31m returns true for close tensors[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m returns false for different tensors[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m handles NaN with equal_nan[39m[32m 2[2mms[22m[39m
+       [32m✓[39m detects infinite values[32m 25[2mms[22m[39m
+       [32m✓[39m returns all zeros for finite tensor[32m 2[2mms[22m[39m
+       [32m✓[39m detects finite values[32m 2[2mms[22m[39m
+       [32m✓[39m returns all ones for finite tensor[32m 4[2mms[22m[39m
+       [32m✓[39m detects positive infinity[32m 23[2mms[22m[39m
+       [32m✓[39m detects negative infinity[32m 23[2mms[22m[39m
+       [32m✓[39m computes bitwise AND[32m 20[2mms[22m[39m
+[31m       [31m×[31m bitwise AND with boolean tensors[39m[32m 1[2mms[22m[39m
+       [32m✓[39m computes bitwise OR[32m 22[2mms[22m[39m
+[31m       [31m×[31m bitwise OR with boolean tensors[39m[32m 0[2mms[22m[39m
+       [32m✓[39m computes bitwise XOR[32m 22[2mms[22m[39m
+[31m       [31m×[31m bitwise XOR with boolean tensors[39m[32m 0[2mms[22m[39m
+       [32m✓[39m element-wise max, ignores NaN[32m 21[2mms[22m[39m
+       [32m✓[39m fmax with both NaN[32m 4[2mms[22m[39m
+       [32m✓[39m element-wise min, ignores NaN[32m 29[2mms[22m[39m
+       [32m✓[39m fmin with both NaN[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m28 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 08:55:04
+[2m   Duration [22m 6.24s[2m (transform 0ms, setup 0ms, import 898ms, tests 1.29s, environment 0ms)[22m
+

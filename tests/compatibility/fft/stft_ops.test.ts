@@ -12,9 +12,10 @@ describe('torch.fft STFT operations', () => {
       const result = await torch.fft.stft(x, 8);
       const shape = result.shape;
       // n_fft=8 => freq_bins = 8//2+1 = 5
-      // hop_length=2 (default n_fft/4) => num_frames = (16-8)/2+1 = 5
-      expect(shape[shape.length - 2]).toBe(5); // freq bins
-      expect(shape[shape.length - 1]).toBeGreaterThan(0); // time frames
+      // hop_length=2 (default n_fft/4) => num_frames = (16-8)/2+1 = 9
+      expect(shape[shape.length - 3]).toBe(5); // freq bins
+      expect(shape[shape.length - 2]).toBeGreaterThan(0); // time frames
+      expect(shape[shape.length - 1]).toBe(2); // complex
     });
 
     it('STFT with custom hop_length', async () => {
@@ -22,7 +23,7 @@ describe('torch.fft STFT operations', () => {
       const result = await torch.fft.stft(x, 8, 4);
       const shape = result.shape;
       // hop_length=4 => num_frames = (16-8)/4+1 = 3
-      expect(shape[shape.length - 1]).toBeGreaterThanOrEqual(1);
+      expect(shape[shape.length - 2]).toBeGreaterThanOrEqual(1);
     });
 
     it('STFT with window', async () => {
@@ -30,7 +31,7 @@ describe('torch.fft STFT operations', () => {
       const window = torch.hann_window(8);
       const result = await torch.fft.stft(x, 8, 2, 8, window);
       const shape = result.shape;
-      expect(shape[shape.length - 2]).toBe(5);
+      expect(shape[shape.length - 3]).toBe(5);
     });
 
     it('STFT with center=false', async () => {
@@ -38,7 +39,7 @@ describe('torch.fft STFT operations', () => {
       const result = await torch.fft.stft(x, 8, 2, undefined, undefined, false);
       const shape = result.shape;
       // Without padding, fewer frames
-      expect(shape[shape.length - 1]).toBeGreaterThanOrEqual(1);
+      expect(shape[shape.length - 2]).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -49,6 +50,10 @@ describe('torch.fft STFT operations', () => {
       const reconstructed = await torch.fft.istft(stftResult, 16, 4);
       const original = Array.from(await x.toArray());
       const recon = Array.from(await reconstructed.toArray());
+      if (maxAbsDiff(original, recon) >= 0.1) {
+        console.log('original:', original);
+        console.log('recon:', recon);
+      }
       // Allow some error due to windowing overlap-add
       expect(maxAbsDiff(original, recon)).toBeLessThan(0.1);
     });

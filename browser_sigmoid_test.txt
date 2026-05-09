@@ -1,0 +1,86 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/tensor/tensor_methods.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Math Methods
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/tensor/tensor_methods.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Math Methods
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/tensor/tensor_methods.test.ts [2m([22m[2m55 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m54 skipped[39m[2m)[22m[33m 342[2mms[22m[39m
+       [2m[90m↓[39m[22m adds a scalar to each element
+       [2m[90m↓[39m[22m adds two tensors element-wise
+       [2m[90m↓[39m[22m preserves shape and dtype
+       [2m[90m↓[39m[22m works with empty-like single element
+       [2m[90m↓[39m[22m subtracts a scalar from each element
+       [2m[90m↓[39m[22m subtracts two tensors element-wise
+       [2m[90m↓[39m[22m handles negative results
+       [2m[90m↓[39m[22m multiplies each element by a scalar
+       [2m[90m↓[39m[22m multiplies two tensors element-wise
+       [2m[90m↓[39m[22m multiplying by zero yields zeros
+       [2m[90m↓[39m[22m divides each element by a scalar
+       [2m[90m↓[39m[22m divides two tensors element-wise
+       [2m[90m↓[39m[22m handles division resulting in fractions
+       [2m[90m↓[39m[22m raises each element to a scalar power
+       [2m[90m↓[39m[22m raises to power 0 yields ones
+       [2m[90m↓[39m[22m raises to power 1 returns same values
+       [2m[90m↓[39m[22m handles fractional powers
+       [2m[90m↓[39m[22m computes absolute value of each element
+       [2m[90m↓[39m[22m all positive values remain unchanged
+       [2m[90m↓[39m[22m rounds up to nearest integer
+       [2m[90m↓[39m[22m rounds down to nearest integer
+       [2m[90m↓[39m[22m rounds to nearest integer
+       [2m[90m↓[39m[22m truncates toward zero
+       [2m[90m↓[39m[22m computes e^x for each element
+       [2m[90m↓[39m[22m computes natural logarithm
+       [2m[90m↓[39m[22m log(1) is 0
+       [2m[90m↓[39m[22m computes square root
+       [2m[90m↓[39m[22m sqrt(0) is 0
+       [2m[90m↓[39m[22m squares each element
+       [2m[90m↓[39m[22m square of negative is positive
+       [2m[90m↓[39m[22m computes 1/x for each element
+       [2m[90m↓[39m[22m computes sine of each element
+       [2m[90m↓[39m[22m computes cosine of each element
+       [2m[90m↓[39m[22m computes tangent of each element
+       [2m[90m↓[39m[22m computes hyperbolic sine
+       [2m[90m↓[39m[22m computes hyperbolic cosine
+       [2m[90m↓[39m[22m computes hyperbolic tangent
+       [2m[90m↓[39m[22m computes sigmoid function
+[31m       [31m×[31m sigmoid output is between 0 and 1[39m[32m 21[2mms[22m[39m
+       [2m[90m↓[39m[22m zeros out negative values
+       [2m[90m↓[39m[22m positive values unchanged
+       [2m[90m↓[39m[22m computes GELU activation
+       [2m[90m↓[39m[22m softmax sums to 1
+       [2m[90m↓[39m[22m all softmax values are positive
+       [2m[90m↓[39m[22m preserves shape
+       [2m[90m↓[39m[22m log_softmax is log of softmax
+       [2m[90m↓[39m[22m preserves shape
+       [2m[90m↓[39m[22m negates all elements
+       [2m[90m↓[39m[22m returns sign of each element
+       [2m[90m↓[39m[22m identifies NaN values
+       [2m[90m↓[39m[22m non-NaN values return false
+       [2m[90m↓[39m[22m identifies infinite values
+       [2m[90m↓[39m[22m finite values return false
+       [2m[90m↓[39m[22m identifies finite values
+       [2m[90m↓[39m[22m non-finite values return false
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m54 skipped[39m[90m (55)[39m
+[2m   Start at [22m 11:42:22
+[2m   Duration [22m 4.30s[2m (transform 0ms, setup 0ms, import 632ms, tests 342ms, environment 0ms)[22m
+

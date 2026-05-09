@@ -1,0 +1,46 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mtorch.log debug[2m > [22m[2mcheck if torch.log exists
+[22m[39mtorch.log type: function
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mtorch.log debug[2m > [22m[2mcheck if torch.log exists
+[22m[39mtorch.log: function log(message, ...args) {
+	console.log(`[torch.js] ${message}`, ...args);
+}
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mtorch.log debug[2m > [22m[2mcheck if torch.log exists
+[22m[39mtensor created: [
+  3,
+]
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mtorch.log debug[2m > [22m[2mcheck if torch.log exists
+[22m[39m[torch.js] [object Object]
+[90mstdout[2m | tests/compatibility/core/log_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mtorch.log debug[2m > [22m[2mcheck if torch.log exists
+[22m[39mlog result: undefined
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/log_debug.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 225[2mms[22m[39m
+[31m     [31m×[31m check if torch.log exists[39m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 13:04:58
+[2m   Duration [22m 4.55s[2m (transform 0ms, setup 0ms, import 626ms, tests 225ms, environment 0ms)[22m
+

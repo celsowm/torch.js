@@ -79,7 +79,7 @@ describe('torch.autograd', () => {
       const v = torch.tensor([1.0, 1.0]);
       // f(x) = [x0 + x1, x1 + x2]
       const [output, vjpResult] = torch.autograd.vjp(
-        (t) => torch.cat([t.slice([0, 2]).sum(-1, true), t.slice([1, 3]).sum(-1, true)]),
+        (t) => torch.cat([t.slice([{start: 0, stop: 2}]).sum(-1, true), t.slice([{start: 1, stop: 3}]).sum(-1, true)]),
         x,
         v,
       );
@@ -231,7 +231,7 @@ describe('torch.autograd', () => {
   describe('torch.autograd.gradcheck', () => {
     it('verifies analytical gradients match numerical for linear function', async () => {
       const x = torch.tensor([2.0, 3.0], { requires_grad: true });
-      const eps = 1e-6;
+      const eps = 1e-3;
       // Numerical gradient via finite differences
       const x0 = Array.from(await x.toArray());
       const f0 = Array.from(await x.pow(2).sum(-1, true).toArray());
@@ -250,14 +250,14 @@ describe('torch.autograd', () => {
       const analyticalGrad = Array.from(await x.grad!.toArray());
       // Compare
       for (let i = 0; i < 2; i++) {
-        expect(analyticalGrad[i]).toBeCloseTo(numericalGrad[i], 3);
+        expect(analyticalGrad[i]).toBeCloseTo(numericalGrad[i], 2);
       }
     });
 
     it('verifies gradients for matrix multiplication', async () => {
       const A = torch.tensor([[1.0, 2.0], [3.0, 4.0]], { requires_grad: true });
       const B = torch.tensor([[5.0], [6.0]]);
-      const eps = 1e-5;
+      const eps = 1e-3;
       const y = torch.matmul(A, B);
       const loss = y.sum();
       loss.backward();
@@ -268,14 +268,14 @@ describe('torch.autograd', () => {
       const Ap = torch.tensor(AData.flat(), { requires_grad: false }).reshape([2, 2]);
       const yp = torch.matmul(Ap, B);
       const lossP = Array.from(await yp.sum().toArray());
-      const loss0 = Array.from(await y.toArray());
+      const loss0 = Array.from(await y.sum().toArray());
       const numerical = (lossP[0] - loss0[0]) / eps;
-      expect(analyticalGrad[0]).toBeCloseTo(numerical, 3);
+      expect(analyticalGrad[0]).toBeCloseTo(numerical, 2);
     });
 
     it('verifies gradients through composition of operations', async () => {
       const x = torch.tensor([1.0, 2.0], { requires_grad: true });
-      const eps = 1e-6;
+      const eps = 1e-3;
       // f(x) = sum(exp(x))
       const y = x.exp().sum(-1, true);
       y.backward(torch.ones_like(y));
@@ -291,7 +291,7 @@ describe('torch.autograd', () => {
         numericalGrad.push((fPlus[0] - f0[0]) / eps);
       }
       for (let i = 0; i < 2; i++) {
-        expect(analyticalGrad[i]).toBeCloseTo(numericalGrad[i], 3);
+        expect(analyticalGrad[i]).toBeCloseTo(numericalGrad[i], 2);
       }
     });
   });

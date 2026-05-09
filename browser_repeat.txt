@@ -1,0 +1,120 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/tensor_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/tensor_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/tensor_ops.test.ts [2m([22m[2m89 tests[22m[2m | [22m[31m2 failed[39m[2m | [22m[33m87 skipped[39m[2m)[22m[32m 283[2mms[22m[39m
+       [2m[90m↓[39m[22m concatenates two 1D tensors
+       [2m[90m↓[39m[22m concatenates 2D tensors along dim 0
+       [2m[90m↓[39m[22m concatenates along dim 1
+       [2m[90m↓[39m[22m concatenates multiple tensors
+       [2m[90m↓[39m[22m throws on shape mismatch
+       [2m[90m↓[39m[22m stacks two 1D tensors into 2D
+       [2m[90m↓[39m[22m stacks along dim 1
+       [2m[90m↓[39m[22m stacks multiple tensors
+       [2m[90m↓[39m[22m splits a tensor into equal chunks
+       [2m[90m↓[39m[22m splits with remainder
+       [2m[90m↓[39m[22m splits 2D tensor along dim 0
+       [2m[90m↓[39m[22m splits tensor into N chunks
+       [2m[90m↓[39m[22m handles uneven chunks
+       [2m[90m↓[39m[22m stacks tensors vertically
+       [2m[90m↓[39m[22m stacks 2D tensors
+       [2m[90m↓[39m[22m stacks tensors horizontally
+       [2m[90m↓[39m[22m stacks 2D tensors horizontally
+       [2m[90m↓[39m[22m stacks tensors along depth (dim 2)
+       [2m[90m↓[39m[22m stacks 2D tensors along depth
+       [2m[90m↓[39m[22m stacks 1D tensors as columns
+       [2m[90m↓[39m[22m reshapes a tensor
+       [2m[90m↓[39m[22m flattens a tensor
+       [2m[90m↓[39m[22m reshapes with -1 dimension
+       [2m[90m↓[39m[22m flattens a 2D tensor
+       [2m[90m↓[39m[22m flattens from start_dim
+       [2m[90m↓[39m[22m flattens partially with start_dim and end_dim
+       [2m[90m↓[39m[22m removes all dimensions of size 1
+       [2m[90m↓[39m[22m squeezes specific dimension
+       [2m[90m↓[39m[22m does nothing when no dim is 1
+       [2m[90m↓[39m[22m adds a dimension at position 0
+       [2m[90m↓[39m[22m adds a dimension at position 1
+       [2m[90m↓[39m[22m adds dimension to scalar
+       [2m[90m↓[39m[22m transposes a 2D tensor
+       [2m[90m↓[39m[22m transposes specific dimensions in 3D tensor
+       [2m[90m↓[39m[22m permutes dimensions
+       [2m[90m↓[39m[22m permutes 2D tensor (same as transpose)
+       [2m[90m↓[39m[22m moves axis from source to destination
+       [2m[90m↓[39m[22m moves axis backward
+       [2m[90m↓[39m[22m swaps two axes
+       [2m[90m↓[39m[22m swaps axes in 2D tensor
+       [2m[90m↓[39m[22m flips tensor along all dims
+       [2m[90m↓[39m[22m flips along single dim
+       [2m[90m↓[39m[22m flips 2D along dim 0 only
+       [2m[90m↓[39m[22m flips tensor left-right
+       [2m[90m↓[39m[22m flips tensor up-down
+       [2m[90m↓[39m[22m rolls tensor by shift
+       [2m[90m↓[39m[22m rolls with negative shift
+       [2m[90m↓[39m[22m rolls along specific dim
+       [2m[90m↓[39m[22m extracts lower triangular part
+       [2m[90m↓[39m[22m tril with diagonal offset
+       [2m[90m↓[39m[22m tril with negative diagonal offset
+       [2m[90m↓[39m[22m extracts upper triangular part
+       [2m[90m↓[39m[22m triu with diagonal offset
+       [2m[90m↓[39m[22m extracts diagonal from matrix
+       [2m[90m↓[39m[22m creates diagonal matrix from vector
+       [2m[90m↓[39m[22m extracts diagonal with offset
+       [2m[90m↓[39m[22m extracts diagonal from matrix
+       [2m[90m↓[39m[22m extracts diagonal with offset
+       [2m[90m↓[39m[22m broadcasts scalar to shape
+       [2m[90m↓[39m[22m broadcasts 1D to 2D
+       [2m[90m↓[39m[22m tiles a tensor
+       [2m[90m↓[39m[22m tiles 2D tensor
+[31m       [31m×[31m repeats each element[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m repeats with dim[39m[32m 4[2mms[22m[39m
+       [2m[90m↓[39m[22m unbinds along dim 0
+       [2m[90m↓[39m[22m unbinds along dim 1
+       [2m[90m↓[39m[22m narrows along dim 0
+       [2m[90m↓[39m[22m narrows along dim 1
+       [2m[90m↓[39m[22m selects row from 2D tensor
+       [2m[90m↓[39m[22m selects column from 2D tensor
+       [2m[90m↓[39m[22m takes elements by flattened index
+       [2m[90m↓[39m[22m gathers values along dim 0
+       [2m[90m↓[39m[22m gathers values along dim 1
+       [2m[90m↓[39m[22m scatters values along dim 1
+       [2m[90m↓[39m[22m scatters and adds values
+       [2m[90m↓[39m[22m selects elements based on condition
+       [2m[90m↓[39m[22m works with all true condition
+       [2m[90m↓[39m[22m selects elements where mask is true
+       [2m[90m↓[39m[22m selects from 2D tensor
+       [2m[90m↓[39m[22m returns indices of non-zero elements
+       [2m[90m↓[39m[22m returns indices for 2D tensor
+       [2m[90m↓[39m[22m selects rows by index
+       [2m[90m↓[39m[22m selects columns by index
+       [2m[90m↓[39m[22m computes cumulative sum
+       [2m[90m↓[39m[22m cumsum along rows
+       [2m[90m↓[39m[22m cumsum along cols
+       [2m[90m↓[39m[22m computes cumulative product
+       [2m[90m↓[39m[22m cumprod along dimension
+       [2m[90m↓[39m[22m computes heaviside step function
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[33m87 skipped[39m[90m (89)[39m
+[2m   Start at [22m 13:28:51
+[2m   Duration [22m 4.34s[2m (transform 0ms, setup 0ms, import 617ms, tests 283ms, environment 0ms)[22m
+

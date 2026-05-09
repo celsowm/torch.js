@@ -1,0 +1,90 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/modules.test.ts[2m:245:1[22m[2m[2m > [22m[2mnn.Conv1d
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/modules.test.ts[2m:245:1[22m[2m[2m > [22m[2mnn.Conv1d
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/modules.test.ts [2m([22m[2m59 tests[22m[2m | [22m[31m2 failed[39m[2m | [22m[33m56 skipped[39m[2m)[22m[32m 284[2mms[22m[39m
+     [2m[90m↓[39m[22m can be subclassed with a forward method
+     [2m[90m↓[39m[22m registers and iterates over parameters
+     [2m[90m↓[39m[22m named_parameters includes prefixes for submodules
+     [2m[90m↓[39m[22m supports train/eval mode toggling
+     [2m[90m↓[39m[22m propagates training mode to submodules
+     [2m[90m↓[39m[22m supports zero_grad
+     [2m[90m↓[39m[22m to(device) returns self
+     [2m[90m↓[39m[22m weight shape [out, in], bias shape [out]
+     [2m[90m↓[39m[22m no bias when bias=false
+     [2m[90m↓[39m[22m forward [batch, in] -> [batch, out]
+     [2m[90m↓[39m[22m 1D input unsqueezed
+     [2m[90m↓[39m[22m parameters include weight and bias
+     [2m[90m↓[39m[22m forward through chain
+     [2m[90m↓[39m[22m get module by index
+     [2m[90m↓[39m[22m collects all parameters
+     [2m[90m↓[39m[22m nested sequential
+     [2m[90m↓[39m[22m weight shape [num, dim]
+     [2m[90m↓[39m[22m 1D indices -> [N, dim]
+     [2m[90m↓[39m[22m 2D indices -> [B, N, dim]
+     [2m[90m↓[39m[22m weight is a parameter
+     [2m[90m↓[39m[22m weight and bias shape [size]
+     [2m[90m↓[39m[22m custom eps
+     [2m[90m↓[39m[22m forward preserves shape
+     [2m[90m↓[39m[22m array normalized_shape
+     [2m[90m↓[39m[22m 2 parameters
+     [2m[90m↓[39m[22m creates weight, bias, running_mean, running_var
+     [2m[90m↓[39m[22m 2D input [N, C]
+     [2m[90m↓[39m[22m 3D input [N, C, L]
+     [2m[90m↓[39m[22m eval mode uses running stats
+     [2m[90m↓[39m[22m affine=false
+     [2m[90m↓[39m[22m running stats shape
+     [2m[90m↓[39m[22m 4D input [N, C, H, W]
+     [2m[90m↓[39m[22m weight [out, in/g, k], bias [out]
+     [2m[90m↓[39m[22m forward output shape
+     [32m✓[39m padding[32m 3[2mms[22m[39m
+     [2m[90m↓[39m[22m no bias
+     [2m[90m↓[39m[22m weight [out, in/g, kH, kW]
+     [2m[90m↓[39m[22m scalar kernel
+     [2m[90m↓[39m[22m forward output shape
+     [2m[90m↓[39m[22m stride
+[31m     [31m×[31m dilation[39m[32m 3[2mms[22m[39m
+     [2m[90m↓[39m[22m groups
+     [2m[90m↓[39m[22m kernel 2 -> half
+     [2m[90m↓[39m[22m non-square kernel
+     [2m[90m↓[39m[22m stride
+[31m     [31m×[31m padding[39m[32m 1[2mms[22m[39m
+     [2m[90m↓[39m[22m kernel 2 -> half
+     [2m[90m↓[39m[22m stride
+     [2m[90m↓[39m[22m default start_dim=1
+     [2m[90m↓[39m[22m start_dim=0
+     [2m[90m↓[39m[22m end_dim
+     [2m[90m↓[39m[22m length and iteration
+     [2m[90m↓[39m[22m get by index
+     [2m[90m↓[39m[22m append
+     [2m[90m↓[39m[22m parameters
+     [2m[90m↓[39m[22m get and size
+     [2m[90m↓[39m[22m set and has
+     [2m[90m↓[39m[22m keys/values/entries
+     [2m[90m↓[39m[22m parameters
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[2m | [22m[33m56 skipped[39m[90m (59)[39m
+[2m   Start at [22m 15:41:21
+[2m   Duration [22m 4.51s[2m (transform 0ms, setup 0ms, import 667ms, tests 284ms, environment 0ms)[22m
+

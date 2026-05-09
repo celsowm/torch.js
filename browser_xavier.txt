@@ -1,0 +1,75 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/init.test.ts[2m:96:1[22m[2m[2m > [22m[2mnn.init.xavier_uniform_
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/init.test.ts[2m:96:1[22m[2m[2m > [22m[2mnn.init.xavier_uniform_
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/init.test.ts [2m([22m[2m44 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m41 skipped[39m[2m)[22m[33m 304[2mms[22m[39m
+     [2m[90m↓[39m[22m fills with zeros
+     [2m[90m↓[39m[22m 1D
+     [2m[90m↓[39m[22m 3D
+     [2m[90m↓[39m[22m fills with ones
+     [2m[90m↓[39m[22m 1D
+     [2m[90m↓[39m[22m fills with 42
+     [2m[90m↓[39m[22m negative
+     [2m[90m↓[39m[22m zero
+     [2m[90m↓[39m[22m approx correct mean/std
+     [2m[90m↓[39m[22m default mean=0, std=1
+     [2m[90m↓[39m[22m preserves shape
+     [2m[90m↓[39m[22m values in range
+     [2m[90m↓[39m[22m default a=0, b=1
+     [2m[90m↓[39m[22m preserves shape
+     [2m[90m↓[39m[22m identity matrix
+     [2m[90m↓[39m[22m throws non-square
+     [2m[90m↓[39m[22m throws non-2D
+[31m     [31m×[31m correct scaling[39m[32m 39[2mms[22m[39m
+     [32m✓[39m custom gain[32m 7[2mms[22m[39m
+     [32m✓[39m preserves shape[32m 1[2mms[22m[39m
+     [2m[90m↓[39m[22m correct std
+     [2m[90m↓[39m[22m custom gain
+     [2m[90m↓[39m[22m fan_in mode
+     [2m[90m↓[39m[22m fan_out mode
+     [2m[90m↓[39m[22m relu nonlinearity
+     [2m[90m↓[39m[22m leaky_relu param
+     [2m[90m↓[39m[22m preserves shape
+     [2m[90m↓[39m[22m normal distribution
+     [2m[90m↓[39m[22m fan_out mode
+     [2m[90m↓[39m[22m 2D tensor
+     [2m[90m↓[39m[22m custom gain
+     [2m[90m↓[39m[22m throws 1D
+     [2m[90m↓[39m[22m RNN weight shape
+     [2m[90m↓[39m[22m sparsity
+     [2m[90m↓[39m[22m custom sparsity
+     [2m[90m↓[39m[22m custom std
+     [2m[90m↓[39m[22m linear=1
+     [2m[90m↓[39m[22m conv1d/2d/3d=1
+     [2m[90m↓[39m[22m sigmoid=1
+     [2m[90m↓[39m[22m tanh=5/3
+     [2m[90m↓[39m[22m relu=sqrt(2)
+     [2m[90m↓[39m[22m leaky_relu default
+     [2m[90m↓[39m[22m leaky_relu custom
+     [2m[90m↓[39m[22m unknown=1
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[2m | [22m[33m41 skipped[39m[90m (44)[39m
+[2m   Start at [22m 15:36:04
+[2m   Duration [22m 4.29s[2m (transform 0ms, setup 0ms, import 581ms, tests 304ms, environment 0ms)[22m
+

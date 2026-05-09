@@ -45,8 +45,11 @@ describe('edge_cases', () => {
     it('fft2 on 2D tensor produces complex result with expected structure', async () => {
       const x = torch.tensor([[1.0, 2.0], [3.0, 4.0]]);
       const result = await torch.fft.fft2(x);
-      // Complex tensor from 2D [2,2] input: each fft adds last dim 2, so [2,2,2,2]
-      expect(result.shape.length).toBe(4);
+      // Complex tensor from 2D [2,2] input: last dim 2, so [2,2,2]
+      if (result.shape.length !== 3) {
+        console.log('fft2 result shape:', result.shape);
+      }
+      expect(result.shape.length).toBe(3);
       expect(result.shape[result.shape.length - 1]).toBe(2); // complex channel
     });
 

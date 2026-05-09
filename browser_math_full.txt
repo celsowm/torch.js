@@ -1,0 +1,99 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Operations
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Math Operations
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/core/math_ops.test.ts[2m:222:5[22m[2m[2m > [22m[2mCore: Math Operations[2m > [22m[2mlog[2m > [22m[2mcomputes natural log
+[22m[39m[torch.js] [object Object]
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/math_ops.test.ts [2m([22m[2m66 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1118[2mms[22m[39m
+       [32m✓[39m adds two tensors element-wise[32m 15[2mms[22m[39m
+       [32m✓[39m adds scalar to tensor[32m 14[2mms[22m[39m
+       [32m✓[39m broadcasts during add[32m 26[2mms[22m[39m
+       [32m✓[39m subtracts two tensors[32m 13[2mms[22m[39m
+       [32m✓[39m subtracts scalar from tensor[32m 13[2mms[22m[39m
+       [32m✓[39m multiplies two tensors element-wise[32m 14[2mms[22m[39m
+       [32m✓[39m multiplies by scalar[32m 13[2mms[22m[39m
+       [32m✓[39m divides two tensors element-wise[32m 13[2mms[22m[39m
+       [32m✓[39m divides by scalar[32m 13[2mms[22m[39m
+       [32m✓[39m computes absolute value[32m 29[2mms[22m[39m
+       [32m✓[39m abs of positive is unchanged[32m 18[2mms[22m[39m
+       [32m✓[39m computes ceiling[32m 12[2mms[22m[39m
+       [32m✓[39m computes floor[32m 9[2mms[22m[39m
+       [32m✓[39m rounds to nearest integer[32m 14[2mms[22m[39m
+       [32m✓[39m truncates toward zero[32m 17[2mms[22m[39m
+       [32m✓[39m computes fractional part[32m 16[2mms[22m[39m
+       [32m✓[39m computes e^x[32m 20[2mms[22m[39m
+       [32m✓[39m computes 2^x[32m 13[2mms[22m[39m
+[31m       [31m×[31m computes natural log[39m[32m 2[2mms[22m[39m
+       [32m✓[39m computes log base 2[32m 18[2mms[22m[39m
+       [32m✓[39m computes log base 10[32m 14[2mms[22m[39m
+       [32m✓[39m computes log(1 + x)[32m 13[2mms[22m[39m
+       [32m✓[39m computes square root[32m 13[2mms[22m[39m
+       [32m✓[39m computes 1/sqrt(x)[32m 10[2mms[22m[39m
+       [32m✓[39m computes x^2[32m 9[2mms[22m[39m
+       [32m✓[39m computes 1/x[32m 14[2mms[22m[39m
+       [32m✓[39m computes x^exponent[32m 36[2mms[22m[39m
+       [32m✓[39m works with float exponent[32m 5[2mms[22m[39m
+       [32m✓[39m computes sine[32m 17[2mms[22m[39m
+       [32m✓[39m computes cosine[32m 9[2mms[22m[39m
+       [32m✓[39m computes tangent[32m 13[2mms[22m[39m
+       [32m✓[39m computes arcsine[32m 13[2mms[22m[39m
+       [32m✓[39m computes arccosine[32m 13[2mms[22m[39m
+       [32m✓[39m computes arctangent[32m 15[2mms[22m[39m
+       [32m✓[39m computes hyperbolic sine[32m 13[2mms[22m[39m
+       [32m✓[39m computes hyperbolic cosine[32m 13[2mms[22m[39m
+       [32m✓[39m computes hyperbolic tangent[32m 13[2mms[22m[39m
+       [32m✓[39m computes inverse hyperbolic sine[32m 14[2mms[22m[39m
+       [32m✓[39m computes inverse hyperbolic cosine[32m 13[2mms[22m[39m
+       [32m✓[39m computes inverse hyperbolic tangent[32m 12[2mms[22m[39m
+       [32m✓[39m computes sigmoid function[32m 11[2mms[22m[39m
+       [32m✓[39m sigmoid of large positive approaches 1[32m 2[2mms[22m[39m
+       [32m✓[39m sigmoid of large negative approaches 0[32m 2[2mms[22m[39m
+       [32m✓[39m computes ReLU[32m 17[2mms[22m[39m
+       [32m✓[39m ReLU of all positive is identity[32m 2[2mms[22m[39m
+       [32m✓[39m computes GELU[32m 13[2mms[22m[39m
+       [32m✓[39m computes softplus[32m 11[2mms[22m[39m
+       [32m✓[39m computes SiLU (x * sigmoid(x))[32m 11[2mms[22m[39m
+       [32m✓[39m negates tensor[32m 12[2mms[22m[39m
+       [32m✓[39m computes sign[32m 12[2mms[22m[39m
+       [32m✓[39m computes error function[32m 13[2mms[22m[39m
+       [32m✓[39m computes complementary error function[32m 15[2mms[22m[39m
+       [32m✓[39m detects NaN values[32m 13[2mms[22m[39m
+       [32m✓[39m non-NaN values are false[32m 5[2mms[22m[39m
+       [32m✓[39m clips values to range[32m 9[2mms[22m[39m
+       [32m✓[39m clips with only min[32m 4[2mms[22m[39m
+       [32m✓[39m clips with only max[32m 6[2mms[22m[39m
+       [32m✓[39m clamps values to range[32m 4[2mms[22m[39m
+       [32m✓[39m clamp with only min[32m 4[2mms[22m[39m
+       [32m✓[39m clamps minimum values[32m 5[2mms[22m[39m
+       [32m✓[39m clamps maximum values[32m 4[2mms[22m[39m
+       [32m✓[39m computes remainder with sign of dividend[32m 5[2mms[22m[39m
+       [32m✓[39m computes remainder always positive[32m 7[2mms[22m[39m
+       [32m✓[39m element-wise maximum[32m 11[2mms[22m[39m
+       [32m✓[39m maximum with broadcasting[32m 17[2mms[22m[39m
+       [32m✓[39m element-wise minimum[32m 10[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m65 passed[39m[22m[90m (66)[39m
+[2m   Start at [22m 11:17:52
+[2m   Duration [22m 5.24s[2m (transform 0ms, setup 0ms, import 681ms, tests 1.12s, environment 0ms)[22m
+

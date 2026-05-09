@@ -1,0 +1,59 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:12:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould preserve tensor identity across backward+step
+[22m[39mBuffer before step 1: GPUBuffer {}
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:12:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould preserve tensor identity across backward+step
+[22m[39mBuffer after step 1: GPUBuffer {}
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:12:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould preserve tensor identity across backward+step
+[22m[39mSame identity? true
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:12:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould preserve tensor identity across backward+step
+[22m[39mParam after 1 step: [
+  1.899999976158142,
+  -2.9000000953674316,
+  1.399999976158142,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:35:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould keep state between steps
+[22m[39mAfter step 1: [
+  1.899999976158142,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:35:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould keep state between steps
+[22m[39mAfter step 2: [
+  1.8001664876937866,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:35:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould keep state between steps
+[22m[39mAfter step 3: [
+  1.7006233930587769,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_identity.test.ts[2m:35:3[22m[2m[2m > [22m[2mTensor identity test[2m > [22m[2mshould keep state between steps
+[22m[39mAfter 13 steps: [
+  0.7560346126556396,
+]
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/optim/adam_identity.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 563[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 02:06:09
+[2m   Duration [22m 4.57s[2m (transform 0ms, setup 0ms, import 660ms, tests 563ms, environment 0ms)[22m
+

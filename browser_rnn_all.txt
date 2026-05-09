@@ -1,0 +1,54 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/rnn.test.ts[2m:7:1[22m[2m[2m > [22m[2mnn.RNN
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/rnn.test.ts[2m:7:1[22m[2m[2m > [22m[2mnn.RNN
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/rnn.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 567[2mms[22m[39m
+     [32m✓[39m parameters exist[32m 3[2mms[22m[39m
+     [32m✓[39m default hidden state[32m 7[2mms[22m[39m
+     [32m✓[39m provided hidden state[32m 3[2mms[22m[39m
+     [32m✓[39m batch_first[32m 3[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 5[2mms[22m[39m
+     [32m✓[39m bidirectional[32m 2[2mms[22m[39m
+     [32m✓[39m relu nonlinearity[32m 0[2mms[22m[39m
+     [32m✓[39m parameters exist[32m 1[2mms[22m[39m
+     [32m✓[39m default hidden/cell[32m 4[2mms[22m[39m
+     [32m✓[39m provided hidden/cell[32m 2[2mms[22m[39m
+     [32m✓[39m batch_first[32m 4[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 8[2mms[22m[39m
+[31m     [31m×[31m bidirectional[39m[32m 2[2mms[22m[39m
+     [32m✓[39m no bias[32m 0[2mms[22m[39m
+     [32m✓[39m parameters exist[32m 0[2mms[22m[39m
+     [32m✓[39m default hidden[32m 6[2mms[22m[39m
+     [32m✓[39m provided hidden[32m 2[2mms[22m[39m
+     [32m✓[39m batch_first[32m 3[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 10[2mms[22m[39m
+     [32m✓[39m bidirectional[32m 88[2mms[22m[39m
+     [32m✓[39m RNN float32[32m 28[2mms[22m[39m
+     [32m✓[39m LSTM float32[32m 49[2mms[22m[39m
+     [32m✓[39m GRU float32[32m 30[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 17:50:11
+[2m   Duration [22m 4.64s[2m (transform 0ms, setup 0ms, import 705ms, tests 567ms, environment 0ms)[22m
+

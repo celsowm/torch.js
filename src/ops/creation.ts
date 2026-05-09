@@ -79,6 +79,7 @@ export function tensor(
     dtype,
     device: 'webgpu',
     requires_grad,
+    is_complex: options.is_complex,
   });
 }
 
@@ -303,6 +304,34 @@ export function linspace(
   return new Tensor({
     buffer,
     shape: [steps],
+    dtype,
+    device: 'webgpu',
+    requires_grad,
+  });
+}
+
+/**
+ * Creates a 1D tensor of size window_length containing a Hann window.
+ * @status implemented
+ * @pytorch torch.hann_window()
+ */
+export function hann_window(
+  window_length: number,
+  options: TensorOptions = {}
+): Tensor {
+  const dtype = options.dtype ?? 'float32';
+  const requires_grad = options.requires_grad ?? false;
+
+  const data = new Float32Array(window_length);
+  for (let i = 0; i < window_length; i++) {
+    data[i] = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (window_length - 1)));
+  }
+
+  const buffer = createBufferWithData(data, dtype);
+
+  return new Tensor({
+    buffer,
+    shape: [window_length],
     dtype,
     device: 'webgpu',
     requires_grad,

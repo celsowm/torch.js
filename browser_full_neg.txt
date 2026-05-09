@@ -1,0 +1,108 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/tensor_creation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Creation
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/tensor_creation.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Tensor Creation
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/tensor_creation.test.ts [2m([22m[2m77 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m76 skipped[39m[2m)[22m[32m 292[2mms[22m[39m
+       [2m[90m↓[39m[22m creates a 1D tensor from array
+       [2m[90m↓[39m[22m creates a 2D tensor from nested array
+       [2m[90m↓[39m[22m creates a scalar (0D) tensor
+       [2m[90m↓[39m[22m respects dtype option
+       [2m[90m↓[39m[22m creates tensor with bool dtype
+       [2m[90m↓[39m[22m creates empty tensor (0 elements)
+       [2m[90m↓[39m[22m creates tensor with requires_grad
+       [2m[90m↓[39m[22m creates a tensor of zeros
+       [2m[90m↓[39m[22m creates zeros with int32 dtype
+       [2m[90m↓[39m[22m creates a scalar zero
+       [2m[90m↓[39m[22m creates empty zeros tensor
+       [2m[90m↓[39m[22m creates large zeros tensor
+       [2m[90m↓[39m[22m creates a tensor of ones
+       [2m[90m↓[39m[22m creates ones with int32 dtype
+       [2m[90m↓[39m[22m creates a scalar one
+       [2m[90m↓[39m[22m creates empty ones tensor
+       [2m[90m↓[39m[22m creates a tensor filled with a specific value
+       [2m[90m↓[39m[22m creates full tensor with int32 dtype
+       [2m[90m↓[39m[22m creates scalar full tensor
+[31m       [31m×[31m creates full tensor with negative value[39m[32m 53[2mms[22m[39m
+       [2m[90m↓[39m[22m creates empty full tensor
+       [2m[90m↓[39m[22m creates a tensor with uninitialized data
+       [2m[90m↓[39m[22m respects dtype option
+       [2m[90m↓[39m[22m creates empty tensor with 0 elements
+       [2m[90m↓[39m[22m creates large empty tensor
+       [2m[90m↓[39m[22m creates zeros tensor with same shape
+       [2m[90m↓[39m[22m preserves dtype by default
+       [2m[90m↓[39m[22m overrides dtype when specified
+       [2m[90m↓[39m[22m creates ones tensor with same shape
+       [2m[90m↓[39m[22m preserves dtype by default
+       [2m[90m↓[39m[22m creates full tensor with same shape
+       [2m[90m↓[39m[22m preserves dtype by default
+       [2m[90m↓[39m[22m creates empty tensor with same shape
+       [2m[90m↓[39m[22m preserves dtype by default
+       [2m[90m↓[39m[22m creates random tensor in [0, 1)
+       [2m[90m↓[39m[22m creates 2D random tensor
+       [2m[90m↓[39m[22m creates random tensor with int32 dtype
+       [2m[90m↓[39m[22m produces different values on successive calls
+       [2m[90m↓[39m[22m creates tensor from normal distribution
+       [2m[90m↓[39m[22m creates 2D tensor
+       [2m[90m↓[39m[22m values are spread around 0
+       [2m[90m↓[39m[22m creates random integers in [low, high)
+       [2m[90m↓[39m[22m works with non-zero low value
+       [2m[90m↓[39m[22m works with requires_grad
+       [2m[90m↓[39m[22m creates 2D tensor
+       [2m[90m↓[39m[22m creates a random permutation of 0..n-1
+       [2m[90m↓[39m[22m produces different permutations on successive calls
+       [2m[90m↓[39m[22m works with n=1
+       [2m[90m↓[39m[22m works with large n
+       [2m[90m↓[39m[22m creates tensor with specified mean and std
+       [2m[90m↓[39m[22m creates tensor with zero mean
+       [2m[90m↓[39m[22m creates tensor with different std
+       [2m[90m↓[39m[22m creates 2D tensor
+       [2m[90m↓[39m[22m creates an identity matrix
+       [2m[90m↓[39m[22m creates rectangular identity matrix
+       [2m[90m↓[39m[22m creates 1x1 identity
+       [2m[90m↓[39m[22m creates a range from 0 to end
+       [2m[90m↓[39m[22m creates a range from start to end
+       [2m[90m↓[39m[22m creates a range with step
+       [2m[90m↓[39m[22m creates range with float step
+       [2m[90m↓[39m[22m creates empty range when start >= end with positive step
+       [2m[90m↓[39m[22m creates evenly spaced values
+       [2m[90m↓[39m[22m creates with 2 points
+       [2m[90m↓[39m[22m creates with 1 point
+       [2m[90m↓[39m[22m creates with negative range
+       [2m[90m↓[39m[22m creates logarithmically spaced values
+       [2m[90m↓[39m[22m creates with negative exponents
+       [2m[90m↓[39m[22m creates a scalar tensor
+       [2m[90m↓[39m[22m creates scalar with specific dtype
+       [2m[90m↓[39m[22m creates scalar with int32 dtype
+       [2m[90m↓[39m[22m converts array to tensor
+       [2m[90m↓[39m[22m creates tensor with dtype
+       [2m[90m↓[39m[22m creates scalar from number
+       [2m[90m↓[39m[22m sets seed for reproducibility
+       [2m[90m↓[39m[22m different seeds produce different results
+       [2m[90m↓[39m[22m seed affects randn as well
+       [2m[90m↓[39m[22m seed affects randint as well
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m76 skipped[39m[90m (77)[39m
+[2m   Start at [22m 12:59:03
+[2m   Duration [22m 4.50s[2m (transform 0ms, setup 0ms, import 605ms, tests 292ms, environment 0ms)[22m
+

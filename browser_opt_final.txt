@@ -1,0 +1,51 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/optim/optimizers.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/optimizers.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/optim/optimizers.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 17470[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step (basic convergence on f(x)=x^2) [33m 331[2mms[22m[39m
+     [33m[2m✓[22m[39m momentum accelerates convergence [33m 998[2mms[22m[39m
+     [33m[2m✓[22m[39m nesterov momentum works [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m higher lr leads to faster convergence [33m 369[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 467[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with default hyperparameters [33m 1472[2mms[22m[39m
+     [33m[2m✓[22m[39m weight_decay regularizes [33m 800[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 593[2mms[22m[39m
+     [33m[2m✓[22m[39m weight_decay decouples from gradient update [33m 965[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 898[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with weight_decay [33m 1105[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 685[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with weight_decay [33m 842[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 792[2mms[22m[39m
+     [33m[2m✓[22m[39m converges with weight_decay [33m 813[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 716[2mms[22m[39m
+     [33m[2m✓[22m[39m lambd controls decay rate [33m 818[2mms[22m[39m
+     [33m[2m✓[22m[39m alpha affects lr decay exponent [33m 661[2mms[22m[39m
+     [33m[2m✓[22m[39m SGD optimizes multiple parameters simultaneously [33m 731[2mms[22m[39m
+     [33m[2m✓[22m[39m Adam optimizes multiple parameters simultaneously [33m 1277[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m40 passed[39m[22m[90m (40)[39m
+[2m   Start at [22m 02:15:26
+[2m   Duration [22m 21.31s[2m (transform 0ms, setup 0ms, import 609ms, tests 17.47s, environment 0ms)[22m
+

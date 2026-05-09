@@ -1,0 +1,65 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/linear_algebra.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Linear Algebra
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/linear_algebra.test.ts[2m:4:1[22m[2m[2m > [22m[2mCore: Linear Algebra
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/linear_algebra.test.ts [2m([22m[2m34 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m33 skipped[39m[2m)[22m[33m 352[2mms[22m[39m
+       [2m[90m↓[39m[22m matrix multiplies 2D tensors
+[31m       [31m×[31m matrix-vector multiplication[39m[32m 3[2mms[22m[39m
+       [2m[90m↓[39m[22m vector-matrix multiplication
+       [2m[90m↓[39m[22m dot product of vectors
+       [2m[90m↓[39m[22m batched matmul
+       [2m[90m↓[39m[22m matrix multiplies 2D tensors
+       [2m[90m↓[39m[22m mm with identity matrix
+       [2m[90m↓[39m[22m batch matrix multiply
+       [2m[90m↓[39m[22m bmm with non-identity
+       [2m[90m↓[39m[22m computes dot product
+       [2m[90m↓[39m[22m dot with zeros
+       [2m[90m↓[39m[22m computes vector dot product
+       [2m[90m↓[39m[22m computes outer product
+       [2m[90m↓[39m[22m outer with ones
+       [2m[90m↓[39m[22m computes outer product (alias of outer)
+       [2m[90m↓[39m[22m computes beta*input + alpha*mat1 @ mat2
+       [2m[90m↓[39m[22m addmm with beta=0
+       [2m[90m↓[39m[22m addmm with alpha scaling
+       [2m[90m↓[39m[22m adds batched matrix multiply result
+       [2m[90m↓[39m[22m batched addmm
+       [2m[90m↓[39m[22m matrix-vector multiply
+       [2m[90m↓[39m[22m mv with identity
+       [2m[90m↓[39m[22m adds matrix-vector multiply result
+       [2m[90m↓[39m[22m addmv with beta=0
+       [2m[90m↓[39m[22m adds outer product of two vectors
+       [2m[90m↓[39m[22m matrix multiply with einsum
+       [2m[90m↓[39m[22m dot product with einsum
+       [2m[90m↓[39m[22m transpose with einsum
+       [2m[90m↓[39m[22m sum with einsum
+       [2m[90m↓[39m[22m batched matmul with einsum
+       [2m[90m↓[39m[22m computes hypotenuse
+       [2m[90m↓[39m[22m hypot with zeros
+       [2m[90m↓[39m[22m computes trapezoidal integration
+       [2m[90m↓[39m[22m trapezoid with different dx
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m33 skipped[39m[90m (34)[39m
+[2m   Start at [22m 13:49:41
+[2m   Duration [22m 5.09s[2m (transform 0ms, setup 0ms, import 641ms, tests 352ms, environment 0ms)[22m
+

@@ -24,6 +24,7 @@ export {
   arange,
   linspace,
   logspace,
+  hann_window,
   scalar_tensor,
   as_tensor,
   from_numpy,

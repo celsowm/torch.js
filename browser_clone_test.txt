@@ -1,0 +1,72 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/tensor/tensor_backward.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Autograd Methods
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/tensor/tensor_backward.test.ts[2m:4:1[22m[2m[2m > [22m[2mTensor Autograd Methods
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/tensor/tensor_backward.test.ts [2m([22m[2m41 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m40 skipped[39m[2m)[22m[32m 286[2mms[22m[39m
+       [2m[90m↓[39m[22m computes gradient for simple operation
+       [2m[90m↓[39m[22m computes gradient for addition
+       [2m[90m↓[39m[22m computes gradient for multiplication
+       [2m[90m↓[39m[22m gradient for sum of tensor
+       [2m[90m↓[39m[22m can call backward twice with retain_graph
+       [2m[90m↓[39m[22m without retain_graph, second backward fails or does nothing
+       [2m[90m↓[39m[22m provides custom gradient
+       [2m[90m↓[39m[22m gradient with different shape broadcasts
+       [2m[90m↓[39m[22m is null before backward
+       [2m[90m↓[39m[22m is populated after backward
+       [2m[90m↓[39m[22m grad shape matches input
+       [2m[90m↓[39m[22m requires_grad false means no grad
+       [2m[90m↓[39m[22m leaf tensors have no grad_fn
+       [2m[90m↓[39m[22m computed tensors have grad_fn
+       [2m[90m↓[39m[22m grad_fn tracks operations
+       [2m[90m↓[39m[22m is false by default
+       [2m[90m↓[39m[22m can be set to true at creation
+       [2m[90m↓[39m[22m can be modified in-place
+       [2m[90m↓[39m[22m propagates through operations
+       [2m[90m↓[39m[22m does not propagate if neither input requires grad
+       [2m[90m↓[39m[22m created tensors are leaves
+       [2m[90m↓[39m[22m computed tensors are not leaves
+       [2m[90m↓[39m[22m scalar operations produce non-leaf tensors
+       [2m[90m↓[39m[22m detached tensor does not require grad
+       [2m[90m↓[39m[22m detached tensor has no grad_fn
+       [2m[90m↓[39m[22m detached tensor shares data
+       [2m[90m↓[39m[22m operations on detached tensor do not track gradients
+       [2m[90m↓[39m[22m cloned tensor has same values
+       [2m[90m↓[39m[22m cloned tensor preserves requires_grad
+       [2m[90m↓[39m[22m cloned tensor has same shape
+       [2m[90m↓[39m[22m cloned tensor has same dtype
+[31m       [31m×[31m modifying clone does not affect original[39m[32m 3[2mms[22m[39m
+       [2m[90m↓[39m[22m multiple operations chain
+       [2m[90m↓[39m[22m two inputs, one output
+       [2m[90m↓[39m[22m branching graph
+       [2m[90m↓[39m[22m deep computation graph
+       [2m[90m↓[39m[22m conditional computation - positive path
+       [2m[90m↓[39m[22m conditional computation - negative path
+       [2m[90m↓[39m[22m loop-based computation
+       [2m[90m↓[39m[22m computation with power and chain rule
+       [2m[90m↓[39m[22m computation with exp and chain rule
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m40 skipped[39m[90m (41)[39m
+[2m   Start at [22m 14:34:51
+[2m   Duration [22m 4.18s[2m (transform 0ms, setup 0ms, import 629ms, tests 286ms, environment 0ms)[22m
+

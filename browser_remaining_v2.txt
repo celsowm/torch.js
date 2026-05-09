@@ -1,0 +1,605 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/transformer.test.ts[2m:12:1[22m[2m[2m > [22m[2mnn.TransformerEncoderLayer
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/transformer.test.ts[2m:12:1[22m[2m[2m > [22m[2mnn.TransformerEncoderLayer
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/transformer.test.ts [2m([22m[2m31 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 1898[2mms[22m[39m
+     [32m✓[39m creates with d_model and nhead[32m 5[2mms[22m[39m
+     [32m✓[39m forward preserves shape[32m 15[2mms[22m[39m
+     [32m✓[39m custom dimFeedforward[32m 10[2mms[22m[39m
+     [32m✓[39m gelu activation[32m 5[2mms[22m[39m
+     [32m✓[39m custom layerNormEps[32m 1[2mms[22m[39m
+[31m     [31m×[31m mask support[39m[32m 3[2mms[22m[39m
+     [32m✓[39m causal flag[32m 8[2mms[22m[39m
+     [32m✓[39m seq-first (batch_first=false)[32m 7[2mms[22m[39m
+     [32m✓[39m dropout[32m 1[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 3[2mms[22m[39m
+     [32m✓[39m forward through layers[32m 17[2mms[22m[39m
+     [32m✓[39m LayerNorm at end[32m 12[2mms[22m[39m
+     [32m✓[39m pre-built layer[32m 11[2mms[22m[39m
+[31m     [31m×[31m mask in forward[39m[32m 2[2mms[22m[39m
+     [32m✓[39m creates with config[32m 1[2mms[22m[39m
+     [32m✓[39m forward preserves shape[32m 250[2mms[22m[39m
+     [32m✓[39m cross-attention with different seq lengths[32m 126[2mms[22m[39m
+[31m     [31m×[31m mask parameters[39m[32m 12[2mms[22m[39m
+     [32m✓[39m gelu activation[32m 130[2mms[22m[39m
+     [32m✓[39m seq-first[32m 164[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 39[2mms[22m[39m
+     [32m✓[39m forward[32m 227[2mms[22m[39m
+     [32m✓[39m LayerNorm at end[32m 172[2mms[22m[39m
+     [32m✓[39m pre-built layer[32m 158[2mms[22m[39m
+     [32m✓[39m embed_dim and num_heads[32m 1[2mms[22m[39m
+     [32m✓[39m throws if not divisible[32m 1[2mms[22m[39m
+     [32m✓[39m self-attention forward[32m 35[2mms[22m[39m
+     [32m✓[39m batch_first[32m 44[2mms[22m[39m
+     [32m✓[39m need_weights returns attn[32m 40[2mms[22m[39m
+     [32m✓[39m cross-attention different seq lengths[32m 41[2mms[22m[39m
+     [32m✓[39m no bias[32m 38[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/nn/functional.test.ts[2m:11:1[22m[2m[2m > [22m[2mF.relu
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/functional.test.ts[2m:11:1[22m[2m[2m > [22m[2mF.relu
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/functional.test.ts [2m([22m[2m37 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 804[2mms[22m[39m
+     [32m✓[39m clamps negatives[32m 20[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m values in (0,1)[32m 25[2mms[22m[39m
+     [32m✓[39m values in (-1,1)[32m 11[2mms[22m[39m
+     [32m✓[39m sums to 1[32m 57[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m values <= 0[32m 4[2mms[22m[39m
+     [32m✓[39m exp sums to 1[32m 32[2mms[22m[39m
+     [32m✓[39m eval: identity[32m 50[2mms[22m[39m
+     [32m✓[39m train: scales[32m 24[2mms[22m[39m
+     [32m✓[39m p=0: identity[32m 3[2mms[22m[39m
+     [32m✓[39m p=1: zeros[32m 11[2mms[22m[39m
+     [32m✓[39m basic[32m 1[2mms[22m[39m
+     [32m✓[39m stride[32m 1[2mms[22m[39m
+     [32m✓[39m padding[32m 1[2mms[22m[39m
+     [32m✓[39m bias[32m 1[2mms[22m[39m
+[31m     [31m×[31m dilation[39m[32m 4[2mms[22m[39m
+     [32m✓[39m kernel 2[32m 1[2mms[22m[39m
+     [32m✓[39m stride[32m 0[2mms[22m[39m
+[31m     [31m×[31m padding[39m[32m 1[2mms[22m[39m
+     [32m✓[39m kernel 2[32m 1[2mms[22m[39m
+     [32m✓[39m stride[32m 0[2mms[22m[39m
+     [32m✓[39m size nearest[32m 0[2mms[22m[39m
+[31m     [31m×[31m scale_factor nearest[39m[32m 1[2mms[22m[39m
+     [32m✓[39m downsample[32m 0[2mms[22m[39m
+     [32m✓[39m L2 norm [3,4] -> [0.6,0.8][32m 163[2mms[22m[39m
+     [32m✓[39m unit norm[32m 23[2mms[22m[39m
+     [32m✓[39m constant pad[32m 1[2mms[22m[39m
+[31m     [31m×[31m 3 classes[39m[32m 29[2mms[22m[39m
+[31m     [31m×[31m auto num_classes[39m[32m 1[2mms[22m[39m
+     [32m✓[39m mse_loss[32m 22[2mms[22m[39m
+     [32m✓[39m l1_loss[32m 6[2mms[22m[39m
+     [32m✓[39m cross_entropy[32m 34[2mms[22m[39m
+     [32m✓[39m binary_cross_entropy[32m 37[2mms[22m[39m
+     [32m✓[39m nll_loss[32m 5[2mms[22m[39m
+     [32m✓[39m huber_loss[32m 29[2mms[22m[39m
+     [32m✓[39m kl_div_loss[32m 1[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:15:1[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:217:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mcomputes matrix inverse
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_pivot] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_pivot] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_update] info: control flow depends on possibly non-uniform value (line 57:9)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:224:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2mA @ inv(A) approximates I
+[22m[39m[WGSL lu_update] info: builtin 'global_id' of 'lu_update' may be non-uniform (line 52:13)
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:233:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2minv(inv(A)) approximates A
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:233:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.inv[2m > [22m[2minv(inv(A)) approximates A
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+[90mstdout[2m | tests/compatibility/linalg/decomp.test.ts[2m:301:5[22m[2m[2m > [22m[2mtorch.linalg decomposition and solvers[2m > [22m[2mtorch.linalg.matrix_power[2m > [22m[2mcomputes A^n for negative n (inverse power)
+[22m[39mlu_factor P details: {
+  "buffer_size": 8,
+  "dtype": "float32",
+  "numel": 2,
+  "shape": [
+    1,
+    2,
+  ],
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/linalg/decomp.test.ts [2m([22m[2m31 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 676[2mms[22m[39m
+       [32m✓[39m decomposes MxN matrix into U, S, Vh[32m 8[2mms[22m[39m
+       [32m✓[39m reconstructs matrix: A ~ U @ diag(S) @ Vh[32m 58[2mms[22m[39m
+       [32m✓[39m singular values are sorted descending[32m 8[2mms[22m[39m
+       [32m✓[39m computes eigenvalues and eigenvectors of symmetric matrix[32m 4[2mms[22m[39m
+       [32m✓[39m eigenvalues are in ascending order[32m 9[2mms[22m[39m
+[31m       [31m×[31m reconstructs matrix: A = V @ diag(eigenvalues) @ V^T[39m[32m 36[2mms[22m[39m
+       [32m✓[39m computes reduced QR decomposition[32m 5[2mms[22m[39m
+       [32m✓[39m Q is orthogonal (Q^T Q = I)[32m 13[2mms[22m[39m
+[31m       [31m×[31m R is upper triangular[39m[32m 9[2mms[22m[39m
+       [32m✓[39m computes complete QR decomposition[32m 5[2mms[22m[39m
+       [32m✓[39m solves Ax = b for single RHS[32m 13[2mms[22m[39m
+       [32m✓[39m solves Ax = b for multiple RHS columns[32m 16[2mms[22m[39m
+       [32m✓[39m solution is correct for known system[32m 12[2mms[22m[39m
+       [32m✓[39m computes Moore-Penrose pseudo-inverse[32m 27[2mms[22m[39m
+       [32m✓[39m A @ pinv(A) approximates I (for full row rank)[32m 21[2mms[22m[39m
+       [32m✓[39m pinv(A) @ A approximates I (for full column rank)[32m 18[2mms[22m[39m
+[31m       [31m×[31m computes lower triangular Cholesky factor[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m reconstructs matrix: A ~ L @ L^T[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m computes upper triangular Cholesky factor[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m computes matrix inverse[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m A @ inv(A) approximates I[39m[32m 60[2mms[22m[39m
+[31m       [31m×[31m inv(inv(A)) approximates A[39m[32m 9[2mms[22m[39m
+       [32m✓[39m computes cross product of 3D vectors[32m 22[2mms[22m[39m
+       [32m✓[39m result is perpendicular to both input vectors[32m 11[2mms[22m[39m
+       [32m✓[39m computes batched cross products[32m 8[2mms[22m[39m
+       [32m✓[39m computes A^n for positive n[32m 4[2mms[22m[39m
+       [32m✓[39m computes A^0 = I[32m 8[2mms[22m[39m
+[31m       [31m×[31m computes A^n for negative n (inverse power)[39m[32m 7[2mms[22m[39m
+       [32m✓[39m computes dot product of two vectors[32m 4[2mms[22m[39m
+       [32m✓[39m computes batched vector dot products[32m 23[2mms[22m[39m
+       [32m✓[39m computes dot product along specified dimension[32m 6[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/nn/activations.test.ts[2m:12:1[22m[2m[2m > [22m[2mnn.ReLU
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/activations.test.ts[2m:12:1[22m[2m[2m > [22m[2mnn.ReLU
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/activations.test.ts [2m([22m[2m42 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 582[2mms[22m[39m
+     [32m✓[39m preserves shape[32m 1[2mms[22m[39m
+     [32m✓[39m clamps negatives to zero[32m 36[2mms[22m[39m
+     [32m✓[39m values in (0,1)[32m 15[2mms[22m[39m
+     [32m✓[39m shape[32m 0[2mms[22m[39m
+     [32m✓[39m values in (-1,1)[32m 15[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m large positive ~ x[32m 11[2mms[22m[39m
+     [32m✓[39m sums to 1[32m 28[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m all positive[32m 7[2mms[22m[39m
+     [32m✓[39m values <= 0[32m 2[2mms[22m[39m
+     [32m✓[39m exp sums to 1[32m 3[2mms[22m[39m
+     [32m✓[39m shape[32m 1[2mms[22m[39m
+     [32m✓[39m learnable weight[32m 1[2mms[22m[39m
+     [32m✓[39m positive unchanged[32m 50[2mms[22m[39m
+     [32m✓[39m negative scaled[32m 6[2mms[22m[39m
+     [32m✓[39m positive unchanged[32m 37[2mms[22m[39m
+     [32m✓[39m negative transformed[32m 6[2mms[22m[39m
+     [32m✓[39m custom alpha[32m 0[2mms[22m[39m
+     [32m✓[39m training mode: negatives scaled randomly[32m 34[2mms[22m[39m
+     [32m✓[39m eval mode: avg slope[32m 7[2mms[22m[39m
+     [32m✓[39m clamps[32m 13[2mms[22m[39m
+     [32m✓[39m custom range[32m 2[2mms[22m[39m
+[31m     [31m×[31m zeroes |x| <= lambd[39m[32m 38[2mms[22m[39m
+     [32m✓[39m shrinks toward zero[32m 6[2mms[22m[39m
+     [32m✓[39m values <= 0[32m 16[2mms[22m[39m
+     [32m✓[39m shape[32m 0[2mms[22m[39m
+     [32m✓[39m sums to 1, higher prob for smaller values[32m 5[2mms[22m[39m
+     [32m✓[39m training: scales by (1-p)[32m 1[2mms[22m[39m
+     [32m✓[39m eval: identity[32m 8[2mms[22m[39m
+     [32m✓[39m p=0: identity[32m 5[2mms[22m[39m
+     [32m✓[39m 3D input training[32m 1[2mms[22m[39m
+     [32m✓[39m 3D input eval[32m 4[2mms[22m[39m
+     [32m✓[39m 2D input[32m 1[2mms[22m[39m
+     [32m✓[39m training[32m 1[2mms[22m[39m
+     [32m✓[39m eval: identity[32m 4[2mms[22m[39m
+     [32m✓[39m training[32m 1[2mms[22m[39m
+     [32m✓[39m eval[32m 1[2mms[22m[39m
+     [32m✓[39m training[32m 1[2mms[22m[39m
+     [32m✓[39m eval: identity[32m 15[2mms[22m[39m
+     [32m✓[39m p=0: identity[32m 4[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/nn/rnn.test.ts[2m:7:1[22m[2m[2m > [22m[2mnn.RNN
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/rnn.test.ts[2m:7:1[22m[2m[2m > [22m[2mnn.RNN
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/rnn.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 705[2mms[22m[39m
+     [32m✓[39m parameters exist[32m 2[2mms[22m[39m
+     [32m✓[39m default hidden state[32m 5[2mms[22m[39m
+     [32m✓[39m provided hidden state[32m 2[2mms[22m[39m
+[31m     [31m×[31m batch_first[39m[32m 5[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 7[2mms[22m[39m
+     [32m✓[39m bidirectional[32m 2[2mms[22m[39m
+     [32m✓[39m relu nonlinearity[32m 1[2mms[22m[39m
+     [32m✓[39m parameters exist[32m 1[2mms[22m[39m
+     [32m✓[39m default hidden/cell[32m 8[2mms[22m[39m
+     [32m✓[39m provided hidden/cell[32m 3[2mms[22m[39m
+[31m     [31m×[31m batch_first[39m[32m 7[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 13[2mms[22m[39m
+[31m     [31m×[31m bidirectional[39m[32m 3[2mms[22m[39m
+     [32m✓[39m no bias[32m 1[2mms[22m[39m
+     [32m✓[39m parameters exist[32m 1[2mms[22m[39m
+     [32m✓[39m default hidden[32m 8[2mms[22m[39m
+     [32m✓[39m provided hidden[32m 4[2mms[22m[39m
+[31m     [31m×[31m batch_first[39m[32m 8[2mms[22m[39m
+     [32m✓[39m multiple layers[32m 21[2mms[22m[39m
+     [32m✓[39m bidirectional[32m 98[2mms[22m[39m
+     [32m✓[39m RNN float32[32m 23[2mms[22m[39m
+     [32m✓[39m LSTM float32[32m 82[2mms[22m[39m
+     [32m✓[39m GRU float32[32m 59[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/linalg/norm.test.ts[2m:4:1[22m[2m[2m > [22m[2mtorch.linalg norms
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/linalg/norm.test.ts[2m:4:1[22m[2m[2m > [22m[2mtorch.linalg norms
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/linalg/norm.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 366[2mms[22m[39m
+[31m       [31m×[31m computes Frobenius norm (ord=None) of a matrix[39m[32m 56[2mms[22m[39m
+       [32m✓[39m computes norm along specified dimension[32m 6[2mms[22m[39m
+[31m       [31m×[31m computes L1 norm (ord=1)[39m[32m 25[2mms[22m[39m
+       [32m✓[39m computes L2 norm (ord=2)[32m 5[2mms[22m[39m
+[31m       [31m×[31m computes infinity norm (ord=inf)[39m[32m 2[2mms[22m[39m
+       [32m✓[39m computes norm with keepdim[32m 6[2mms[22m[39m
+       [32m✓[39m computes L0 norm (count of non-zero elements)[32m 11[2mms[22m[39m
+       [32m✓[39m computes L1 norm[32m 3[2mms[22m[39m
+       [32m✓[39m computes L2 norm (Euclidean)[32m 5[2mms[22m[39m
+       [32m✓[39m computes infinity norm[32m 2[2mms[22m[39m
+       [32m✓[39m computes negative infinity norm[32m 16[2mms[22m[39m
+       [32m✓[39m computes vector norm along batch dimension[32m 8[2mms[22m[39m
+[31m       [31m×[31m computes Frobenius norm[39m[32m 5[2mms[22m[39m
+       [32m✓[39m computes max column sum norm (ord=1)[32m 4[2mms[22m[39m
+[31m       [31m×[31m computes max row sum norm (ord=inf)[39m[32m 3[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/nn/init.test.ts[2m:7:1[22m[2m[2m > [22m[2mnn.init.zeros_
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/init.test.ts[2m:7:1[22m[2m[2m > [22m[2mnn.init.zeros_
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/init.test.ts [2m([22m[2m44 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 406[2mms[22m[39m
+     [32m✓[39m fills with zeros[32m 20[2mms[22m[39m
+     [32m✓[39m 1D[32m 4[2mms[22m[39m
+     [32m✓[39m 3D[32m 8[2mms[22m[39m
+     [32m✓[39m fills with ones[32m 11[2mms[22m[39m
+     [32m✓[39m 1D[32m 5[2mms[22m[39m
+     [32m✓[39m fills with 42[32m 14[2mms[22m[39m
+     [32m✓[39m negative[32m 6[2mms[22m[39m
+     [32m✓[39m zero[32m 5[2mms[22m[39m
+     [32m✓[39m approx correct mean/std[32m 5[2mms[22m[39m
+     [32m✓[39m default mean=0, std=1[32m 6[2mms[22m[39m
+     [32m✓[39m preserves shape[32m 0[2mms[22m[39m
+     [32m✓[39m values in range[32m 6[2mms[22m[39m
+     [32m✓[39m default a=0, b=1[32m 6[2mms[22m[39m
+     [32m✓[39m preserves shape[32m 0[2mms[22m[39m
+     [32m✓[39m identity matrix[32m 3[2mms[22m[39m
+     [32m✓[39m throws non-square[32m 1[2mms[22m[39m
+     [32m✓[39m throws non-2D[32m 0[2mms[22m[39m
+[31m     [31m×[31m correct scaling[39m[32m 7[2mms[22m[39m
+     [32m✓[39m custom gain[32m 5[2mms[22m[39m
+     [32m✓[39m preserves shape[32m 0[2mms[22m[39m
+     [32m✓[39m correct std[32m 9[2mms[22m[39m
+     [32m✓[39m custom gain[32m 6[2mms[22m[39m
+     [32m✓[39m fan_in mode[32m 9[2mms[22m[39m
+     [32m✓[39m fan_out mode[32m 7[2mms[22m[39m
+     [32m✓[39m relu nonlinearity[32m 4[2mms[22m[39m
+     [32m✓[39m leaky_relu param[32m 6[2mms[22m[39m
+     [32m✓[39m preserves shape[32m 0[2mms[22m[39m
+     [32m✓[39m normal distribution[32m 15[2mms[22m[39m
+     [32m✓[39m fan_out mode[32m 7[2mms[22m[39m
+     [32m✓[39m 2D tensor[32m 0[2mms[22m[39m
+     [32m✓[39m custom gain[32m 0[2mms[22m[39m
+     [32m✓[39m throws 1D[32m 0[2mms[22m[39m
+     [32m✓[39m RNN weight shape[32m 0[2mms[22m[39m
+     [32m✓[39m sparsity[32m 8[2mms[22m[39m
+     [32m✓[39m custom sparsity[32m 1[2mms[22m[39m
+     [32m✓[39m custom std[32m 1[2mms[22m[39m
+     [32m✓[39m linear=1[32m 0[2mms[22m[39m
+     [32m✓[39m conv1d/2d/3d=1[32m 0[2mms[22m[39m
+     [32m✓[39m sigmoid=1[32m 0[2mms[22m[39m
+     [32m✓[39m tanh=5/3[32m 0[2mms[22m[39m
+     [32m✓[39m relu=sqrt(2)[32m 0[2mms[22m[39m
+[31m     [31m×[31m leaky_relu default[39m[32m 0[2mms[22m[39m
+     [32m✓[39m leaky_relu custom[32m 0[2mms[22m[39m
+     [32m✓[39m unknown=1[32m 0[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/nn/modules.test.ts[2m:18:1[22m[2m[2m > [22m[2mnn.Module
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/modules.test.ts[2m:18:1[22m[2m[2m > [22m[2mnn.Module
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/modules.test.ts [2m([22m[2m59 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 213[2mms[22m[39m
+     [32m✓[39m can be subclassed with a forward method[32m 1[2mms[22m[39m
+     [32m✓[39m registers and iterates over parameters[32m 1[2mms[22m[39m
+     [32m✓[39m named_parameters includes prefixes for submodules[32m 1[2mms[22m[39m
+     [32m✓[39m supports train/eval mode toggling[32m 1[2mms[22m[39m
+     [32m✓[39m propagates training mode to submodules[32m 0[2mms[22m[39m
+     [32m✓[39m supports zero_grad[32m 0[2mms[22m[39m
+     [32m✓[39m to(device) returns self[32m 1[2mms[22m[39m
+     [32m✓[39m weight shape [out, in], bias shape [out][32m 0[2mms[22m[39m
+     [32m✓[39m no bias when bias=false[32m 0[2mms[22m[39m
+     [32m✓[39m forward [batch, in] -> [batch, out][32m 1[2mms[22m[39m
+     [32m✓[39m 1D input unsqueezed[32m 0[2mms[22m[39m
+     [32m✓[39m parameters include weight and bias[32m 0[2mms[22m[39m
+     [32m✓[39m forward through chain[32m 1[2mms[22m[39m
+     [32m✓[39m get module by index[32m 1[2mms[22m[39m
+     [32m✓[39m collects all parameters[32m 0[2mms[22m[39m
+     [32m✓[39m nested sequential[32m 1[2mms[22m[39m
+     [32m✓[39m weight shape [num, dim][32m 0[2mms[22m[39m
+     [32m✓[39m 1D indices -> [N, dim][32m 0[2mms[22m[39m
+     [32m✓[39m 2D indices -> [B, N, dim][32m 0[2mms[22m[39m
+     [32m✓[39m weight is a parameter[32m 0[2mms[22m[39m
+     [32m✓[39m weight and bias shape [size][32m 0[2mms[22m[39m
+     [32m✓[39m custom eps[32m 0[2mms[22m[39m
+     [32m✓[39m forward preserves shape[32m 0[2mms[22m[39m
+     [32m✓[39m array normalized_shape[32m 0[2mms[22m[39m
+     [32m✓[39m 2 parameters[32m 0[2mms[22m[39m
+     [32m✓[39m creates weight, bias, running_mean, running_var[32m 1[2mms[22m[39m
+     [32m✓[39m 2D input [N, C][32m 3[2mms[22m[39m
+     [32m✓[39m 3D input [N, C, L][32m 1[2mms[22m[39m
+     [32m✓[39m eval mode uses running stats[32m 1[2mms[22m[39m
+     [32m✓[39m affine=false[32m 1[2mms[22m[39m
+     [32m✓[39m running stats shape[32m 1[2mms[22m[39m
+     [32m✓[39m 4D input [N, C, H, W][32m 1[2mms[22m[39m
+     [32m✓[39m weight [out, in/g, k], bias [out][32m 1[2mms[22m[39m
+     [32m✓[39m forward output shape[32m 1[2mms[22m[39m
+     [32m✓[39m padding[32m 1[2mms[22m[39m
+     [32m✓[39m no bias[32m 0[2mms[22m[39m
+     [32m✓[39m weight [out, in/g, kH, kW][32m 1[2mms[22m[39m
+     [32m✓[39m scalar kernel[32m 0[2mms[22m[39m
+     [32m✓[39m forward output shape[32m 0[2mms[22m[39m
+     [32m✓[39m stride[32m 0[2mms[22m[39m
+[31m     [31m×[31m dilation[39m[32m 1[2mms[22m[39m
+     [32m✓[39m groups[32m 0[2mms[22m[39m
+     [32m✓[39m kernel 2 -> half[32m 0[2mms[22m[39m
+     [32m✓[39m non-square kernel[32m 0[2mms[22m[39m
+     [32m✓[39m stride[32m 0[2mms[22m[39m
+[31m     [31m×[31m padding[39m[32m 1[2mms[22m[39m
+     [32m✓[39m kernel 2 -> half[32m 1[2mms[22m[39m
+     [32m✓[39m stride[32m 1[2mms[22m[39m
+     [32m✓[39m default start_dim=1[32m 0[2mms[22m[39m
+     [32m✓[39m start_dim=0[32m 0[2mms[22m[39m
+     [32m✓[39m end_dim[32m 0[2mms[22m[39m
+     [32m✓[39m length and iteration[32m 0[2mms[22m[39m
+     [32m✓[39m get by index[32m 0[2mms[22m[39m
+     [32m✓[39m append[32m 0[2mms[22m[39m
+     [32m✓[39m parameters[32m 0[2mms[22m[39m
+     [32m✓[39m get and size[32m 0[2mms[22m[39m
+     [32m✓[39m set and has[32m 0[2mms[22m[39m
+     [32m✓[39m keys/values/entries[32m 0[2mms[22m[39m
+     [32m✓[39m parameters[32m 0[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/optim/lr_scheduler.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/lr_scheduler.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/optim/lr_scheduler.test.ts [2m([22m[2m36 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 204[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 1[2mms[22m[39m
+     [32m✓[39m lr decreases by gamma every step_size steps[32m 2[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m auto-increment epoch when not provided[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr drops at specific milestones[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr *= gamma each epoch[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr follows cosine schedule[32m 0[2mms[22m[39m
+     [32m✓[39m lr returns to near base_lr after full cycle[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+[31m     [31m×[31m lr drops after patience epochs of no improvement (min mode)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m lr drops after patience epochs of no improvement (max mode)[39m[32m 0[2mms[22m[39m
+     [32m✓[39m lr does not drop when metrics improve[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch tracks number of step calls[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr stays constant at factor * base_lr[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m factor=1.0 keeps base lr[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+     [32m✓[39m initial lr matches param group[32m 0[2mms[22m[39m
+     [32m✓[39m lr follows custom lambda schedule[32m 0[2mms[22m[39m
+     [32m✓[39m supports linear warmup lambda[32m 0[2mms[22m[39m
+     [32m✓[39m get_last_lr returns correct value[32m 0[2mms[22m[39m
+     [32m✓[39m last_epoch progresses correctly[32m 0[2mms[22m[39m
+[31m     [31m×[31m supports array of lambdas for multiple param groups[39m[32m 1[2mms[22m[39m
+     [32m✓[39m StepLR state_dict contains last_epoch[32m 0[2mms[22m[39m
+     [32m✓[39m LambdaLR state_dict contains last_epoch[32m 0[2mms[22m[39m
+     [32m✓[39m load_state_dict restores last_epoch[32m 0[2mms[22m[39m
+     [32m✓[39m ReduceLROnPlateau state_dict contains best and counters[32m 0[2mms[22m[39m
+[90mstdout[2m | tests/compatibility/nn/losses.test.ts[2m:11:1[22m[2m[2m > [22m[2mnn.CrossEntropyLoss
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/losses.test.ts[2m:11:1[22m[2m[2m > [22m[2mnn.CrossEntropyLoss
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/nn/losses.test.ts [2m([22m[2m41 tests[22m[2m)[22m[33m 693[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (10)[39m
+[2m      Tests [22m [1m[31m34 failed[39m[22m[2m | [22m[1m[32m325 passed[39m[22m[90m (359)[39m
+[2m   Start at [22m 15:01:37
+[2m   Duration [22m 15.69s[2m (transform 0ms, setup 0ms, import 2.37s, tests 6.55s, environment 0ms)[22m
+

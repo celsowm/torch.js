@@ -1,0 +1,71 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/optim/optimizers.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/optimizers.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/optim/optimizers.test.ts [2m([22m[2m40 tests[22m[2m | [22m[31m19 failed[39m[2m)[22m[33m 17020[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step (basic convergence on f(x)=x^2) [33m 404[2mms[22m[39m
+[31m     [31m×[31m momentum accelerates convergence[39m[33m 386[2mms[22m[39m
+     [32m✓[39m weight_decay penalizes large parameters[32m 206[2mms[22m[39m
+[31m     [31m×[31m dampening reduces momentum contribution[39m[32m 297[2mms[22m[39m
+[31m     [31m×[31m nesterov momentum works[39m[32m 1[2mms[22m[39m
+     [33m[2m✓[22m[39m higher lr leads to faster convergence [33m 362[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+[31m     [31m×[31m updates parameters after step[39m[33m 456[2mms[22m[39m
+[31m     [31m×[31m converges with default hyperparameters[39m[33m 1564[2mms[22m[39m
+[31m     [31m×[31m weight_decay regularizes[39m[33m 839[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 0[2mms[22m[39m
+[31m     [31m×[31m updates parameters after step[39m[33m 623[2mms[22m[39m
+[31m     [31m×[31m weight_decay decouples from gradient update[39m[33m 993[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+[31m     [31m×[31m updates parameters after step[39m[33m 949[2mms[22m[39m
+[31m     [31m×[31m converges with weight_decay[39m[33m 1162[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+[31m     [31m×[31m updates parameters after step[39m[33m 698[2mms[22m[39m
+[31m     [31m×[31m converges with weight_decay[39m[33m 875[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+[31m     [31m×[31m updates parameters after step[39m[33m 807[2mms[22m[39m
+[31m     [31m×[31m converges with weight_decay[39m[33m 844[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+     [33m[2m✓[22m[39m updates parameters after step [33m 675[2mms[22m[39m
+     [33m[2m✓[22m[39m lambd controls decay rate [33m 807[2mms[22m[39m
+     [33m[2m✓[22m[39m alpha affects lr decay exponent [33m 668[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+     [32m✓[39m updates parameters after step[32m 176[2mms[22m[39m
+[31m     [31m×[31m momentum helps convergence[39m[32m 180[2mms[22m[39m
+     [32m✓[39m weight_decay regularizes[32m 221[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 1[2mms[22m[39m
+     [32m✓[39m updates parameters after step[32m 190[2mms[22m[39m
+     [32m✓[39m lr_decay reduces effective lr over time[32m 181[2mms[22m[39m
+[31m     [31m×[31m weight_decay regularizes[39m[32m 181[2mms[22m[39m
+     [32m✓[39m zero_grad clears gradients[32m 0[2mms[22m[39m
+[31m     [31m×[31m converges on f(x)=x^2 with closure[39m[32m 6[2mms[22m[39m
+     [32m✓[39m throws without closure[32m 2[2mms[22m[39m
+[31m     [31m×[31m zero_grad clears gradients[39m[32m 1[2mms[22m[39m
+     [33m[2m✓[22m[39m SGD optimizes multiple parameters simultaneously [33m 745[2mms[22m[39m
+[31m     [31m×[31m Adam optimizes multiple parameters simultaneously[39m[33m 1290[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m19 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (40)[39m
+[2m   Start at [22m 01:55:30
+[2m   Duration [22m 20.82s[2m (transform 0ms, setup 0ms, import 625ms, tests 17.02s, environment 0ms)[22m
+

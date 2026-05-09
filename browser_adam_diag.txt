@@ -1,0 +1,50 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/optim/adam_diagnostic.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/optim/adam_diagnostic.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/optim/adam_diagnostic.test.ts[2m:12:3[22m[2m[2m > [22m[2mAdam diagnostic[2m > [22m[2mshould compute gradient correctly
+[22m[39mAdam diagnostic - Grad values: [
+  4,
+  -6,
+  3,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_diagnostic.test.ts[2m:27:3[22m[2m[2m > [22m[2mAdam diagnostic[2m > [22m[2mAdam should converge on f(x)=x^2
+[22m[39mAdam after 30 steps: [
+  -0.2053806185722351,
+  -0.41977739334106445,
+  -0.26801565289497375,
+]
+[90mstdout[2m | tests/compatibility/optim/adam_diagnostic.test.ts[2m:46:3[22m[2m[2m > [22m[2mAdam diagnostic[2m > [22m[2mAdam with default hyperparams should converge
+[22m[39mAdam default lr after 100 steps: [
+  9.900168418884277,
+]
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/optim/adam_diagnostic.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 2256[2mms[22m[39m
+     [32m✓[39m should compute gradient correctly[32m 56[2mms[22m[39m
+[31m     [31m×[31m Adam should converge on f(x)=x^2[39m[33m 495[2mms[22m[39m
+[31m     [31m×[31m Adam with default hyperparams should converge[39m[33m 1463[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 02:01:40
+[2m   Duration [22m 5.99s[2m (transform 0ms, setup 0ms, import 628ms, tests 2.26s, environment 0ms)[22m
+

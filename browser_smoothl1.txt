@@ -1,0 +1,72 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/losses.test.ts[2m:85:1[22m[2m[2m > [22m[2mnn.SmoothL1Loss
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/losses.test.ts[2m:85:1[22m[2m[2m > [22m[2mnn.SmoothL1Loss
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/losses.test.ts [2m([22m[2m41 tests[22m[2m | [22m[31m3 failed[39m[2m | [22m[33m38 skipped[39m[2m)[22m[33m 504[2mms[22m[39m
+     [2m[90m↓[39m[22m mean reduction
+     [2m[90m↓[39m[22m sum reduction
+     [2m[90m↓[39m[22m none reduction
+     [2m[90m↓[39m[22m class weights
+     [2m[90m↓[39m[22m label smoothing
+     [2m[90m↓[39m[22m correct < wrong prediction
+     [2m[90m↓[39m[22m computes loss
+     [2m[90m↓[39m[22m none reduction
+     [2m[90m↓[39m[22m correct < wrong
+     [2m[90m↓[39m[22m from logits
+     [2m[90m↓[39m[22m pos_weight
+     [2m[90m↓[39m[22m none reduction
+     [2m[90m↓[39m[22m identical -> 0
+     [2m[90m↓[39m[22m non-zero
+     [2m[90m↓[39m[22m sum
+     [2m[90m↓[39m[22m none
+     [2m[90m↓[39m[22m identical -> 0
+     [2m[90m↓[39m[22m non-zero: (1+2+2)/3
+     [2m[90m↓[39m[22m sum
+[31m     [31m×[31m identical -> 0[39m[32m 107[2mms[22m[39m
+[31m     [31m×[31m small error: 0.5*0.25=0.125[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m large error: 3-0.5=2.5[39m[32m 6[2mms[22m[39m
+     [2m[90m↓[39m[22m computes loss
+     [2m[90m↓[39m[22m none reduction
+     [2m[90m↓[39m[22m weights
+     [2m[90m↓[39m[22m identical -> 0
+     [2m[90m↓[39m[22m custom delta
+     [2m[90m↓[39m[22m none reduction
+     [2m[90m↓[39m[22m batchmean
+     [2m[90m↓[39m[22m none reduction
+     [2m[90m↓[39m[22m log_target
+     [2m[90m↓[39m[22m computes
+     [2m[90m↓[39m[22m target=1: loss=input
+     [2m[90m↓[39m[22m target=-1: max(0, margin-input)
+     [2m[90m↓[39m[22m computes
+     [2m[90m↓[39m[22m target=1 identical -> 0
+     [2m[90m↓[39m[22m target=-1 identical -> 1
+     [2m[90m↓[39m[22m computes
+     [2m[90m↓[39m[22m zero when negative far
+     [2m[90m↓[39m[22m non-zero when negative close
+     [2m[90m↓[39m[22m L1 norm
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[33m38 skipped[39m[90m (41)[39m
+[2m   Start at [22m 14:56:04
+[2m   Duration [22m 5.87s[2m (transform 0ms, setup 0ms, import 825ms, tests 504ms, environment 0ms)[22m
+

@@ -32,6 +32,7 @@ import COMPARE_SHADER from './compare.wgsl';
 import INDEX_SELECT_SHADER from './index_select.wgsl';
 import EXPAND_SHADER from './expand.wgsl';
 import SLICE_SHADER from './slice.wgsl';
+import SLICE_BACKWARD_SHADER from './slice_backward.wgsl';
 import MASKED_SELECT_SHADER from './masked_select.wgsl';
 import BROADCAST_SHADER from './broadcast.wgsl';
 import NLL_LOSS_BACKWARD_SHADER from './nll_loss_backward.wgsl';
@@ -90,6 +91,7 @@ export {
   INDEX_SELECT_SHADER,
   EXPAND_SHADER,
   SLICE_SHADER,
+  SLICE_BACKWARD_SHADER,
   MASKED_SELECT_SHADER,
   BROADCAST_SHADER,
   NLL_LOSS_BACKWARD_SHADER,

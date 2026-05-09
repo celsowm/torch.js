@@ -23,6 +23,7 @@ export interface TensorOptions {
   dtype?: DType;
   device?: 'webgpu' | 'cpu';
   requires_grad?: boolean;
+  is_complex?: boolean;
 }
 
 /**
@@ -35,6 +36,7 @@ export interface TensorData {
   device: 'webgpu';
   requires_grad: boolean;
   grad_fn?: GradFn;
+  is_complex?: boolean;
 }
 
 /**

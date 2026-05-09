@@ -1,0 +1,53 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/core/reduce_dim_debug.test.ts
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/core/reduce_dim_debug.test.ts
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+[90mstdout[2m | tests/compatibility/core/reduce_dim_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mreduce_dim minimal test[2m > [22m[2msum along dim 0 for 2x2
+[22m[39mInput: [
+  1,
+  2,
+  3,
+  4,
+]
+[90mstdout[2m | tests/compatibility/core/reduce_dim_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mreduce_dim minimal test[2m > [22m[2msum along dim 0 for 2x2
+[22m[39mInput shape: [
+  2,
+  2,
+]
+[90mstdout[2m | tests/compatibility/core/reduce_dim_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mreduce_dim minimal test[2m > [22m[2msum along dim 0 for 2x2
+[22m[39mResult shape: [
+  2,
+]
+[90mstdout[2m | tests/compatibility/core/reduce_dim_debug.test.ts[2m:9:3[22m[2m[2m > [22m[2mreduce_dim minimal test[2m > [22m[2msum along dim 0 for 2x2
+[22m[39mResult: [
+  0,
+  0,
+]
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/core/reduce_dim_debug.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 254[2mms[22m[39m
+[31m     [31m×[31m sum along dim 0 for 2x2[39m[32m 15[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 02:19:44
+[2m   Duration [22m 4.42s[2m (transform 0ms, setup 0ms, import 721ms, tests 254ms, environment 0ms)[22m
+

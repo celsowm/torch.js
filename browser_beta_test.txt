@@ -1,0 +1,83 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/distributions/distributions.test.ts[2m:16:1[22m[2m[2m > [22m[2mtorch.distributions
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/distributions/distributions.test.ts[2m:16:1[22m[2m[2m > [22m[2mtorch.distributions
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/distributions/distributions.test.ts [2m([22m[2m52 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m47 skipped[39m[2m)[22m[33m 734[2mms[22m[39m
+       [2m[90m↓[39m[22m constructs with loc and scale
+       [2m[90m↓[39m[22m sample returns correct shape
+       [2m[90m↓[39m[22m sample returns correct shape with no sample_shape
+       [2m[90m↓[39m[22m log_prob returns finite values
+       [2m[90m↓[39m[22m mean approximates loc and variance approximates scale^2
+       [2m[90m↓[39m[22m entropy has correct sign for unit normal
+       [2m[90m↓[39m[22m constructs with probs
+       [32m✓[39m sample returns values in {0, 1}[32m 110[2mms[22m[39m
+       [2m[90m↓[39m[22m sample shape without sample_shape
+       [2m[90m↓[39m[22m log_prob returns finite values
+       [2m[90m↓[39m[22m mean equals probs
+       [2m[90m↓[39m[22m variance = p*(1-p)
+       [2m[90m↓[39m[22m constructs with probs that sum to 1
+       [2m[90m↓[39m[22m sample returns valid category indices
+       [2m[90m↓[39m[22m log_prob returns finite values
+       [2m[90m↓[39m[22m entropy is positive for uniform probs
+       [2m[90m↓[39m[22m constructs with low and high
+       [32m✓[39m sample returns values in [low, high][32m 76[2mms[22m[39m
+       [2m[90m↓[39m[22m log_prob returns finite for in-range values
+       [2m[90m↓[39m[22m entropy = log(high - low)
+       [2m[90m↓[39m[22m mean = (low + high) / 2
+       [2m[90m↓[39m[22m variance = (high - low)^2 / 12
+       [2m[90m↓[39m[22m entropy is positive for non-degenerate range
+       [2m[90m↓[39m[22m constructs with rate
+       [32m✓[39m sample returns values > 0[32m 87[2mms[22m[39m
+       [2m[90m↓[39m[22m log_prob returns finite values
+       [2m[90m↓[39m[22m mean = 1/rate
+       [2m[90m↓[39m[22m variance = 1/rate^2
+       [2m[90m↓[39m[22m entropy is positive
+       [2m[90m↓[39m[22m constructs with concentration and rate
+       [32m✓[39m sample returns values > 0[32m 75[2mms[22m[39m
+       [2m[90m↓[39m[22m log_prob returns finite values
+       [2m[90m↓[39m[22m mean = concentration / rate
+       [2m[90m↓[39m[22m variance = concentration / rate^2
+       [2m[90m↓[39m[22m constructs with concentration1 and concentration0
+[31m       [31m×[31m sample returns values in (0, 1)[39m[32m 33[2mms[22m[39m
+       [2m[90m↓[39m[22m log_prob returns finite values for valid samples
+       [2m[90m↓[39m[22m mean = c1 / (c1 + c0)
+       [2m[90m↓[39m[22m variance matches formula
+       [2m[90m↓[39m[22m entropy is positive for uniform-like params
+       [2m[90m↓[39m[22m constructs with concentration vector
+       [2m[90m↓[39m[22m sample returns simplex (values sum to 1)
+       [2m[90m↓[39m[22m sample values are positive
+       [2m[90m↓[39m[22m log_prob returns finite values
+       [2m[90m↓[39m[22m mean = concentration / sum(concentration)
+       [2m[90m↓[39m[22m entropy is positive for symmetric params
+       [2m[90m↓[39m[22m constructs with rate
+       [2m[90m↓[39m[22m sample returns integer values >= 0
+       [2m[90m↓[39m[22m log_prob returns finite values for integer samples
+       [2m[90m↓[39m[22m mean approximates rate
+       [2m[90m↓[39m[22m variance approximates rate
+       [2m[90m↓[39m[22m entropy is positive
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[2m | [22m[33m47 skipped[39m[90m (52)[39m
+[2m   Start at [22m 12:53:30
+[2m   Duration [22m 5.00s[2m (transform 0ms, setup 0ms, import 698ms, tests 734ms, environment 0ms)[22m
+

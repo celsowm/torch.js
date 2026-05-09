@@ -55,8 +55,8 @@ export async function stft(
 
   // STFT computation
   const batchCount = batchShape.reduce((a, b) => a * b, 1);
-  const outputReal: number[] = [];
-  const outputImag: number[] = [];
+  const outputReal = new Float64Array(batchCount * fftSize * numFrames);
+  const outputImag = new Float64Array(batchCount * fftSize * numFrames);
 
   for (let b = 0; b < batchCount; b++) {
     for (let frame = 0; frame < numFrames; frame++) {
@@ -68,14 +68,15 @@ export async function stft(
       const { re, im } = _fft1d(frameData);
       const scale = normalized ? 1.0 / Math.sqrt(wl) : 1.0;
       for (let k = 0; k < fftSize; k++) {
-        outputReal.push(re[k] * scale);
-        outputImag.push(im[k] * scale);
+        const idx = b * (fftSize * numFrames) + k * numFrames + frame;
+        outputReal[idx] = re[k] * scale;
+        outputImag[idx] = im[k] * scale;
       }
     }
   }
 
   const outShape = [...batchShape, fftSize, numFrames];
-  return _interleave_to_complex(outputReal, outputImag, outShape);
+  return _interleave_to_complex(Array.from(outputReal), Array.from(outputImag), outShape);
 }
 
 /**
@@ -94,12 +95,13 @@ export async function istft(
   length?: number,
 ): Promise<Tensor> {
   const ndim = input.dim();
-  if (ndim < 3) throw new Error('istft requires at least 3D complex input [..., freq, time]');
+  if (ndim < 3) throw new Error('istft requires at least 3D complex input [..., freq, time, 2]');
 
   const shape = input.shape;
-  const fftSize = shape[ndim - 2];
-  const numFrames = shape[ndim - 1];
-  const batchShape = shape.slice(0, -2);
+  const isComplex = shape[ndim - 1] === 2;
+  const fftSize = isComplex ? shape[ndim - 3] : shape[ndim - 2];
+  const numFrames = isComplex ? shape[ndim - 2] : shape[ndim - 1];
+  const batchShape = isComplex ? shape.slice(0, -3) : shape.slice(0, -2);
 
   const hl = hop_length ?? Math.floor(n_fft / 4);
   const wl = win_length ?? n_fft;
@@ -113,16 +115,44 @@ export async function istft(
   const output = new Float64Array(batchCount * paddedLen);
   const windowSum = new Float64Array(batchCount * paddedLen);
 
+  const flatInput = await input.toArray();
+  const complexStride = isComplex ? 2 : 1;
+  const timeStride = complexStride;
+  const freqStride = numFrames * timeStride;
+  const batchStride = fftSize * freqStride;
+  
   for (let b = 0; b < batchCount; b++) {
     for (let frame = 0; frame < numFrames; frame++) {
       // Extract complex frame
-      const complexData = input.select(ndim - 1, frame); // [..., fftSize]
-      const frameData = await _deinterleave_complex(complexData);
-      const reconstructed = _ifft1d(frameData.real, frameData.imag);
+      const frameReal = new Float64Array(fftSize);
+      const frameImag = new Float64Array(fftSize);
+      for (let f = 0; f < fftSize; f++) {
+        const idx = b * batchStride + f * freqStride + frame * timeStride;
+            
+        frameReal[f] = flatInput[idx];
+        frameImag[f] = isComplex ? flatInput[idx + 1] : 0;
+      }
+      
+      let reconstructed: number[];
+      if (onesided) {
+        const fullReal = new Float64Array(n_fft);
+        const fullImag = new Float64Array(n_fft);
+        for (let f = 0; f < fftSize; f++) {
+          fullReal[f] = frameReal[f];
+          fullImag[f] = frameImag[f];
+        }
+        for (let f = 1; f < n_fft - fftSize + 1; f++) {
+          fullReal[n_fft - f] = frameReal[f];
+          fullImag[n_fft - f] = -frameImag[f];
+        }
+        reconstructed = _ifft1d(Array.from(fullReal), Array.from(fullImag));
+      } else {
+        reconstructed = _ifft1d(Array.from(frameReal), Array.from(frameImag));
+      }
 
       // Overlap-add
       const start = b * paddedLen + frame * hl;
-      for (let i = 0; i < wl && start + i < paddedLen; i++) {
+      for (let i = 0; i < wl && start + i < batchCount * paddedLen; i++) {
         const w = winData[i];
         output[start + i] += reconstructed[i] * w;
         windowSum[start + i] += w * w;
@@ -132,12 +162,16 @@ export async function istft(
 
   // Normalize
   const finalOutput: number[] = [];
-  for (let i = 0; i < batchCount * paddedLen; i++) {
-    finalOutput.push(windowSum[i] > 1e-8 ? output[i] / windowSum[i] : 0);
+  const padLen = center ? Math.floor(n_fft / 2) : 0;
+  for (let b = 0; b < batchCount; b++) {
+    for (let i = 0; i < signalLen; i++) {
+      const idx = b * paddedLen + padLen + i;
+      finalOutput.push(windowSum[idx] > 1e-8 ? output[idx] / windowSum[idx] : 0);
+    }
   }
 
   const outShape = [...batchShape, signalLen];
-  return tensor(finalOutput, { dtype: 'float32' });
+  return tensor(finalOutput, { dtype: 'float32' }).reshape(outShape);
 }
 
 // Helper functions
@@ -261,7 +295,7 @@ function _interleave_to_complex(real: number[], imag: number[], shape: number[])
   for (let i = 0; i < real.length; i++) {
     interleaved.push(real[i], imag[i]);
   }
-  return tensor(interleaved, { dtype: 'float32' });
+  return tensor(interleaved, { dtype: 'float32', is_complex: true }).reshape([...shape, 2]);
 }
 
 /**
@@ -277,7 +311,8 @@ export async function hfft(
 ): Promise<Tensor> {
   const data = await input.toArray();
   const shape = input.shape;
-  const freqSize = shape[dim < 0 ? shape.length + dim : dim];
+  const isComplex = shape[shape.length - 1] === 2;
+  const freqSize = isComplex ? shape[shape.length - 2] : shape[dim < 0 ? shape.length + dim : dim];
   const timeLen = n ?? 2 * (freqSize - 1);
 
   // Build conjugate-symmetric spectrum
@@ -304,8 +339,9 @@ export async function hfft(
   // Scale
   const scale = norm === 'ortho' ? 1 / Math.sqrt(timeLen) : norm === 'forward' ? 1 / timeLen : 1;
   const outData = result.map(v => v * scale);
-
-  return tensor(outData, { dtype: 'float32' });
+  
+  const batchShape = isComplex ? shape.slice(0, -2) : shape.slice(0, -1);
+  return tensor(outData, { dtype: 'float32' }).reshape([...batchShape, timeLen]);
 }
 
 /**
@@ -319,8 +355,8 @@ export async function ihfft(
   norm: 'forward' | 'backward' | 'ortho' = 'backward',
 ): Promise<Tensor> {
   const data = await input.toArray();
-  const timeLen = data.length;
   const shape = input.shape;
+  const timeLen = shape[shape.length - 1]; // assuming 1D time len for simplicity
   const freqSize = n ? Math.floor(n / 2) + 1 : Math.floor(timeLen / 2) + 1;
 
   // FFT
@@ -335,5 +371,6 @@ export async function ihfft(
     outData.push(fftResult.re[i] * scale, fftResult.im[i] * scale);
   }
 
-  return tensor(outData, { dtype: 'float32' });
+  const batchShape = shape.slice(0, -1);
+  return tensor(outData, { dtype: 'float32', is_complex: true }).reshape([...batchShape, freqSize, 2]);
 }

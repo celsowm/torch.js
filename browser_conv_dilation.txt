@@ -1,0 +1,90 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90mC:/Users/celso/Documents/projetos/torch.js[39m
+
+[90mstdout[2m | tests/compatibility/nn/functional.test.ts[2m:79:1[22m[2m[2m > [22m[2mF.conv2d
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/functional.test.ts[2m:79:1[22m[2m[2m > [22m[2mF.conv2d
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [31m❯[39m [30m[43m chromium [49m[39m tests/compatibility/nn/functional.test.ts [2m([22m[2m37 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m34 skipped[39m[2m)[22m[33m 396[2mms[22m[39m
+     [2m[90m↓[39m[22m clamps negatives
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m values in (0,1)
+     [2m[90m↓[39m[22m values in (-1,1)
+     [2m[90m↓[39m[22m sums to 1
+     [2m[90m↓[39m[22m shape
+     [2m[90m↓[39m[22m values <= 0
+     [2m[90m↓[39m[22m exp sums to 1
+     [2m[90m↓[39m[22m eval: identity
+     [2m[90m↓[39m[22m train: scales
+     [2m[90m↓[39m[22m p=0: identity
+     [2m[90m↓[39m[22m p=1: zeros
+     [2m[90m↓[39m[22m basic
+     [2m[90m↓[39m[22m stride
+     [32m✓[39m padding[32m 5[2mms[22m[39m
+     [2m[90m↓[39m[22m bias
+     [32m✓[39m dilation[32m 1[2mms[22m[39m
+     [2m[90m↓[39m[22m kernel 2
+     [2m[90m↓[39m[22m stride
+[31m     [31m×[31m padding[39m[32m 6[2mms[22m[39m
+     [2m[90m↓[39m[22m kernel 2
+     [2m[90m↓[39m[22m stride
+     [2m[90m↓[39m[22m size nearest
+     [2m[90m↓[39m[22m scale_factor nearest
+     [2m[90m↓[39m[22m downsample
+     [2m[90m↓[39m[22m L2 norm [3,4] -> [0.6,0.8]
+     [2m[90m↓[39m[22m unit norm
+     [2m[90m↓[39m[22m constant pad
+     [2m[90m↓[39m[22m 3 classes
+     [2m[90m↓[39m[22m auto num_classes
+     [2m[90m↓[39m[22m mse_loss
+     [2m[90m↓[39m[22m l1_loss
+     [2m[90m↓[39m[22m cross_entropy
+     [2m[90m↓[39m[22m binary_cross_entropy
+     [2m[90m↓[39m[22m nll_loss
+     [2m[90m↓[39m[22m huber_loss
+     [2m[90m↓[39m[22m kl_div_loss
+[90mstdout[2m | tests/compatibility/nn/modules.test.ts[2m:245:1[22m[2m[2m > [22m[2mnn.Conv1d
+[22m[39m[torch.js] Shared memory test result: 15 expected: 15, works: true
+[90mstdout[2m | tests/compatibility/nn/modules.test.ts[2m:245:1[22m[2m[2m > [22m[2mnn.Conv1d
+[22m[39m[torch.js] GPU capabilities: {
+  "limits": {
+    "maxBufferSize": 2147483648,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "maxComputeWorkgroupSizeX": 1024,
+    "maxComputeWorkgroupSizeY": 1024,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxStorageBufferBindingSize": 2147483644,
+  },
+  "platform": {
+    "browser": "chrome",
+    "gpu": "unknown",
+  },
+  "subgroups": false,
+  "timestampQuery": true,
+  "workgroupSharedMemory": true,
+}
+ [32m✓[39m [30m[43m chromium [49m[39m tests/compatibility/nn/modules.test.ts [2m([22m[2m59 tests[22m[2m | [22m[33m56 skipped[39m[2m)[22m[32m 235[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[2m | [22m[33m90 skipped[39m[90m (96)[39m
+[2m   Start at [22m 15:43:07
+[2m   Duration [22m 6.64s[2m (transform 0ms, setup 0ms, import 1.13s, tests 631ms, environment 0ms)[22m
+
