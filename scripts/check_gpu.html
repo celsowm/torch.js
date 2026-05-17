@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>GPU Check - torch.js</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #e0e0e0; padding: 2rem; }
+    h1 { color: #00ff88; }
+    .info { background: #16213e; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; }
+    .label { color: #888; }
+    .value { color: #00ff88; font-weight: bold; }
+    .error { color: #ff6b6b; }
+    .note { color: #888; font-size: 0.85rem; }
+    .webgl-badge { background: #e0a030; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+    .webgpu-badge { background: #3080e0; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🔥 GPU Check</h1>
+  <div id="output">Detectando GPU...</div>
+
+  <script>
+    // Truque: WebGL vaza o nome comercial exato da GPU
+    // WebGPU esconde isso por privacidade/fingerprinting
+    function detectGPUNameViaWebGL() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) return null;
+
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if (!debugInfo) return null;
+
+        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+        if (!renderer) return null;
+
+        // Limpa a string: "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11...)"
+        const match = renderer.match(/ANGLE \((.*?), (.*?)(?: Direct3D| OpenGL| Vulkan|$)/);
+        if (match && match[2]) {
+          return match[2];
+        }
+
+        let clean = renderer
+          .replace(/ANGLE \([^,]+,\s*/, '')
+          .replace(/ Direct3D.*/, '')
+          .replace(/ OpenGL.*/, '')
+          .replace(/ Vulkan.*/, '');
+        if (clean.endsWith(')')) clean = clean.slice(0, -1);
+        return clean || null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function checkGPU() {
+      const output = document.getElementById('output');
+
+      if (!navigator.gpu) {
+        output.innerHTML = '<p class="error">❌ WebGPU não disponível neste browser</p>';
+        return;
+      }
+
+      try {
+        const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+        if (!adapter) {
+          output.innerHTML += '<p class="error">❌ Falha ao obter adapter</p>';
+          return;
+        }
+
+        // WebGPU info (limitado por privacidade)
+        const webgpuInfo = adapter.info || {};
+        let webgpuName = webgpuInfo.description ||
+          [webgpuInfo.vendor, webgpuInfo.device, webgpuInfo.architecture].filter(Boolean).join(' ') ||
+          'unknown';
+
+        // WebGL truque (nome comercial exato)
+        const webglName = detectGPUNameViaWebGL();
+
+        const limits = adapter.limits;
+
+        output.innerHTML = `
+          <div class="info">
+            <p><span class="label">🔥 GPU (WebGL):</span> <span class="value">${webglName || 'N/A'}</span> <span class="webgl-badge">WEBGL</span></p>
+            <p><span class="label">🔥 GPU (WebGPU):</span> <span class="value">${webgpuName}</span> <span class="webgpu-badge">WEBGPU</span></p>
+            <p class="note">WebGL vaza o nome comercial exato. WebGPU esconde por privacidade.</p>
+          </div>
+          <div class="info">
+            <p><span class="label">📋 Vendor (WebGPU):</span> <span class="value">${webgpuInfo.vendor || 'N/A'}</span></p>
+            <p><span class="label">📋 Device (WebGPU):</span> <span class="value">${webgpuInfo.device || 'N/A'}</span></p>
+            <p><span class="label">📋 Architecture (WebGPU):</span> <span class="value">${webgpuInfo.architecture || 'N/A'}</span></p>
+            <p><span class="label">📋 Description (WebGPU):</span> <span class="value">${webgpuInfo.description || 'N/A'}</span></p>
+          </div>
+          <div class="info">
+            <p><span class="label">📏 Max Buffer Size:</span> <span class="value">${(limits.maxBufferSize / 1024 / 1024).toFixed(0)} MB</span></p>
+            <p><span class="label">📏 Max Storage Binding:</span> <span class="value">${(limits.maxStorageBufferBindingSize / 1024 / 1024).toFixed(0)} MB</span></p>
+            <p><span class="label">📏 Max Workgroup X:</span> <span class="value">${limits.maxComputeWorkgroupSizeX}</span></p>
+            <p><span class="label">📏 Max Workgroups/Dim:</span> <span class="value">${limits.maxComputeWorkgroupsPerDimension}</span></p>
+          </div>
+          <div class="info">
+            <p><span class="label">🌐 Browser:</span> <span class="value">${navigator.userAgent}</span></p>
+          </div>
+        `;
+      } catch (e) {
+        output.innerHTML = `<p class="error">❌ Erro: ${e.message}</p>`;
+      }
+    }
+
+    checkGPU();
+  </script>
+</body>
+</html>

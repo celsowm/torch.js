@@ -3,6 +3,5 @@
     "allow": [
       "Bash(tee *)"
     ]
-  },
-  "$version": 4
+  }
 }

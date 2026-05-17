@@ -57,10 +57,30 @@ export async function detectCapabilities(): Promise<GPUCapabilities> {
     maxBufferSize: adapterLimits.maxBufferSize,
   };
 
+  // Get GPU info from adapter
+  const adapterInfo = (adapter as any).info;
+
+  // Use WebGL debug renderer info to get the exact commercial GPU name
+  // WebGPU deliberately hides this for fingerprinting reasons, but WebGL leaks it
+  const webglGpuName = detectGPUNameViaWebGL();
+
+  let gpuName = 'unknown';
+  if (webglGpuName) {
+    // WebGL gives us the exact commercial name (e.g. "NVIDIA GeForce RTX 3060")
+    gpuName = webglGpuName;
+  } else if (adapterInfo) {
+    // Fallback: use WebGPU adapter info
+    gpuName = adapterInfo.description ||
+      [adapterInfo.vendor, adapterInfo.device, adapterInfo.architecture]
+        .filter(Boolean)
+        .join(' ') ||
+      'unknown';
+  }
+
   // Get platform info for debugging
   const platform = {
     browser: detectBrowser(),
-    gpu: 'unknown',
+    gpu: gpuName,
   };
 
   // Test workgroup shared memory with a simple reduction
@@ -174,6 +194,46 @@ async function testWorkgroupSharedMemory(device: WebGPUDevice): Promise<boolean>
     // If test fails, assume shared memory doesn't work
     console.warn('[torch.js] Workgroup shared memory test failed:', e);
     return false;
+  }
+}
+
+/**
+ * Detect GPU name via WebGL debug renderer info.
+ * WebGPU hides the exact commercial GPU name for privacy/fingerprinting,
+ * but WebGL's WEBGL_debug_renderer_info extension leaks it.
+ * Returns the cleaned-up GPU name (e.g. "NVIDIA GeForce RTX 3060").
+ */
+function detectGPUNameViaWebGL(): string | null {
+  try {
+    const canvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+    if (!canvas) return null;
+
+    const gl = canvas.getContext('webgl') || (canvas.getContext as any)('experimental-webgl');
+    if (!gl) return null;
+
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    if (!debugInfo) return null;
+
+    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    if (!renderer) return null;
+
+    // Clean up the renderer string
+    // Format: "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    const match = renderer.match(/ANGLE \((.*?), (.*?)(?: Direct3D| OpenGL| Vulkan|$)/);
+    if (match && match[2]) {
+      return match[2];
+    }
+
+    // Manual cleanup if regex fails
+    let clean = renderer
+      .replace(/ANGLE \([^,]+,\s*/, '')
+      .replace(/ Direct3D.*/, '')
+      .replace(/ OpenGL.*/, '')
+      .replace(/ Vulkan.*/, '');
+    if (clean.endsWith(')')) clean = clean.slice(0, -1);
+    return clean || null;
+  } catch {
+    return null;
   }
 }
 
